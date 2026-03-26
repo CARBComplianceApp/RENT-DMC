@@ -338,36 +338,36 @@ export default function App() {
                 <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
                   <div className="space-y-4">
                     <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">Visual Story</div>
-                    <h2 className="text-5xl md:text-7xl font-serif font-black">Ruby <span className="italic text-oakland-olive">Gallery</span>.</h2>
+                    <h2 className="text-5xl md:text-7xl font-serif font-black">Ruby <span className="italic text-oakland-terracotta">Gallery</span>.</h2>
                   </div>
-                  <p className="text-oakland-paper/50 max-w-md">A collection of moments and details that define our corner of Oakland.</p>
+                  <p className="text-white/50 max-w-md">A collection of moments and details that define our corner of Oakland.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  <div className="md:col-span-8 group relative overflow-hidden rounded-[3rem]">
+                  <div className="md:col-span-8 group relative overflow-hidden rounded-[3rem] shadow-2xl">
                     <img 
-                      src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1200&auto=format&fit=crop" 
-                      alt="Building Exterior" 
+                      src="https://picsum.photos/seed/ruby-main-building/1200/800" 
+                      alt="3875 Ruby St Building" 
                       className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
-                      <div className="text-2xl font-serif italic">Classic Oakland Architecture</div>
+                      <div className="text-2xl font-serif italic text-white">Classic Oakland Architecture</div>
                     </div>
                   </div>
                   <div className="md:col-span-4 grid grid-rows-2 gap-6">
-                    <div className="group relative overflow-hidden rounded-[2.5rem]">
+                    <div className="group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                       <img 
-                        src="https://images.unsplash.com/photo-1502082553245-f0bc5a63e44e?q=80&w=600&auto=format&fit=crop" 
-                        alt="Mosswood Park Detail" 
+                        src="https://picsum.photos/seed/ruby-unit-interior-1/600/600" 
+                        alt="Unit Interior Detail" 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    <div className="group relative overflow-hidden rounded-[2.5rem]">
+                    <div className="group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                       <img 
-                        src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=600&auto=format&fit=crop" 
-                        alt="Local Coffee Culture" 
+                        src="https://picsum.photos/seed/ruby-unit-interior-2/600/600" 
+                        alt="Unit Interior Detail 2" 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
@@ -377,58 +377,111 @@ export default function App() {
               </div>
             </section>
 
-            {/* Neighborhood Pride */}
-            <section id="neighborhood" className="py-32 border-t border-oakland-ink/5">
+            {/* Neighborhood Mosaic Section */}
+            <section id="neighborhood-mosaic" className="py-32 bg-oakland-paper overflow-hidden">
               <div className="max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-                  <div className="space-y-8">
-                    <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">The Neighborhood</div>
-                    <h2 className="text-5xl md:text-7xl font-serif font-black leading-tight">
-                      Oakland Soul. <br /> <span className="italic text-oakland-terracotta">Unfiltered</span>.
+                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                  <div className="space-y-6 max-w-2xl">
+                    <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">The Ruby Mosaic</div>
+                    <h2 className="text-6xl font-serif font-black leading-tight">
+                      Where <span className="italic text-oakland-terracotta">Oakland</span> Converges.
                     </h2>
-                    <p className="text-xl text-oakland-ink/70 leading-relaxed font-light">
-                      Since 1924, 3875 Ruby Street has stood at the crossroads of Oakland's most vibrant evolution. This isn't just a place to live; it's a front-row seat to the city's beating heart. We are a community where hipsters, trans activists, and families from every culture converge to create something uniquely Oakland.
-                    </p>
-                    <p className="text-lg text-oakland-ink/60 leading-relaxed">
-                      Located in the historic Mosswood district, you're perfectly positioned between the high-energy transit of MacArthur BART and the essential care of the city's major medical hubs. Whether you're catching a train to the city or walking to work at Kaiser, everything is within reach.
+                    <p className="text-xl text-oakland-ink/60 leading-relaxed font-light">
+                      A curated collection of life at 3875 Ruby. From the essential care of Kaiser to the high-speed pulse of MacArthur BART, everything is within your orbit.
                     </p>
                   </div>
-                  <div className="relative">
-                    <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl">
-                      <img 
-                        src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1000&auto=format&fit=crop" 
-                        alt="Oakland Streets" 
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
+                  <div className="flex gap-4">
+                    <div className="text-right">
+                      <div className="text-4xl font-serif font-bold text-oakland-ink">94</div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">Walk Score</div>
                     </div>
-                    <div className="absolute -bottom-8 -left-8 bg-white p-8 rounded-[2rem] shadow-xl max-w-xs border border-oakland-ink/5">
-                      <div className="text-3xl font-serif font-bold text-oakland-terracotta mb-2">94</div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40">Walk Score</div>
-                      <p className="text-xs text-oakland-ink/60 mt-2 italic">"A walker's paradise in the heart of the East Bay."</p>
+                    <div className="w-px h-12 bg-oakland-ink/10" />
+                    <div className="text-right">
+                      <div className="text-4xl font-serif font-bold text-oakland-ink">88</div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">Transit Score</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    { name: 'Mosswood Park', type: 'Recreation', img: 'https://images.unsplash.com/photo-1542662565-7e4b66bae529?q=80&w=800&auto=format&fit=crop' },
-                    { name: 'MacArthur BART', type: 'Transit Hub', img: 'https://images.unsplash.com/photo-1561053720-76cd73ff22c3?q=80&w=800&auto=format&fit=crop' },
-                    { name: 'Medical District', type: 'Essential', img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop' },
-                  ].map((spot) => (
-                    <div key={spot.name} className="group cursor-pointer">
-                      <div className="aspect-video rounded-[2rem] overflow-hidden mb-6">
-                        <img 
-                          src={spot.img} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          referrerPolicy="no-referrer"
-                        />
+                {/* The Mosaic Grid */}
+                <div className="grid grid-cols-12 grid-rows-6 gap-4 h-[1000px] md:h-[800px]">
+                  {/* Building Exterior - Large Anchor */}
+                  <div className="col-span-12 md:col-span-6 row-span-4 group relative overflow-hidden rounded-[3rem] shadow-2xl">
+                    <img 
+                      src="https://picsum.photos/seed/ruby-exterior/1200/1600" 
+                      alt="3875 Ruby St Exterior" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
+                      <div className="space-y-2">
+                        <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-widest">The Anchor</div>
+                        <div className="text-3xl font-serif font-bold italic text-white">3875 Ruby Street</div>
                       </div>
-                      <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-widest mb-2">{spot.type}</div>
-                      <h3 className="text-2xl font-serif font-bold">{spot.name}</h3>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Unit Interior - Modern Living */}
+                  <div className="col-span-6 md:col-span-3 row-span-3 group relative overflow-hidden rounded-[2.5rem] shadow-xl">
+                    <img 
+                      src="https://picsum.photos/seed/ruby-interior/800/1200" 
+                      alt="Modern Unit Interior" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-oakland-terracotta/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                      <div className="text-white font-serif italic text-xl">Modern Soul</div>
+                    </div>
+                  </div>
+
+                  {/* Kaiser Permanente - Essential Care */}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
+                    <img 
+                      src="https://picsum.photos/seed/oakland-hospital/800/600" 
+                      alt="Kaiser Permanente Medical Center" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink shadow-sm">
+                      Medical District
+                    </div>
+                  </div>
+
+                  {/* MacArthur BART - Transit Pulse */}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
+                    <img 
+                      src="https://picsum.photos/seed/oakland-bart/800/600" 
+                      alt="MacArthur BART Station" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute top-6 left-6 px-4 py-2 bg-oakland-terracotta/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                      Transit Hub
+                    </div>
+                  </div>
+
+                  {/* Mosswood Park - Green Space */}
+                  <div className="col-span-12 md:col-span-6 row-span-2 group relative overflow-hidden rounded-[3rem] shadow-xl">
+                    <img 
+                      src="https://picsum.photos/seed/mosswood-park/1200/600" 
+                      alt="Mosswood Park" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-oakland-olive/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                      <div className="text-white font-serif italic text-3xl">Mosswood Green</div>
+                    </div>
+                  </div>
+
+                  {/* Local Coffee/Culture - The Vibe */}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
+                    <img 
+                      src="https://picsum.photos/seed/oakland-coffee/800/600" 
+                      alt="Local Oakland Coffee" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
                 </div>
               </div>
             </section>
