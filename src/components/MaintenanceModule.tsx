@@ -12,7 +12,8 @@ import {
   Hammer,
   Eye,
   XCircle,
-  ArrowRight
+  ArrowRight,
+  Plus
 } from 'lucide-react';
 
 interface MaintenanceRequest {
@@ -41,9 +42,19 @@ const STATUS_CONFIG: Record<string, { color: string, bg: string, icon: any }> = 
 
 export const MaintenanceModule: React.FC = () => {
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
+  const [units, setUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // New Request Form State
+  const [newRequest, setNewRequest] = useState({
+    unit_id: '',
+    description: '',
+    photo_url: '',
+    assigned_to: '',
+    gm_notes: ''
+  });
 
   const fetchRequests = async () => {
     try {
@@ -57,9 +68,36 @@ export const MaintenanceModule: React.FC = () => {
     }
   };
 
+  const fetchUnits = async () => {
+    try {
+      const res = await fetch('/api/rent-roll');
+      const data = await res.json();
+      setUnits(data);
+    } catch (error) {
+      console.error("Error fetching units:", error);
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
+    fetchUnits();
   }, []);
+
+  const handleCreateRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRequest)
+      });
+      setIsModalOpen(false);
+      setNewRequest({ unit_id: '', description: '', photo_url: '', assigned_to: '', gm_notes: '' });
+      fetchRequests();
+    } catch (error) {
+      console.error("Error creating request:", error);
+    }
+  };
 
   const handleUpdateStatus = async (id: number, payload: any) => {
     try {
@@ -104,7 +142,13 @@ export const MaintenanceModule: React.FC = () => {
           <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">GM Workflow Interface • Silverback Engine</p>
         </div>
         <div className="flex gap-4">
-          <div className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs font-bold text-zinc-400">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="px-6 py-2 bg-irish-green text-white font-black rounded-xl hover:bg-irish-green-lt transition-colors shadow-lg shadow-irish-green/20 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> NEW REQUEST
+          </button>
+          <div className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs font-bold text-zinc-400 flex items-center">
             {requests.filter(r => r.status !== 'Completed').length} Active Requests
           </div>
         </div>
@@ -265,6 +309,100 @@ export const MaintenanceModule: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* New Request Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            >
+              <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                <div>
+                  <h3 className="text-2xl font-black text-white tracking-tighter">New Maintenance Request</h3>
+                  <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Manual Entry • Internal Workflow</p>
+                </div>
+                <button onClick={() => setIsModalOpen(false)} className="text-zinc-600 hover:text-white">
+                  <XCircle className="w-8 h-8" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateRequest} className="p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Unit Number</label>
+                    <select
+                      required
+                      value={newRequest.unit_id}
+                      onChange={(e) => setNewRequest({ ...newRequest, unit_id: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                    >
+                      <option value="" className="bg-zinc-900">Select Unit...</option>
+                      {units.map(u => (
+                        <option key={u.id} value={u.id} className="bg-zinc-900">Unit #{u.unit_number}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Assigned To</label>
+                    <input
+                      type="text"
+                      value={newRequest.assigned_to}
+                      onChange={(e) => setNewRequest({ ...newRequest, assigned_to: e.target.value })}
+                      placeholder="Contractor or Staff Name..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Description</label>
+                  <textarea
+                    required
+                    value={newRequest.description}
+                    onChange={(e) => setNewRequest({ ...newRequest, description: e.target.value })}
+                    placeholder="Describe the issue in detail..."
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[100px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">GM Internal Notes</label>
+                  <textarea
+                    value={newRequest.gm_notes}
+                    onChange={(e) => setNewRequest({ ...newRequest, gm_notes: e.target.value })}
+                    placeholder="Internal notes for management..."
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[80px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Photo URL (Optional)</label>
+                  <input
+                    type="text"
+                    value={newRequest.photo_url}
+                    onChange={(e) => setNewRequest({ ...newRequest, photo_url: e.target.value })}
+                    placeholder="https://example.com/photo.jpg"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-irish-green text-white font-black rounded-2xl hover:bg-irish-green-lt transition-all shadow-lg shadow-irish-green/20 active:scale-[0.98]"
+                  >
+                    CREATE MAINTENANCE REQUEST
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

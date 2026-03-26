@@ -15,7 +15,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS properties (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    address TEXT NOT NULL
+    address TEXT NOT NULL,
+    neighborhood TEXT
   );
 
   CREATE TABLE IF NOT EXISTS units (
@@ -73,11 +74,26 @@ db.exec(`
   );
 `);
 
+// Migration: Add neighborhood column if it doesn't exist
+try {
+  db.exec("ALTER TABLE properties ADD COLUMN neighborhood TEXT");
+} catch (e) {
+  // Column likely already exists
+}
+
+// Migration: Add assigned_to and gm_notes to maintenance_requests if they don't exist
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN assigned_to TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN gm_notes TEXT");
+} catch (e) {}
+
 // Seed data if empty
 const propertyCount = db.prepare("SELECT COUNT(*) as count FROM properties").get() as { count: number };
 if (propertyCount.count === 0) {
-  const insertProperty = db.prepare("INSERT INTO properties (name, address) VALUES (?, ?)");
-  const propId = insertProperty.run("3875 Ruby Street", "3875 Ruby St, Oakland, CA 94609").lastInsertRowid;
+  const insertProperty = db.prepare("INSERT INTO properties (name, address, neighborhood) VALUES (?, ?, ?)");
+  const propId = insertProperty.run("3875 Ruby Street", "3875 Ruby St, Oakland, CA 94609", "Mosswood").lastInsertRowid;
 
   const insertUnit = db.prepare("INSERT INTO units (property_id, unit_number, rent_amount, status) VALUES (?, ?, ?, ?)");
   const insertTenant = db.prepare("INSERT INTO tenants (unit_id, name, email, lease_start, lease_end, balance_due, last_login_at, last_login_ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -149,10 +165,12 @@ async function startServer() {
         t.balance_due,
         t.last_login_at,
         t.last_login_ip,
+        prop.neighborhood,
         p.payment_date as last_payment_date,
         p.status as last_payment_status
       FROM units u
       LEFT JOIN tenants t ON u.id = t.unit_id
+      LEFT JOIN properties prop ON u.property_id = prop.id
       LEFT JOIN (
         SELECT unit_id, payment_date, status
         FROM payments
@@ -190,8 +208,11 @@ async function startServer() {
   });
 
   app.post("/api/maintenance", (req, res) => {
-    const { unit_id, description, photo_url } = req.body;
-    db.prepare("INSERT INTO maintenance_requests (unit_id, description, photo_url) VALUES (?, ?, ?)").run(unit_id, description, photo_url);
+    const { unit_id, description, photo_url, assigned_to, gm_notes } = req.body;
+    db.prepare(`
+      INSERT INTO maintenance_requests (unit_id, description, photo_url, assigned_to, gm_notes, status) 
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(unit_id, description, photo_url, assigned_to, gm_notes, 'Pending Review');
     res.json({ status: "ok" });
   });
 
@@ -225,6 +246,32 @@ async function startServer() {
     db.prepare("UPDATE tenants SET balance_due = balance_due + 50 WHERE unit_id = ?").run(unitId);
 
     res.json({ status: "ok" });
+  });
+
+  app.get("/api/reports/unit/:unitId", (req, res) => {
+    const { unitId } = req.params;
+    
+    const unit = db.prepare(`
+      SELECT u.*, t.name as tenant_name, t.email as tenant_email, t.lease_start, t.lease_end, t.balance_due
+      FROM units u
+      LEFT JOIN tenants t ON u.id = t.unit_id
+      WHERE u.id = ?
+    `).get(unitId);
+
+    if (!unit) {
+      return res.status(404).json({ error: "Unit not found" });
+    }
+
+    const payments = db.prepare("SELECT * FROM payments WHERE unit_id = ? ORDER BY payment_date DESC").all(unitId);
+    const maintenance = db.prepare("SELECT * FROM maintenance_requests WHERE unit_id = ? ORDER BY created_at DESC").all(unitId);
+    const messages = db.prepare("SELECT * FROM messages WHERE unit_id = ? ORDER BY created_at ASC").all(unitId);
+
+    res.json({
+      unit,
+      payments,
+      maintenance,
+      messages
+    });
   });
 
   app.get("/api/stats", (req, res) => {

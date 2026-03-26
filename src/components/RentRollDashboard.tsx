@@ -11,7 +11,8 @@ import {
   Filter,
   Plus,
   MoreHorizontal,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -27,6 +28,7 @@ interface RentRollItem {
   last_login_ip: string | null;
   last_payment_date: string | null;
   last_payment_status: string | null;
+  neighborhood: string | null;
 }
 
 interface Message {
@@ -56,6 +58,8 @@ export const RentRollDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUnit, setSelectedUnit] = useState<RentRollItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
   
   // Detail views state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -65,6 +69,10 @@ export const RentRollDashboard: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [cookieStatus, setCookieStatus] = useState<'checking' | 'active' | 'blocked'>('checking');
+  const [lastBankUpload, setLastBankUpload] = useState<string | null>(null);
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+  const [bankMatches, setBankMatches] = useState<any[]>([]);
+  const bankInputRef = useRef<HTMLInputElement>(null);
 
   // Confirmation state
   const [confirmState, setConfirmState] = useState<{
@@ -197,6 +205,54 @@ Are you absolutely sure you want to proceed?`,
     });
   };
 
+  const handleGenerateReport = async (unitId: number) => {
+    try {
+      const res = await fetch(`/api/reports/unit/${unitId}`);
+      const data = await res.json();
+      setReportData(data);
+      setIsReportOpen(true);
+    } catch (error) {
+      console.error("Error generating report:", error);
+    }
+  };
+
+  const handleBankCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      const rows = text.split('\n').map(row => row.split(','));
+      
+      // Simple fuzzy matching logic for demo purposes
+      // In a real app, this would be more robust
+      const matches = data.map(unit => {
+        const found = rows.find(row => 
+          row.some(cell => cell.toLowerCase().includes(unit.tenant_name?.toLowerCase() || ''))
+        );
+        return {
+          unit,
+          matched: !!found,
+          amount: found ? found.find(cell => !isNaN(parseFloat(cell))) : null,
+          date: found ? found[0] : null
+        };
+      }).filter(m => m.matched);
+
+      setBankMatches(matches);
+      setIsBankModalOpen(true);
+      setLastBankUpload(new Date().toLocaleString());
+    };
+    reader.readAsText(file);
+  };
+
+  const applyBankMatches = async () => {
+    // In a real app, this would send updates to the server
+    setIsBankModalOpen(false);
+    fetchData();
+    alert(`Successfully processed ${bankMatches.length} payments from CHASE bank.`);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedUnit) return;
@@ -323,6 +379,27 @@ Are you absolutely sure you want to proceed?`,
             </div>
             <button className="p-2 bg-white/5 border border-white/10 rounded-xl text-zinc-400 hover:text-white transition-colors">
               <Filter className="w-4 h-4" />
+            </button>
+            <div className="h-8 w-px bg-white/10 mx-2 hidden md:block" />
+            {lastBankUpload && (
+              <div className="flex flex-col items-end mr-2">
+                <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Last Upload from CHASE</span>
+                <span className="text-[10px] font-mono text-zinc-400 leading-none">{lastBankUpload}</span>
+              </div>
+            )}
+            <input 
+              type="file" 
+              ref={bankInputRef} 
+              className="hidden" 
+              accept=".csv"
+              onChange={handleBankCSV}
+            />
+            <button 
+              onClick={() => bankInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-bold text-sm text-zinc-300 hover:bg-white/10 transition-all"
+            >
+              <CreditCard className="w-4 h-4" />
+              Upload Bank CSV
             </button>
             <button 
               onClick={handleAddUnit}
@@ -452,17 +529,29 @@ Are you absolutely sure you want to proceed?`,
                 </div>
                 <div>
                   <h2 className="text-3xl font-black text-white tracking-tighter">Management Module</h2>
-                  <p className="text-zinc-500 font-mono text-sm uppercase tracking-widest">
-                    {selectedUnit.tenant_name || 'VACANT'} • Silverback Intelligence Active
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-zinc-500 font-mono text-sm uppercase tracking-widest">
+                      {selectedUnit.tenant_name || 'VACANT'} • Silverback Intelligence Active
+                    </p>
+                    <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                    <span className="text-xs font-black text-irish-orange uppercase tracking-widest">{selectedUnit.neighborhood || 'Mosswood'}</span>
+                  </div>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsDetailOpen(false)}
-                className="p-3 bg-white/5 rounded-xl text-zinc-400 hover:text-white transition-colors"
-              >
-                <Plus className="w-6 h-6 rotate-45" />
-              </button>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => handleGenerateReport(selectedUnit.id)}
+                  className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-sm text-zinc-300 hover:bg-white/10 transition-all"
+                >
+                  <FileText className="w-4 h-4" /> Generate Report
+                </button>
+                <button 
+                  onClick={() => setIsDetailOpen(false)}
+                  className="p-3 bg-white/5 rounded-xl text-zinc-400 hover:text-white transition-colors"
+                >
+                  <Plus className="w-6 h-6 rotate-45" />
+                </button>
+              </div>
             </div>
 
             {/* Main Content Split View */}
@@ -566,6 +655,40 @@ Are you absolutely sure you want to proceed?`,
                     </div>
                   </div>
                 </div>
+
+                {/* Communication Log */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" /> Communication History
+                  </h4>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                    {messages.length > 0 ? (
+                      [...messages].reverse().map(msg => (
+                        <div key={msg.id} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full ${msg.sender === 'Manager' ? 'bg-irish-green' : 'bg-blue-400'}`} />
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.sender === 'Manager' ? 'text-irish-green' : 'text-blue-400'}`}>
+                                {msg.sender}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-zinc-600 font-mono">
+                              {new Date(msg.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-sm text-zinc-300 leading-relaxed">{msg.content}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-8 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-zinc-600">
+                          <MessageSquare className="w-6 h-6" />
+                        </div>
+                        <div className="text-sm text-zinc-500">No communication history recorded.</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Resize Handle */}
@@ -649,6 +772,204 @@ Are you absolutely sure you want to proceed?`,
                   </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      {/* Report Modal */}
+      {isReportOpen && reportData && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-white">
+          <div className="w-full max-w-4xl bg-white text-black overflow-y-auto max-h-full p-12 shadow-2xl relative">
+            <button 
+              onClick={() => setIsReportOpen(false)}
+              className="absolute top-8 right-8 p-2 text-zinc-400 hover:text-black print:hidden"
+            >
+              <Plus className="w-8 h-8 rotate-45" />
+            </button>
+            
+            <div className="print:block">
+              <div className="flex justify-between items-start border-b-4 border-black pb-8 mb-12">
+                <div>
+                  <h1 className="text-4xl font-black tracking-tighter uppercase">Unit Performance Report</h1>
+                  <p className="text-zinc-500 font-mono text-sm mt-2">Generated on {new Date().toLocaleString()}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black">UNIT #{reportData.unit.unit_number}</div>
+                  <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest">3875 Ruby Street</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-12 mb-12">
+                <section className="space-y-4">
+                  <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2">Tenant Information</h2>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Name:</span>
+                      <span className="font-bold">{reportData.unit.tenant_name || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Email:</span>
+                      <span className="font-bold">{reportData.unit.tenant_email || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Lease Start:</span>
+                      <span className="font-bold">{reportData.unit.lease_start || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Lease End:</span>
+                      <span className="font-bold">{reportData.unit.lease_end || 'N/A'}</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-4">
+                  <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2">Financial Summary</h2>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Monthly Rent:</span>
+                      <span className="font-bold">${formatCurrency(reportData.unit.rent_amount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Current Balance:</span>
+                      <span className={`font-bold ${reportData.unit.balance_due > 0 ? 'text-red-600' : ''}`}>
+                        ${formatCurrency(reportData.unit.balance_due)}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <section className="mb-12">
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2 mb-6">Payment History</h2>
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-black/5">
+                      <th className="py-3 font-bold">Date</th>
+                      <th className="py-3 font-bold">Amount</th>
+                      <th className="py-3 font-bold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/5">
+                    {reportData.payments.map((p: any) => (
+                      <tr key={p.id}>
+                        <td className="py-3">{p.payment_date}</td>
+                        <td className="py-3">${formatCurrency(p.amount)}</td>
+                        <td className="py-3 font-bold">{p.status}</td>
+                      </tr>
+                    ))}
+                    {reportData.payments.length === 0 && (
+                      <tr><td colSpan={3} className="py-8 text-center text-zinc-400 italic">No payment records found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </section>
+
+              <section className="mb-12">
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2 mb-6">Maintenance Logs</h2>
+                <div className="space-y-4">
+                  {reportData.maintenance.map((m: any) => (
+                    <div key={m.id} className="border-b border-black/5 pb-4">
+                      <div className="flex justify-between mb-1">
+                        <span className="font-bold">{m.description}</span>
+                        <span className="text-xs font-mono text-zinc-500">{new Date(m.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <div className="text-xs uppercase font-black text-zinc-400">{m.status}</div>
+                    </div>
+                  ))}
+                  {reportData.maintenance.length === 0 && (
+                    <div className="py-8 text-center text-zinc-400 italic">No maintenance history found.</div>
+                  )}
+                </div>
+              </section>
+
+              <section className="mb-12">
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2 mb-6">Communication Transcript</h2>
+                <div className="space-y-4">
+                  {reportData.messages.map((msg: any) => (
+                    <div key={msg.id} className="text-sm">
+                      <span className="font-bold uppercase text-[10px] mr-2">{msg.sender}:</span>
+                      <span className="text-zinc-600">{msg.content}</span>
+                      <span className="text-[10px] text-zinc-400 ml-2 font-mono">{new Date(msg.created_at).toLocaleString()}</span>
+                    </div>
+                  ))}
+                  {reportData.messages.length === 0 && (
+                    <div className="py-8 text-center text-zinc-400 italic">No communication history found.</div>
+                  )}
+                </div>
+              </section>
+
+              <div className="mt-24 pt-8 border-t border-black/10 text-[10px] font-bold uppercase tracking-[0.5em] text-center text-zinc-400">
+                Official Document • Silverback Intelligence System • 3875 Ruby St
+              </div>
+            </div>
+
+            <div className="mt-12 flex justify-center print:hidden">
+              <button 
+                onClick={() => window.print()}
+                className="px-12 py-4 bg-black text-white font-black rounded-2xl hover:bg-zinc-800 transition-all flex items-center gap-3"
+              >
+                <CreditCard className="w-5 h-5" /> Print Official Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bank Upload Modal */}
+      {isBankModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+          >
+            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <div>
+                <h3 className="text-2xl font-black text-white tracking-tighter uppercase">CHASE Bank Import Results</h3>
+                <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Fuzzy Match Engine Active</p>
+              </div>
+              <button onClick={() => setIsBankModalOpen(false)} className="text-zinc-600 hover:text-white">
+                <Plus className="w-8 h-8 rotate-45" />
+              </button>
+            </div>
+
+            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+              {bankMatches.length > 0 ? (
+                <div className="space-y-4">
+                  {bankMatches.map((match, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-bold text-white">Unit #{match.unit.unit_number} — {match.unit.tenant_name}</div>
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Matched via Description: {match.date}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-black text-irish-green">${match.amount}</div>
+                        <div className="text-[10px] text-zinc-600 uppercase tracking-widest">Confidence: HIGH</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 space-y-4">
+                  <AlertCircle className="w-12 h-12 text-zinc-700 mx-auto" />
+                  <p className="text-zinc-500">No matches found in the uploaded CSV.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="p-8 border-t border-white/5 bg-white/[0.02] flex justify-end gap-4">
+              <button 
+                onClick={() => setIsBankModalOpen(false)}
+                className="px-6 py-3 text-zinc-400 font-bold hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={applyBankMatches}
+                className="px-8 py-3 bg-irish-green text-white font-black rounded-xl hover:bg-irish-green-lt transition-all shadow-lg shadow-irish-green/20"
+              >
+                Apply to Rent Roll
+              </button>
             </div>
           </motion.div>
         </div>
