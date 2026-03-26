@@ -26,6 +26,9 @@ interface MaintenanceRequest {
   gm_notes: string | null;
   approval_notes: string | null;
   assigned_to: string | null;
+  cost: number;
+  is_emergency: boolean;
+  is_escalated: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +36,7 @@ interface MaintenanceRequest {
 const STATUS_CONFIG: Record<string, { color: string, bg: string, icon: any }> = {
   'Pending Review': { color: 'text-blue-500', bg: 'bg-blue-500/10', icon: Eye },
   'Awaiting Approval': { color: 'text-orange-500', bg: 'bg-orange-500/10', icon: Shield },
+  'Escalated to Owner': { color: 'text-red-500', bg: 'bg-red-500/10', icon: AlertCircle },
   'Approved': { color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
   'In Progress': { color: 'text-purple-500', bg: 'bg-purple-500/10', icon: Hammer },
   'Pending Verification': { color: 'text-amber-500', bg: 'bg-amber-500/10', icon: Clock },
@@ -115,13 +119,31 @@ export const MaintenanceModule: React.FC = () => {
     }
   };
 
-  const getNextStep = (status: string) => {
+  const getNextStep = (req: MaintenanceRequest) => {
+    const { status, cost, is_emergency } = req;
+    
+    // Escalation logic: If cost > 500 or emergency, it must go to Owner
+    const needsOwner = cost > 500 || is_emergency;
+
     switch (status) {
-      case 'Pending Review': return { label: 'Send for Approval', next: 'Awaiting Approval', color: 'bg-orange-500' };
-      case 'Awaiting Approval': return { label: 'Mark Approved', next: 'Approved', color: 'bg-emerald-500' };
-      case 'Approved': return { label: 'Start Work', next: 'In Progress', color: 'bg-purple-500' };
-      case 'In Progress': return { label: 'Complete Work', next: 'Pending Verification', color: 'bg-amber-500' };
-      case 'Pending Verification': return { label: 'Verify & Close', next: 'Completed', color: 'bg-irish-green' };
+      case 'Pending Review': 
+        if (needsOwner) {
+          return { label: 'Escalate to Owner', next: 'Escalated to Owner', color: 'bg-red-500' };
+        }
+        return { label: 'Approve & Assign', next: 'Approved', color: 'bg-emerald-500' };
+      
+      case 'Escalated to Owner':
+        return { label: 'Owner Approve', next: 'Approved', color: 'bg-emerald-500' };
+
+      case 'Approved': 
+        return { label: 'Start Work', next: 'In Progress', color: 'bg-purple-500' };
+      
+      case 'In Progress': 
+        return { label: 'Complete Work', next: 'Pending Verification', color: 'bg-amber-500' };
+      
+      case 'Pending Verification': 
+        return { label: 'Verify & Close', next: 'Completed', color: 'bg-irish-green' };
+      
       default: return null;
     }
   };
@@ -236,24 +258,31 @@ export const MaintenanceModule: React.FC = () => {
 
                   {/* Workflow Actions */}
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Workflow Management</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Workflow Management</label>
+                      {selectedRequest.is_emergency && (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-red-500 uppercase tracking-widest animate-pulse">
+                          <AlertCircle className="w-3 h-3" /> Emergency
+                        </span>
+                      )}
+                    </div>
                     
-                    {getNextStep(selectedRequest.status) && (
+                    {getNextStep(selectedRequest) && (
                       <button
                         onClick={() => {
-                          const next = getNextStep(selectedRequest.status);
-                          if (next) handleUpdateStatus(selectedRequest.id, { status: next.next });
+                          const next = getNextStep(selectedRequest!);
+                          if (next) handleUpdateStatus(selectedRequest!.id, { status: next.next });
                         }}
-                        className={`w-full py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${getNextStep(selectedRequest.status)?.color}`}
+                        className={`w-full py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${getNextStep(selectedRequest)?.color}`}
                       >
-                        {getNextStep(selectedRequest.status)?.label}
+                        {getNextStep(selectedRequest)?.label}
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     )}
 
                     {selectedRequest.status === 'Pending Review' && (
                       <button
-                        onClick={() => handleUpdateStatus(selectedRequest.id, { status: 'Rejected' })}
+                        onClick={() => handleUpdateStatus(selectedRequest!.id, { status: 'Rejected' })}
                         className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-red-500 font-black hover:bg-red-500/10 transition-all"
                       >
                         Reject Request
@@ -263,35 +292,62 @@ export const MaintenanceModule: React.FC = () => {
 
                   {/* Notes Sections */}
                   <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Estimated Cost</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                          <input
+                            type="number"
+                            value={selectedRequest.cost || 0}
+                            onChange={(e) => handleUpdateStatus(selectedRequest!.id, { cost: parseFloat(e.target.value) })}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          onClick={() => handleUpdateStatus(selectedRequest!.id, { is_emergency: !selectedRequest!.is_emergency })}
+                          className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                            selectedRequest.is_emergency 
+                              ? 'bg-red-500/20 text-red-500 border-red-500/30' 
+                              : 'bg-white/5 text-zinc-500 border-white/10'
+                          }`}
+                        >
+                          {selectedRequest.is_emergency ? 'Emergency Active' : 'Mark Emergency'}
+                        </button>
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">GM Internal Notes</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">GM Internal Notes (Mezfin)</label>
                       <textarea
                         value={selectedRequest.gm_notes || ''}
-                        onChange={(e) => handleUpdateStatus(selectedRequest.id, { gm_notes: e.target.value })}
+                        onChange={(e) => handleUpdateStatus(selectedRequest!.id, { gm_notes: e.target.value })}
                         placeholder="Add internal notes for management..."
                         className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[100px]"
                       />
                     </div>
 
-                    {selectedRequest.status === 'Awaiting Approval' && (
+                    {selectedRequest.status === 'Escalated to Owner' && (
                       <div>
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Approval Feedback</label>
+                        <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-2">Owner Approval Notes</label>
                         <textarea
                           value={selectedRequest.approval_notes || ''}
-                          onChange={(e) => handleUpdateStatus(selectedRequest.id, { approval_notes: e.target.value })}
-                          placeholder="Notes from ownership/approval body..."
-                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 min-h-[100px]"
+                          onChange={(e) => handleUpdateStatus(selectedRequest!.id, { approval_notes: e.target.value })}
+                          placeholder="Owner feedback on cost/emergency..."
+                          className="w-full bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 min-h-[100px]"
                         />
                       </div>
                     )}
 
-                    {selectedRequest.status === 'Approved' && (
+                    {(selectedRequest.status === 'Approved' || selectedRequest.status === 'In Progress') && (
                       <div>
                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Assign Contractor / Staff</label>
                         <input
                           type="text"
                           value={selectedRequest.assigned_to || ''}
-                          onChange={(e) => handleUpdateStatus(selectedRequest.id, { assigned_to: e.target.value })}
+                          onChange={(e) => handleUpdateStatus(selectedRequest!.id, { assigned_to: e.target.value })}
                           placeholder="Enter name of person taking care of it..."
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                         />

@@ -29,6 +29,23 @@ interface RentRollItem {
   last_payment_date: string | null;
   last_payment_status: string | null;
   neighborhood: string | null;
+  photos: string | null;
+}
+
+interface User {
+  id: number;
+  email: string;
+  role: 'OWNER' | 'GM' | 'ACCOUNTING';
+  name: string;
+}
+
+interface Property {
+  id: number;
+  name: string;
+  address: string;
+  neighborhood: string;
+  trash_day: string;
+  street_sweeping_day: string;
 }
 
 interface Message {
@@ -73,6 +90,10 @@ export const RentRollDashboard: React.FC = () => {
   const [isBankModalOpen, setIsBankModalOpen] = useState(false);
   const [bankMatches, setBankMatches] = useState<any[]>([]);
   const bankInputRef = useRef<HTMLInputElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [isEditingUnit, setIsEditingUnit] = useState(false);
+  const [editUnitData, setEditUnitData] = useState({ status: '', photos: '' });
 
   // Confirmation state
   const [confirmState, setConfirmState] = useState<{
@@ -91,14 +112,20 @@ export const RentRollDashboard: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [rentRollRes, statsRes] = await Promise.all([
+      const [rentRollRes, statsRes, meRes, propRes] = await Promise.all([
         fetch('/api/rent-roll'),
-        fetch('/api/stats')
+        fetch('/api/stats'),
+        fetch('/api/me'),
+        fetch('/api/property/1')
       ]);
       const rentRollData = await rentRollRes.json();
       const statsData = await statsRes.json();
+      const meData = await meRes.json();
+      const propData = await propRes.json();
       setData(rentRollData);
       setStats(statsData);
+      setUser(meData);
+      setProperty(propData);
     } catch (error) {
       console.error("Error fetching rent roll:", error);
     } finally {
@@ -288,6 +315,26 @@ Are you absolutely sure you want to proceed?`,
     return (val ?? 0).toLocaleString();
   };
 
+  const handleUpdateUnit = async () => {
+    if (!selectedUnit) return;
+    try {
+      await fetch(`/api/units/${selectedUnit.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editUnitData)
+      });
+      setIsEditingUnit(false);
+      fetchData();
+      setSelectedUnit(prev => prev ? { ...prev, ...editUnitData } : null);
+    } catch (error) {
+      console.error("Error updating unit:", error);
+    }
+  };
+
+  const isOwnerOrAccounting = user?.role === 'OWNER' || user?.role === 'ACCOUNTING';
+  const isGM = user?.role === 'GM';
+  const isGMOrOwner = user?.role === 'GM' || user?.role === 'OWNER';
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -308,172 +355,151 @@ Are you absolutely sure you want to proceed?`,
       />
       
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-zinc-900 border border-white/10 shadow-xl relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-irish-green" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-irish-green/10 flex items-center justify-center text-irish-green">
-              <Building2 className="w-5 h-5" />
+            <div className="p-4 rounded-2xl bg-irish-green/10 text-irish-green">
+              <Building2 className="w-8 h-8" />
             </div>
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] font-mono">Occupancy</span>
+            <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">Occupancy Rate</span>
           </div>
-          <div className="text-4xl font-bold text-white font-mono">
+          <div className="text-6xl font-black text-white tracking-tighter">
             {stats ? Math.round((stats.occupied_units / stats.total_units) * 100) : 0}%
           </div>
-          <div className="text-xs text-zinc-500 mt-2 font-mono uppercase tracking-wider">{stats?.occupied_units} of {stats?.total_units} units active</div>
+          <div className="mt-4 text-sm font-mono text-zinc-600 uppercase tracking-widest">
+            {stats?.occupied_units} / {stats?.total_units} Units Active
+          </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-zinc-900 border border-white/10 shadow-xl relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-irish-orange" />
+        <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-irish-orange/10 flex items-center justify-center text-irish-orange">
-              <CreditCard className="w-5 h-5" />
+            <div className="p-4 rounded-2xl bg-irish-orange/10 text-irish-orange">
+              <CreditCard className="w-8 h-8" />
             </div>
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] font-mono">Potential</span>
+            <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">Potential Revenue</span>
           </div>
-          <div className="text-4xl font-bold text-white font-mono">
-            ${formatCurrency(stats?.total_potential_revenue)}
+          <div className="text-6xl font-black text-white tracking-tighter">
+            ${stats ? formatCurrency(stats.total_potential_revenue) : 0}
           </div>
-          <div className="text-xs text-zinc-500 mt-2 font-mono uppercase tracking-wider">Gross scheduled rent</div>
+          <div className="mt-4 text-sm font-mono text-zinc-600 uppercase tracking-widest">
+            Monthly Target • Silverback Projection
+          </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-zinc-900 border border-white/10 shadow-xl relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-red-500" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
-              <AlertCircle className="w-5 h-5" />
+        <div className="p-8 rounded-[2.5rem] bg-irish-green/10 border border-irish-green/20 shadow-xl relative overflow-hidden group">
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-4 rounded-2xl bg-irish-green/20 text-irish-green">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <span className="text-sm font-black text-irish-green uppercase tracking-widest">Community Alerts</span>
             </div>
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] font-mono">Delinquent</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Trash Day</span>
+                <span className="text-sm font-black text-white uppercase">{property?.trash_day || 'N/A'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Street Sweeping</span>
+                <span className="text-sm font-black text-white uppercase">{property?.street_sweeping_day || 'N/A'}</span>
+              </div>
+              <button className="w-full mt-4 py-3 rounded-xl bg-irish-green text-white text-[10px] font-black uppercase tracking-widest hover:bg-irish-green-lt transition-all">
+                Send SMS Notice to All
+              </button>
+            </div>
           </div>
-          <div className="text-4xl font-bold text-white font-mono">
-            {data.filter(u => u.last_payment_status === 'Late').length}
-          </div>
-          <div className="text-xs text-zinc-500 mt-2 font-mono uppercase tracking-wider">Units requiring notice</div>
+          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-irish-green/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
         </div>
       </div>
 
       {/* Rent Roll Table */}
-      <div className="rounded-3xl bg-zinc-900 border border-white/10 shadow-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h3 className="text-xl font-bold text-white font-serif">Active Rent Roll</h3>
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-colors ${
-              cookieStatus === 'active' 
-                ? 'bg-irish-green/10 text-irish-green border-irish-green/20' 
-                : cookieStatus === 'blocked'
-                ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                : 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20'
-            }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${
-                cookieStatus === 'active' ? 'bg-irish-green animate-pulse' : cookieStatus === 'blocked' ? 'bg-red-500' : 'bg-zinc-500'
-              }`} />
-              Cookie Check: {cookieStatus}
-            </div>
+      <div className="bg-zinc-900 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
+        <div className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+          <div>
+            <h2 className="text-4xl font-black text-white tracking-tighter uppercase">Active Rent Roll</h2>
+            <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">
+              {isOwnerOrAccounting ? 'Owner/Accounting Control Level' : 'GM View Level'} • {data.length} Units Total
+            </p>
+          </div>
+          <div className="flex gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
               <input 
                 type="text" 
-                placeholder="Search units..." 
-                className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 font-mono"
+                placeholder="Search units, tenants..."
+                className="pl-12 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-irish-green/50 w-80"
               />
             </div>
-            <button className="p-2 bg-white/5 border border-white/10 rounded-xl text-zinc-400 hover:text-white transition-colors">
-              <Filter className="w-4 h-4" />
-            </button>
-            <div className="h-8 w-px bg-white/10 mx-2 hidden md:block" />
-            {lastBankUpload && (
-              <div className="flex flex-col items-end mr-2">
-                <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Last Upload from CHASE</span>
-                <span className="text-[10px] font-mono text-zinc-400 leading-none">{lastBankUpload}</span>
-              </div>
-            )}
-            <input 
-              type="file" 
-              ref={bankInputRef} 
-              className="hidden" 
-              accept=".csv"
-              onChange={handleBankCSV}
-            />
-            <button 
-              onClick={() => bankInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-bold text-sm text-zinc-300 hover:bg-white/10 transition-all"
-            >
-              <CreditCard className="w-4 h-4" />
-              Upload Bank CSV
-            </button>
-            <button 
-              onClick={handleAddUnit}
-              className="flex items-center gap-2 px-4 py-2 bg-irish-orange text-white text-sm font-bold rounded-xl hover:bg-irish-orange-lt transition-colors shadow-lg shadow-irish-orange/20"
-            >
-              <Plus className="w-4 h-4" />
-              Add Unit
-            </button>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] border-b border-white/5 bg-white/[0.02] font-mono">
-                <th className="px-6 py-4">Unit</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Tenant</th>
-                <th className="px-6 py-4">Rent</th>
-                <th className="px-6 py-4">Balance</th>
-                <th className="px-6 py-4">Last Payment</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+              <tr className="border-b border-white/5">
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Unit</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Status</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Tenant</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Rent</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Balance</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Last Payment</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/[0.03]">
               {data.map((unit) => (
                 <tr 
-                  key={unit.id} 
-                  onDoubleClick={() => {
+                  key={unit.id}
+                  onClick={() => {
                     setSelectedUnit(unit);
                     setIsDetailOpen(true);
                   }}
-                  className="group hover:bg-irish-green/[0.05] transition-colors cursor-pointer"
+                  className="hover:bg-white/[0.02] transition-colors cursor-pointer group"
                 >
-                  <td className="px-6 py-6">
-                    <span className="text-lg font-black text-white font-mono tracking-tighter">#{unit.unit_number}</span>
+                  <td className="px-10 py-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-white border border-white/5 group-hover:border-irish-green/30 transition-all">
+                        {unit.unit_number}
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-6 py-6">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
+                  <td className="px-10 py-10">
+                    <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border ${
                       unit.status === 'Occupied' 
                         ? 'bg-irish-green/20 text-irish-green border-irish-green/30' 
                         : 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
                     }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${unit.status === 'Occupied' ? 'bg-irish-green' : 'bg-zinc-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${unit.status === 'Occupied' ? 'bg-irish-green' : 'bg-zinc-500'}`} />
                       {unit.status}
                     </span>
                   </td>
-                  <td className="px-6 py-6">
-                    <div className="flex items-center gap-4">
+                  <td className="px-10 py-10">
+                    <div className="flex items-center gap-6">
                       {unit.tenant_name ? (
                         <>
-                          <div className="w-10 h-10 rounded-xl bg-irish-green/20 flex items-center justify-center text-sm font-black text-irish-green border border-irish-green/20 shadow-inner">
+                          <div className="w-14 h-14 rounded-2xl bg-irish-green/20 flex items-center justify-center text-xl font-black text-irish-green border border-irish-green/20 shadow-inner">
                             {unit.tenant_name.charAt(0)}
                           </div>
-                          <span className="text-base font-bold text-white tracking-tight">{unit.tenant_name}</span>
+                          <span className="text-xl font-black text-white tracking-tighter">{unit.tenant_name}</span>
                         </>
                       ) : (
                         <span className="text-sm text-zinc-600 italic font-mono font-bold tracking-widest">VACANT</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-6">
-                    <span className="text-lg font-black text-white font-mono">${formatCurrency(unit.rent_amount)}</span>
+                  <td className="px-10 py-10">
+                    <span className="text-2xl font-black text-white font-mono tracking-tighter">${formatCurrency(unit.rent_amount)}</span>
                   </td>
-                  <td className="px-6 py-6">
-                    <span className={`text-lg font-black font-mono ${(unit.balance_due ?? 0) > 0 ? 'text-red-500' : 'text-zinc-500'}`}>
+                  <td className="px-10 py-10">
+                    <span className={`text-2xl font-black font-mono tracking-tighter ${(unit.balance_due ?? 0) > 0 ? 'text-red-500' : 'text-zinc-500'}`}>
                       ${formatCurrency(unit.balance_due)}
                     </span>
                   </td>
-                  <td className="px-6 py-6">
+                  <td className="px-10 py-10">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-zinc-400 font-mono font-bold">
                         <Clock className="w-4 h-4" />
-                        <span className="text-sm">{unit.last_payment_date || 'N/A'}</span>
+                        <span className="text-base">{unit.last_payment_date || 'N/A'}</span>
                       </div>
                       {unit.status === 'Occupied' && (
                         <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${unit.last_payment_status === 'Paid' ? 'text-irish-green' : 'text-red-500'}`}>
@@ -482,27 +508,22 @@ Are you absolutely sure you want to proceed?`,
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-6 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMarkOverdue(unit.id);
-                        }}
-                        className="p-2.5 text-zinc-500 hover:text-red-400 transition-colors bg-white/5 rounded-lg border border-white/5"
-                        title="Mark Overdue"
-                      >
-                        <AlertCircle className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedUnit(unit);
-                          setIsDetailOpen(true);
-                        }}
-                        className="p-2.5 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-lg border border-white/5"
-                      >
-                        <MoreHorizontal className="w-5 h-5" />
+                  <td className="px-10 py-10 text-right">
+                    <div className="flex items-center justify-end gap-4">
+                      {isOwnerOrAccounting && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkOverdue(unit.id);
+                          }}
+                          className="p-3 text-zinc-500 hover:text-red-400 transition-colors bg-white/5 rounded-xl border border-white/5"
+                          title="Mark Overdue"
+                        >
+                          <AlertCircle className="w-6 h-6" />
+                        </button>
+                      )}
+                      <button className="p-3 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/5">
+                        <MoreHorizontal className="w-6 h-6" />
                       </button>
                     </div>
                   </td>
@@ -579,6 +600,54 @@ Are you absolutely sure you want to proceed?`,
                     <div className="text-xl font-bold text-irish-green">{selectedUnit.last_payment_date || 'None'}</div>
                   </div>
                 </div>
+
+                {/* GM/Owner Controls: Vacancy & Photos */}
+                {(isOwnerOrAccounting || isGM) && (
+                  <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-black text-white uppercase tracking-widest">Unit Management</h4>
+                      <button 
+                        onClick={() => {
+                          if (isEditingUnit) {
+                            handleUpdateUnit();
+                          } else {
+                            setEditUnitData({ status: selectedUnit.status, photos: selectedUnit.photos || '' });
+                            setIsEditingUnit(true);
+                          }
+                        }}
+                        className="px-4 py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg"
+                      >
+                        {isEditingUnit ? 'Save Changes' : 'Edit Unit'}
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-2">Occupancy Status</label>
+                        <select
+                          disabled={!isEditingUnit}
+                          value={isEditingUnit ? editUnitData.status : selectedUnit.status}
+                          onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
+                          className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white disabled:opacity-50"
+                        >
+                          <option value="Occupied">Occupied</option>
+                          <option value="Vacant">Vacant</option>
+                          <option value="Maintenance">Maintenance</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-2">Unit Photos (URLs)</label>
+                        <textarea
+                          disabled={!isEditingUnit}
+                          value={isEditingUnit ? editUnitData.photos : selectedUnit.photos || ''}
+                          onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
+                          placeholder="Enter comma-separated image URLs..."
+                          className="w-full bg-zinc-900 border border-white/10 rounded-xl p-4 text-sm text-white disabled:opacity-50 min-h-[80px]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Login History */}
                 <div className="space-y-4">
@@ -771,6 +840,71 @@ Are you absolutely sure you want to proceed?`,
                     </button>
                   </div>
                 </div>
+
+                {/* Unit Management (GM/Owner Only) */}
+                {isGMOrOwner && (
+                  <div className="p-6 border-t border-white/5 bg-white/[0.01]">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Unit Management</h4>
+                      <button 
+                        onClick={() => {
+                          setIsEditingUnit(!isEditingUnit);
+                          setEditUnitData({ 
+                            status: selectedUnit.status, 
+                            photos: selectedUnit.photos || '' 
+                          });
+                        }}
+                        className="text-[10px] font-black text-irish-green uppercase tracking-widest hover:text-irish-green-lt transition-colors"
+                      >
+                        {isEditingUnit ? 'Cancel' : 'Edit Unit'}
+                      </button>
+                    </div>
+
+                    {isEditingUnit ? (
+                      <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                        <div>
+                          <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</label>
+                          <select 
+                            value={editUnitData.status}
+                            onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
+                            className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                          >
+                            <option value="Occupied">Occupied</option>
+                            <option value="Vacant">Vacant</option>
+                            <option value="Maintenance">Maintenance</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photo URL</label>
+                          <input 
+                            type="text"
+                            value={editUnitData.photos}
+                            onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
+                            placeholder="https://..."
+                            className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                          />
+                        </div>
+                        <button 
+                          onClick={handleUpdateUnit}
+                          className="w-full py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-irish-green-lt transition-all"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
+                          <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</span>
+                          <span className="text-xs font-bold text-white uppercase">{selectedUnit.status}</span>
+                        </div>
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
+                          <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photos</span>
+                          <span className="text-xs font-bold text-white uppercase">{selectedUnit.photos ? 'Available' : 'None'}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

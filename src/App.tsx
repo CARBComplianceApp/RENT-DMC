@@ -46,7 +46,15 @@ import { ShimmerBackground, ShimmerEffect } from './components/VisualEffects';
 import { AIPropertyVisualizer } from './components/AIImageGenerator';
 import { RentRollDashboard } from './components/RentRollDashboard';
 import { MaintenanceModule } from './components/MaintenanceModule';
+import { MarketingModule } from './components/MarketingModule';
 import { FeatureSummarySheet } from './components/FeatureSummarySheet';
+import { PropertyHierarchy } from './components/PropertyHierarchy';
+import { TenantPortal } from './components/TenantPortal';
+import { CommunityModule } from './components/CommunityModule';
+
+import { CEOBriefingPortal } from './components/CEOBriefingPortal';
+import { SFPlusModule } from './components/SFPlusModule';
+import { MarketMaxModule } from './components/MarketMaxModule';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -64,8 +72,8 @@ const distributionData = [
 ];
 
 export default function App() {
-  const [view, setView] = useState<'hub' | 'admin'>('hub');
-  const [adminTab, setAdminTab] = useState<'rent-roll' | 'maintenance'>('rent-roll');
+  const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax'>('portfolio');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -107,7 +115,7 @@ export default function App() {
                 className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'hub' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : view === 'admin' ? 'text-zinc-500 hover:text-white' : 'text-oakland-ink/40 hover:text-oakland-ink'
+                  : 'text-oakland-ink/40 hover:text-oakland-ink'
                 }`}
               >
                 Hub
@@ -117,10 +125,20 @@ export default function App() {
                 className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'admin' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : view === 'hub' ? 'text-oakland-ink/40 hover:text-oakland-ink' : 'text-zinc-500 hover:text-white'
+                  : 'text-oakland-ink/40 hover:text-oakland-ink'
                 }`}
               >
                 Admin
+              </button>
+              <button 
+                onClick={() => setView('tenant')}
+                className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                  view === 'tenant' 
+                  ? 'bg-oakland-terracotta text-white shadow-lg' 
+                  : 'text-oakland-ink/40 hover:text-oakland-ink'
+                }`}
+              >
+                Tenant
               </button>
             </div>
 
@@ -170,15 +188,15 @@ export default function App() {
             className="pt-20"
           >
             {/* Hero Section */}
-            <section className="relative h-[85vh] flex items-center overflow-hidden">
+            <section className="relative h-[90vh] flex items-center overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <img 
                   src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
                   alt="3875 Ruby Street - Authentic 1924 Oakland Architecture" 
-                  className="w-full h-full object-cover grayscale-[0.2] brightness-[0.7]"
+                  className="w-full h-full object-cover grayscale-[0.1] brightness-[0.8]"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-oakland-paper/30 to-oakland-paper"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-oakland-paper"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
@@ -188,19 +206,24 @@ export default function App() {
                   transition={{ duration: 1, ease: "easeOut" }}
                   className="max-w-4xl"
                 >
-                  <h1 className="text-6xl md:text-9xl font-sans font-black tracking-tighter leading-[0.9] text-white drop-shadow-2xl uppercase">
-                    3875 RUBY <br /> STREET.
+                  <div className="inline-block px-4 py-2 bg-oakland-terracotta text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
+                    Est. 1924 // Oakland, CA
+                  </div>
+                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
+                    RUBY <br /> <span className="text-oakland-terracotta">SOUL.</span>
                   </h1>
-                  <div className="mt-8 flex flex-col md:flex-row md:items-center gap-6">
-                    <div className="text-xl md:text-3xl font-serif italic text-white/90 max-w-2xl">
-                      Authentic 1924 Architecture. <br className="hidden md:block" />
-                      Home to Hipsters, Trans, and Every Culture.
+                  <div className="mt-12 flex flex-col md:flex-row md:items-end gap-12">
+                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
+                      Where 1920s Craftsmanship <br /> Meets 2020s <span className="underline decoration-oakland-terracotta underline-offset-8">Urban Grit</span>.
                     </div>
-                    <div className="h-px flex-grow bg-white/30 hidden md:block"></div>
-                    <div className="flex gap-4">
-                      <button className="px-8 py-4 bg-oakland-terracotta text-white font-bold rounded-full hover:scale-105 transition-transform">
-                        See Units & Apply
+                    <div className="flex flex-col gap-4">
+                      <button className="px-10 py-5 bg-white text-oakland-ink font-black text-sm uppercase tracking-widest rounded-full hover:bg-oakland-terracotta hover:text-white transition-all shadow-2xl hover:scale-105">
+                        Explore Units
                       </button>
+                      <div className="flex items-center gap-4 px-6 py-3 bg-black/20 backdrop-blur-md rounded-full border border-white/10">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">2 Units Available Now</span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -443,6 +466,10 @@ export default function App() {
                 <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-[0.5em] font-mono">
                   © 2026 RENT DMC TECHNOLOGIES. OAKLAND SOUL.
                 </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-[8px] font-black text-oakland-terracotta uppercase tracking-widest">Powered by</div>
+                  <div className="text-xl font-black tracking-tighter text-oakland-ink">RENT DMC</div>
+                </div>
                 <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">
                   <a href="#">Privacy</a>
                   <a href="#">Terms</a>
@@ -450,7 +477,7 @@ export default function App() {
               </div>
             </footer>
           </motion.div>
-        ) : (
+        ) : view === 'admin' ? (
           <motion.div
             key="admin"
             initial={{ opacity: 0 }}
@@ -485,21 +512,51 @@ export default function App() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {[
-                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-600' },
-                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-blue-600' },
-                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-orange-600' },
+                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50/50' },
+                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50/50' },
+                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50/50' },
                 ].map((stat) => (
-                  <div key={stat.label} className="p-8 rounded-[2rem] bg-white border border-oakland-ink/5 shadow-sm">
+                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-white border-2 border-oakland-ink/5 shadow-lg hover:border-oakland-terracotta/20 transition-all group`}>
                     <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 rounded-2xl bg-oakland-ink/5">
-                        <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                      <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
+                        <stat.icon className={`w-8 h-8 ${stat.color}`} />
                       </div>
-                      <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{stat.trend}</span>
+                      <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">{stat.trend}</span>
                     </div>
-                    <div className="text-sm font-bold text-oakland-ink/40 uppercase tracking-widest">{stat.label}</div>
-                    <div className="text-4xl font-serif font-bold mt-2">{stat.value}</div>
+                    <div className="text-xs font-bold text-oakland-ink/40 uppercase tracking-[0.2em]">{stat.label}</div>
+                    <div className="text-5xl font-serif font-black mt-2 text-oakland-ink">{stat.value}</div>
                   </div>
                 ))}
+              </div>
+
+              {/* Quick Guide / What's New */}
+              <div className="mb-12 p-8 rounded-[2.5rem] bg-oakland-ink text-white shadow-2xl flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-grow space-y-4">
+                  <h3 className="text-2xl font-serif font-bold italic">Operational Intelligence Hub</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                      <span>Monitor real-time revenue & occupancy trends</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                      <span>Track AI-powered security & sublease alerts</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                      <span>Manage maintenance & community schedules</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                      <span>Access CEO Briefing & Legal Notice tools</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-px h-16 bg-white/10 hidden md:block" />
+                <div className="text-center md:text-left">
+                  <div className="text-[10px] font-bold text-oakland-terracotta uppercase tracking-[0.3em] mb-1">System Status</div>
+                  <div className="text-xl font-serif font-bold italic">All Systems Nominal</div>
+                </div>
               </div>
 
               {/* Main Portal Content */}
@@ -558,25 +615,71 @@ export default function App() {
               </div>
 
               {/* Portal Navigation Tabs */}
-              <div className="flex gap-8 border-b border-oakland-ink/5 mb-12">
+              <div className="flex gap-8 border-b border-oakland-ink/5 mb-12 overflow-x-auto pb-px">
+                <button 
+                  onClick={() => setAdminTab('portfolio')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'portfolio' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Portfolio
+                  {adminTab === 'portfolio' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
                 <button 
                   onClick={() => setAdminTab('rent-roll')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${adminTab === 'rent-roll' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'rent-roll' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
                 >
                   Rent Roll
                   {adminTab === 'rent-roll' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('maintenance')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${adminTab === 'maintenance' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'maintenance' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
                 >
-                  Maintenance Pipeline
+                  Maintenance
                   {adminTab === 'maintenance' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('marketing')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketing' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Marketing
+                  {adminTab === 'marketing' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('community')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'community' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Community
+                  {adminTab === 'community' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('ceo')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'ceo' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  CEO Briefing
+                  {adminTab === 'ceo' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('sfplus')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'sfplus' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  SF Plus
+                  {adminTab === 'sfplus' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('marketmax')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketmax' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Market Max
+                  {adminTab === 'marketmax' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
                 </button>
               </div>
 
               {/* Dynamic Admin Content */}
-              {adminTab === 'rent-roll' ? (
+              {adminTab === 'portfolio' ? (
+                <section id="portfolio" className="py-12">
+                  <PropertyHierarchy />
+                </section>
+              ) : adminTab === 'rent-roll' ? (
                 <section id="rent-roll" className="py-12">
                   <div className="mb-12 space-y-4">
                     <h2 className="text-4xl font-bold text-oakland-ink font-serif">Your <span className="italic">Intelligent</span> Rent Roll.</h2>
@@ -584,9 +687,29 @@ export default function App() {
                   </div>
                   <RentRollDashboard />
                 </section>
-              ) : (
+              ) : adminTab === 'maintenance' ? (
                 <section id="maintenance" className="py-12">
                   <MaintenanceModule />
+                </section>
+              ) : adminTab === 'marketing' ? (
+                <section id="marketing" className="py-12">
+                  <MarketingModule />
+                </section>
+              ) : adminTab === 'community' ? (
+                <section id="community" className="py-12">
+                  <CommunityModule />
+                </section>
+              ) : adminTab === 'ceo' ? (
+                <section id="ceo" className="py-12">
+                  <CEOBriefingPortal />
+                </section>
+              ) : adminTab === 'sfplus' ? (
+                <section id="sfplus" className="py-12">
+                  <SFPlusModule />
+                </section>
+              ) : (
+                <section id="marketmax" className="py-12">
+                  <MarketMaxModule />
                 </section>
               )}
 
@@ -599,6 +722,22 @@ export default function App() {
               <section id="summary-sheet">
                 <FeatureSummarySheet />
               </section>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="tenant"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="min-h-screen bg-oakland-paper pt-32 pb-20 px-6"
+          >
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-12">
+                <h2 className="text-4xl font-serif font-black text-oakland-ink">Ruby <span className="italic">Resident</span> Portal</h2>
+                <p className="text-oakland-ink/50 mt-2">Welcome home, Jordan. Your community at your fingertips.</p>
+              </div>
+              <TenantPortal />
             </div>
           </motion.div>
         )}
