@@ -22,20 +22,33 @@
   --color-night-accent: #c84c00;
   --color-night-text: #ffffff;
   --color-night-muted: #8e9299;
+
+  --color-app-bg: var(--color-oakland-cream);
+  --color-app-text: var(--color-oakland-ink);
+  --color-app-border: rgba(10, 10, 10, 0.05);
+  --color-app-card: #ffffff;
+}
+
+@theme dark {
+  --color-app-bg: var(--color-night-bg);
+  --color-app-text: var(--color-night-text);
+  --color-app-border: rgba(255, 255, 255, 0.05);
+  --color-app-card: var(--color-night-card);
 }
 
 @layer base {
   body {
-    @apply bg-night-bg text-night-text antialiased;
+    @apply bg-app-bg text-app-text antialiased transition-colors duration-500;
+  }
+
+  .dark body {
     background: 
       radial-gradient(circle at 50% 30%, #1a0a05 0%, transparent 60%),
       radial-gradient(circle at 10% 80%, #0a1a05 0%, transparent 50%),
       #050505;
   }
-}
 
-@layer utilities {
-  .bg-radial-gradient {
-    background: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%);
+  .light body {
+    background: var(--color-oakland-cream);
   }
 }

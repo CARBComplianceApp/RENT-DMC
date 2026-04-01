@@ -39,6 +39,7 @@ interface Violation {
   tenant_id: number;
   tenant_name: string;
   unit_number: string;
+  violation_type: string;
   description: string;
   violation_date: string;
   photo_url?: string;
@@ -89,7 +90,15 @@ export const AdminLegalLog: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [newNotice, setNewNotice] = useState({ tenant_id: '', title: '', content: '' });
+  const [newViolation, setNewViolation] = useState({ 
+    tenant_id: '', 
+    violation_type: 'Unauthorized Occupant', 
+    description: '', 
+    violation_date: new Date().toISOString().split('T')[0],
+    gm_notes: '' 
+  });
 
   useEffect(() => {
     fetchData();
@@ -160,6 +169,28 @@ export const AdminLegalLog: React.FC = () => {
     }
   };
 
+  const handleLogViolation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/lease-violations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newViolation)
+      });
+      setIsViolationModalOpen(false);
+      setNewViolation({ 
+        tenant_id: '', 
+        violation_type: 'Unauthorized Occupant', 
+        description: '', 
+        violation_date: new Date().toISOString().split('T')[0],
+        gm_notes: '' 
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error logging violation:', error);
+    }
+  };
+
   const tabs = [
     { id: 'notices', label: 'Tenant Notices', icon: ShieldCheck },
     { id: 'violations', label: 'Lease Violations', icon: AlertTriangle },
@@ -176,6 +207,12 @@ export const AdminLegalLog: React.FC = () => {
           <p className="text-oakland-ink/50 mt-2 font-medium">Comprehensive compliance tracking and legal documentation.</p>
         </div>
         <div className="flex gap-4">
+          <button 
+            onClick={() => setIsViolationModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-oakland-ink/10 rounded-full font-bold text-sm hover:bg-oakland-ink hover:text-white transition-all shadow-sm"
+          >
+            <AlertTriangle className="w-4 h-4" /> Log Violation
+          </button>
           <button 
             onClick={() => setIsNoticeModalOpen(true)}
             className="flex items-center gap-2 px-6 py-3 bg-white border border-oakland-ink/10 rounded-full font-bold text-sm hover:bg-oakland-ink hover:text-white transition-all shadow-sm"
@@ -252,6 +289,105 @@ export const AdminLegalLog: React.FC = () => {
                     className="flex-1 py-4 bg-oakland-terracotta text-white font-bold uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-oakland-terracotta/20"
                   >
                     Send Notice
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Log Violation Modal */}
+      <AnimatePresence>
+        {isViolationModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-oakland-ink/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-lg bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-oakland-ink/10"
+            >
+              <div className="p-8 border-b border-oakland-ink/5 bg-oakland-paper/30">
+                <h3 className="text-2xl font-serif font-black text-oakland-ink">Log Lease <span className="italic text-oakland-terracotta">Violation</span></h3>
+                <p className="text-xs text-oakland-ink/40 font-bold uppercase tracking-widest mt-1">Legal Defense Log Entry</p>
+              </div>
+              <form onSubmit={handleLogViolation} className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest ml-4">Tenant</label>
+                  <select 
+                    required
+                    value={newViolation.tenant_id}
+                    onChange={(e) => setNewViolation({ ...newViolation, tenant_id: e.target.value })}
+                    className="w-full px-6 py-4 bg-oakland-ink/5 border border-oakland-ink/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 font-bold text-oakland-ink"
+                  >
+                    <option value="">Select a tenant...</option>
+                    {tenants.map(t => (
+                      <option key={t.id} value={t.id}>{t.name} (Unit {t.unit_number})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest ml-4">Violation Type</label>
+                  <select 
+                    required
+                    value={newViolation.violation_type}
+                    onChange={(e) => setNewViolation({ ...newViolation, violation_type: e.target.value })}
+                    className="w-full px-6 py-4 bg-oakland-ink/5 border border-oakland-ink/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 font-bold text-oakland-ink"
+                  >
+                    <option value="Unauthorized Occupant">Unauthorized Occupant</option>
+                    <option value="Property Damage">Property Damage</option>
+                    <option value="Noise Complaint">Noise Complaint</option>
+                    <option value="Non-Payment">Non-Payment</option>
+                    <option value="Health & Safety">Health & Safety</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest ml-4">Date</label>
+                    <input 
+                      required
+                      type="date"
+                      value={newViolation.violation_date}
+                      onChange={(e) => setNewViolation({ ...newViolation, violation_date: e.target.value })}
+                      className="w-full px-6 py-4 bg-oakland-ink/5 border border-oakland-ink/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 font-bold text-oakland-ink"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest ml-4">Description</label>
+                  <textarea 
+                    required
+                    rows={3}
+                    placeholder="Describe the violation in detail..."
+                    value={newViolation.description}
+                    onChange={(e) => setNewViolation({ ...newViolation, description: e.target.value })}
+                    className="w-full px-6 py-4 bg-oakland-ink/5 border border-oakland-ink/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 font-bold text-oakland-ink resize-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest ml-4">Internal Notes</label>
+                  <input 
+                    type="text"
+                    placeholder="Private notes for management..."
+                    value={newViolation.gm_notes}
+                    onChange={(e) => setNewViolation({ ...newViolation, gm_notes: e.target.value })}
+                    className="w-full px-6 py-4 bg-oakland-ink/5 border border-oakland-ink/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 font-bold text-oakland-ink"
+                  />
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <button 
+                    type="button"
+                    onClick={() => setIsViolationModalOpen(false)}
+                    className="flex-1 py-4 bg-oakland-ink/5 text-oakland-ink/40 font-bold uppercase tracking-widest rounded-2xl hover:bg-oakland-ink/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="flex-1 py-4 bg-oakland-terracotta text-white font-bold uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-oakland-terracotta/20"
+                  >
+                    Log Violation
                   </button>
                 </div>
               </form>
@@ -448,6 +584,7 @@ export const AdminLegalLog: React.FC = () => {
                 <thead>
                   <tr className="bg-oakland-ink/5 border-b border-oakland-ink/5">
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Tenant / Unit</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Type</th>
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Violation Details</th>
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Date</th>
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Status</th>
@@ -467,6 +604,11 @@ export const AdminLegalLog: React.FC = () => {
                             <div className="text-xs text-oakland-ink/40">Unit {v.unit_number}</div>
                           </div>
                         </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-oakland-terracotta bg-oakland-terracotta/5 px-2 py-1 rounded border border-oakland-terracotta/10">
+                          {v.violation_type || 'General'}
+                        </span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="font-bold text-oakland-ink">{v.description}</div>

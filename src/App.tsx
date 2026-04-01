@@ -51,6 +51,8 @@ import { FeatureSummarySheet } from './components/FeatureSummarySheet';
 import { PropertyHierarchy } from './components/PropertyHierarchy';
 import { TenantPortal } from './components/TenantPortal';
 import { CommunityModule } from './components/CommunityModule';
+import { ThemeToggle } from './components/ThemeToggle';
+import { useTheme } from './components/ThemeContext';
 
 import { CEOBriefingPortal } from './components/CEOBriefingPortal';
 import { SFPlusModule } from './components/SFPlusModule';
@@ -75,70 +77,72 @@ const distributionData = [
 ];
 
 export default function App() {
+  const { theme } = useTheme();
   const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
   const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log' | 'vendors'>('portfolio');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className={`min-h-screen ${view === 'hub' ? 'bg-oakland-cream text-oakland-ink' : 'bg-zinc-950 text-zinc-100'} font-sans selection:bg-oakland-terracotta/30 transition-colors duration-700`}>
+    <div className={`min-h-screen font-sans selection:bg-oakland-terracotta/30 transition-colors duration-700`}>
       {view === 'admin' && <ShimmerBackground />}
       
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 border-b ${view === 'hub' ? 'border-oakland-ink/5 bg-oakland-paper/80' : 'border-white/5 bg-black/20'} backdrop-blur-xl transition-all duration-500`}>
+      <nav className={`fixed top-0 w-full z-50 border-b border-app-border bg-app-bg/80 backdrop-blur-xl transition-all duration-500`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex flex-col -space-y-1">
-              <span className={`text-xl font-black tracking-tighter ${view === 'hub' ? 'text-oakland-ink' : 'text-white'}`}>3875 RUBY</span>
-              <span className={`text-[8px] font-bold ${view === 'hub' ? 'text-oakland-terracotta' : 'text-irish-green'} uppercase tracking-[0.2em]`}>Oakland Soul</span>
+              <span className={`text-xl font-black tracking-tighter text-app-text`}>3875 RUBY</span>
+              <span className={`text-[8px] font-bold ${theme === 'light' ? 'text-oakland-terracotta' : 'text-irish-green'} uppercase tracking-[0.2em]`}>Oakland Soul</span>
             </div>
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             {view === 'hub' ? (
               <>
-                <a href="#about" className="text-oakland-ink/60 hover:text-oakland-ink transition-colors">About</a>
-                <a href="#amenities" className="text-oakland-ink/60 hover:text-oakland-ink transition-colors">Amenities</a>
-                <a href="#neighborhood" className="text-oakland-ink/60 hover:text-oakland-ink transition-colors">Neighborhood</a>
-                <a href="#gallery" className="text-oakland-ink/60 hover:text-oakland-ink transition-colors">Gallery</a>
+                <a href="#about" className="text-app-text/60 hover:text-app-text transition-colors">About</a>
+                <a href="#amenities" className="text-app-text/60 hover:text-app-text transition-colors">Amenities</a>
+                <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
+                <a href="#gallery" className="text-app-text/60 hover:text-app-text transition-colors">Gallery</a>
               </>
             ) : (
               <>
-                <a href="#features" className="text-zinc-400 hover:text-white transition-colors">Features</a>
-                <a href="#intelligence" className="text-zinc-400 hover:text-white transition-colors">Intelligence</a>
-                <a href="#rent-roll" className="text-zinc-400 hover:text-white transition-colors">Rent Roll</a>
+                <a href="#features" className="text-app-text/60 hover:text-app-text transition-colors">Features</a>
+                <a href="#intelligence" className="text-app-text/60 hover:text-app-text transition-colors">Intelligence</a>
+                <a href="#rent-roll" className="text-app-text/60 hover:text-app-text transition-colors">Rent Roll</a>
               </>
             )}
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {/* View Toggle */}
-            <div className={`flex p-1 rounded-full ${view === 'hub' ? 'bg-oakland-ink/10' : 'bg-white/5'} border ${view === 'hub' ? 'border-oakland-ink/20' : 'border-white/10'}`}>
+            <div className={`flex p-1 rounded-full bg-app-text/10 border border-app-border`}>
               <button 
                 onClick={() => setView('hub')}
-                className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'hub' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
+                  : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
                 Hub
               </button>
               <button 
                 onClick={() => setView('admin')}
-                className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'admin' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
+                  : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
                 Admin
               </button>
               <button 
                 onClick={() => setView('tenant')}
-                className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'tenant' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
+                  : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
                 Tenant
@@ -200,8 +204,6 @@ export default function App() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-oakland-paper"></div>
-                {/* Luminia Glow Effect */}
-                <div className="absolute inset-0 bg-radial-gradient from-oakland-terracotta/20 via-transparent to-transparent opacity-50 mix-blend-screen animate-pulse"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
@@ -209,23 +211,20 @@ export default function App() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="max-w-4xl relative"
+                  className="max-w-4xl"
                 >
-                  {/* Luminia Aura */}
-                  <div className="absolute -inset-20 bg-oakland-terracotta/10 blur-[100px] rounded-full -z-10 animate-pulse"></div>
-                  
                   <div className="inline-block px-4 py-2 bg-oakland-terracotta text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
                     Est. 1924 // Oakland, CA
                   </div>
-                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-[0_0_30px_rgba(242,125,38,0.5)] uppercase">
-                    RUBY <br /> <span className="text-oakland-terracotta drop-shadow-[0_0_50px_rgba(242,125,38,0.8)]">SOUL.</span>
+                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
+                    RUBY <br /> <span className="text-oakland-terracotta">SOUL.</span>
                   </h1>
                   <div className="mt-12 flex flex-col md:flex-row md:items-end gap-12">
-                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight drop-shadow-lg">
+                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
                       Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-oakland-terracotta underline-offset-8">progress of 100 years</span>.
                     </div>
                     <div className="flex flex-col gap-4">
-                      <button className="px-10 py-5 bg-oakland-terracotta text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-oakland-ink transition-all shadow-[0_0_30px_rgba(242,125,38,0.4)] hover:scale-105">
+                      <button className="px-10 py-5 bg-oakland-terracotta text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-oakland-ink transition-all shadow-2xl hover:scale-105">
                         Explore Units
                       </button>
                       <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-md rounded-full border border-white/20">
@@ -253,7 +252,7 @@ export default function App() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="p-8 rounded-[2rem] bg-white border border-oakland-ink/5 shadow-sm hover:shadow-xl transition-all group"
+                    className="p-8 rounded-[2rem] bg-app-card border border-app-border shadow-sm hover:shadow-xl transition-all group"
                   >
                     <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                       <item.icon className="w-6 h-6" />
@@ -271,8 +270,8 @@ export default function App() {
                 <div className="relative">
                   <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl">
                     <img 
-                      src="https://images.unsplash.com/photo-1605146769289-440113cc3d00?q=80&w=1000&auto=format&fit=crop" 
-                      alt="3875 Ruby Street - Google Street View Style" 
+                      src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop" 
+                      alt="Oakland Residential Architecture" 
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
@@ -329,7 +328,7 @@ export default function App() {
                   { title: 'Hospital Proximity', desc: 'Perfect for medical professionals working at nearby centers.', icon: Hospital },
                   { title: 'Mosswood Park', desc: 'Your backyard just got bigger. Recreation, dog park, and more.', icon: TreePine },
                 ].map((item, i) => (
-                  <div key={item.title} className="p-12 rounded-[3rem] bg-white border-2 border-oakland-ink/5 hover:border-oakland-terracotta/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
+                  <div key={item.title} className="p-12 rounded-[3rem] bg-app-card border-2 border-app-border hover:border-oakland-terracotta/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
                     <div className="w-16 h-16 rounded-2xl bg-oakland-olive/10 flex items-center justify-center mb-10 group-hover:bg-oakland-terracotta/10 transition-colors">
                       <item.icon className="w-8 h-8 text-oakland-olive group-hover:text-oakland-terracotta transition-colors" />
                     </div>
@@ -357,13 +356,13 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   <div className="md:col-span-8 group relative overflow-hidden rounded-[3rem] shadow-2xl">
                     <img 
-                      src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1000&auto=format&fit=crop" 
-                      alt="Amazon Hub Lockers at Ruby St" 
+                      src="https://picsum.photos/seed/ruby-main-building/1200/800" 
+                      alt="3875 Ruby St Building" 
                       className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
-                      <div className="text-2xl font-serif italic text-white">Secure Amazon Hub Lockers</div>
+                      <div className="text-2xl font-serif italic text-white">Classic Oakland Architecture</div>
                     </div>
                   </div>
                   <div className="md:col-span-4 grid grid-rows-2 gap-6">
@@ -579,7 +578,7 @@ export default function App() {
                       navigator.clipboard.writeText(url);
                       alert('Link copied! Ready to share with your team.');
                     }}
-                    className="flex items-center gap-2 px-6 py-3 bg-white border border-oakland-ink/10 rounded-full font-bold text-sm hover:bg-oakland-ink hover:text-white transition-all shadow-sm"
+                    className="flex items-center gap-2 px-6 py-3 bg-app-card border border-app-border rounded-full font-bold text-sm hover:bg-oakland-ink hover:text-white transition-all shadow-sm"
                   >
                     <Share2 className="w-4 h-4" /> Share Hub
                   </button>
@@ -596,7 +595,7 @@ export default function App() {
                   { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50/50' },
                   { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50/50' },
                 ].map((stat) => (
-                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-white border-2 border-oakland-ink/5 shadow-lg hover:border-oakland-terracotta/20 transition-all group`}>
+                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-oakland-terracotta/20 transition-all group`}>
                     <div className="flex justify-between items-start mb-6">
                       <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
                         <stat.icon className={`w-8 h-8 ${stat.color}`} />
@@ -641,7 +640,7 @@ export default function App() {
 
               {/* Main Portal Content */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
                   <div className="flex justify-between items-center mb-10">
                     <h3 className="text-2xl font-serif font-bold">Revenue Intelligence</h3>
                     <div className="flex gap-2">
@@ -670,7 +669,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
                   <h3 className="text-2xl font-serif font-bold mb-8">Recent Activity</h3>
                   <div className="space-y-6">
                     {[

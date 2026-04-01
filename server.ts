@@ -194,6 +194,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS lease_violations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tenant_id INTEGER,
+    violation_type TEXT, -- 'Unauthorized Occupant', 'Property Damage', 'Noise Complaint', 'Non-Payment', etc.
     description TEXT NOT NULL,
     violation_date DATE NOT NULL,
     photo_url TEXT,
@@ -294,6 +295,11 @@ try {
 } catch (e) {}
 try {
   db.exec("ALTER TABLE properties ADD COLUMN street_sweeping_day TEXT");
+} catch (e) {}
+
+// Migration: Add violation_type to lease_violations
+try {
+  db.exec("ALTER TABLE lease_violations ADD COLUMN violation_type TEXT");
 } catch (e) {}
 
 // Seed data if empty
@@ -409,8 +415,8 @@ if (propertyCount.count === 0) {
   insertNotice.run(1, "3-Day Notice to Pay or Quit", "Rent for March 2026 is overdue. Please pay within 3 days...", "Sent", null, null);
 
   // Seed Lease Violations
-  const insertViolation = db.prepare("INSERT INTO lease_violations (tenant_id, description, violation_date, status) VALUES (?, ?, ?, ?)");
-  insertViolation.run(1, "Unauthorized Guest Pattern Detected", "2026-03-24", "Logged");
+  const insertViolation = db.prepare("INSERT INTO lease_violations (tenant_id, violation_type, description, violation_date, status) VALUES (?, ?, ?, ?, ?)");
+  insertViolation.run(1, "Unauthorized Occupant", "Unauthorized Guest Pattern Detected", "2026-03-24", "Logged");
 
   // Seed Legal Library 2026
   const insertLibrary = db.prepare("INSERT INTO legal_library_2026 (title, description, category, pdf_url, external_link, is_mandatory) VALUES (?, ?, ?, ?, ?, ?)");
@@ -752,8 +758,9 @@ async function startServer() {
   });
 
   app.post("/api/lease-violations", (req, res) => {
-    const { tenant_id, description, violation_date, photo_url, gm_notes } = req.body;
-    db.prepare("INSERT INTO lease_violations (tenant_id, description, violation_date, photo_url, gm_notes) VALUES (?, ?, ?, ?, ?)").run(tenant_id, description, violation_date, photo_url, gm_notes);
+    const { tenant_id, violation_type, description, violation_date, photo_url, gm_notes } = req.body;
+    db.prepare("INSERT INTO lease_violations (tenant_id, violation_type, description, violation_date, photo_url, gm_notes) VALUES (?, ?, ?, ?, ?, ?)")
+      .run(tenant_id, violation_type, description, violation_date, photo_url, gm_notes);
     res.json({ status: "ok" });
   });
 
