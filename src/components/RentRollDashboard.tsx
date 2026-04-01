@@ -12,7 +12,9 @@ import {
   Plus,
   MoreHorizontal,
   MessageSquare,
-  FileText
+  FileText,
+  ShieldAlert,
+  Gavel
 } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -22,6 +24,7 @@ interface RentRollItem {
   rent_amount: number;
   status: string;
   tenant_name: string | null;
+  tenant_id: number | null;
   lease_end: string | null;
   balance_due: number;
   last_login_at: string | null;
@@ -30,6 +33,8 @@ interface RentRollItem {
   last_payment_status: string | null;
   neighborhood: string | null;
   photos: string | null;
+  needs_reply: number;
+  last_tenant_activity_at: string | null;
 }
 
 interface User {
@@ -69,6 +74,25 @@ interface Stats {
   total_potential_revenue: number;
 }
 
+interface TenantNotice {
+  id: number;
+  title: string;
+  content: string;
+  status: string;
+  sent_at: string;
+  viewed_at?: string;
+  acknowledged_at?: string;
+  acknowledged_ip?: string;
+  viewed_ip?: string;
+}
+
+interface LeaseViolation {
+  id: number;
+  description: string;
+  violation_date: string;
+  status: string;
+}
+
 export const RentRollDashboard: React.FC = () => {
   const [data, setData] = useState<RentRollItem[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -81,6 +105,10 @@ export const RentRollDashboard: React.FC = () => {
   // Detail views state
   const [messages, setMessages] = useState<Message[]>([]);
   const [maintenance, setMaintenance] = useState<MaintenanceRequest[]>([]);
+  const [notices, setNotices] = useState<TenantNotice[]>([]);
+  const [violations, setViolations] = useState<LeaseViolation[]>([]);
+  const [isLoggingViolation, setIsLoggingViolation] = useState(false);
+  const [violationData, setViolationData] = useState({ description: '', violation_date: new Date().toISOString().split('T')[0] });
   const [newMessage, setNewMessage] = useState('');
   const [leftPanelWidth, setLeftPanelWidth] = useState(50); // percentage
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,7 +161,7 @@ export const RentRollDashboard: React.FC = () => {
     }
   };
 
-  const fetchUnitDetails = async (unitId: number) => {
+  const fetchUnitDetails = async (unitId: number, tenantId: number | null) => {
     try {
       const [msgRes, maintRes] = await Promise.all([
         fetch(`/api/messages/${unitId}`),
@@ -141,6 +169,18 @@ export const RentRollDashboard: React.FC = () => {
       ]);
       setMessages(await msgRes.json());
       setMaintenance(await maintRes.json());
+      
+      if (tenantId) {
+        const [noticesRes, violationsRes] = await Promise.all([
+          fetch(`/api/tenant-notices/${tenantId}`),
+          fetch(`/api/lease-violations/${tenantId}`)
+        ]);
+        setNotices(await noticesRes.json());
+        setViolations(await violationsRes.json());
+      } else {
+        setNotices([]);
+        setViolations([]);
+      }
     } catch (error) {
       console.error("Error fetching unit details:", error);
     }
@@ -168,7 +208,7 @@ export const RentRollDashboard: React.FC = () => {
 
   useEffect(() => {
     if (selectedUnit) {
-      fetchUnitDetails(selectedUnit.id);
+      fetchUnitDetails(selectedUnit.id, selectedUnit.tenant_id);
     }
   }, [selectedUnit]);
 
@@ -185,7 +225,7 @@ export const RentRollDashboard: React.FC = () => {
         })
       });
       setNewMessage('');
-      fetchUnitDetails(selectedUnit.id);
+      fetchUnitDetails(selectedUnit.id, selectedUnit.tenant_id);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -236,10 +276,43 @@ Are you absolutely sure you want to proceed?`,
     try {
       const res = await fetch(`/api/reports/unit/${unitId}`);
       const data = await res.json();
+      
+      // Fetch additional legal data
+      if (data.unit.tenant_id) {
+        const [noticesRes, violationsRes] = await Promise.all([
+          fetch(`/api/tenant-notices/${data.unit.tenant_id}`),
+          fetch(`/api/lease-violations/${data.unit.tenant_id}`)
+        ]);
+        data.notices = await noticesRes.json();
+        data.violations = await violationsRes.json();
+      } else {
+        data.notices = [];
+        data.violations = [];
+      }
+
       setReportData(data);
       setIsReportOpen(true);
     } catch (error) {
       console.error("Error generating report:", error);
+    }
+  };
+
+  const handleLogViolation = async () => {
+    if (!selectedUnit?.tenant_id) return;
+    try {
+      await fetch('/api/lease-violations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: selectedUnit.tenant_id,
+          ...violationData
+        })
+      });
+      setIsLoggingViolation(false);
+      setViolationData({ description: '', violation_date: new Date().toISOString().split('T')[0] });
+      fetchUnitDetails(selectedUnit.id, selectedUnit.tenant_id);
+    } catch (error) {
+      console.error("Failed to log violation:", error);
     }
   };
 
@@ -301,7 +374,7 @@ Are you absolutely sure you want to proceed?`,
             photo_url: base64String
           })
         });
-        fetchUnitDetails(selectedUnit.id);
+        fetchUnitDetails(selectedUnit.id, selectedUnit.tenant_id);
       } catch (error) {
         console.error("Error uploading photo:", error);
       } finally {
@@ -313,6 +386,18 @@ Are you absolutely sure you want to proceed?`,
 
   const formatCurrency = (val: number | null | undefined) => {
     return (val ?? 0).toLocaleString();
+  };
+
+  const getDaysRemaining = (dateStr: string | null) => {
+    if (!dateStr) return null;
+    const end = new Date(dateStr);
+    const now = new Date();
+    // Set both to start of day for accurate day calculation
+    end.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    const diffTime = end.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   const handleUpdateUnit = async () => {
@@ -335,6 +420,14 @@ Are you absolutely sure you want to proceed?`,
   const isGM = user?.role === 'GM';
   const isGMOrOwner = user?.role === 'GM' || user?.role === 'OWNER';
 
+  const isUnansweredAlert = (unit: RentRollItem) => {
+    if (!unit.needs_reply || !unit.last_tenant_activity_at) return false;
+    const activityDate = new Date(unit.last_tenant_activity_at);
+    const now = new Date();
+    const diffHours = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
+    return diffHours >= 48;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -354,6 +447,41 @@ Are you absolutely sure you want to proceed?`,
         type={confirmState.type}
       />
       
+      {/* Global Alerts */}
+      {data.some(isUnansweredAlert) && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-6 rounded-[2rem] bg-red-600/10 border border-red-600/20 flex items-center justify-between gap-6 shadow-2xl shadow-red-600/5"
+        >
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-600/40 animate-pulse">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Legal Compliance Alert</h3>
+              <p className="text-red-500 font-mono text-xs font-bold uppercase tracking-widest mt-1">
+                {data.filter(isUnansweredAlert).length} Tenant messages unanswered for 48+ hours. Immediate response required for legal defense.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <button 
+              onClick={() => {
+                const firstAlert = data.find(isUnansweredAlert);
+                if (firstAlert) {
+                  setSelectedUnit(firstAlert);
+                  setIsDetailOpen(true);
+                }
+              }}
+              className="px-8 py-4 rounded-2xl bg-red-600 text-white text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+            >
+              Review Alerts
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl">
@@ -443,6 +571,7 @@ Are you absolutely sure you want to proceed?`,
                 <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Rent</th>
                 <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Balance</th>
                 <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Last Payment</th>
+                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Lease End</th>
                 <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
@@ -458,8 +587,15 @@ Are you absolutely sure you want to proceed?`,
                 >
                   <td className="px-10 py-10">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-white border border-white/5 group-hover:border-irish-green/30 transition-all">
-                        {unit.unit_number}
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-white border border-white/5 group-hover:border-irish-green/30 transition-all">
+                          {unit.unit_number}
+                        </div>
+                        {isUnansweredAlert(unit) && (
+                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center border-2 border-zinc-900 animate-bounce shadow-lg shadow-red-600/40">
+                            <AlertCircle className="w-4 h-4 text-white" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -507,6 +643,28 @@ Are you absolutely sure you want to proceed?`,
                         </div>
                       )}
                     </div>
+                  </td>
+                  <td className="px-10 py-10">
+                    {unit.lease_end ? (
+                      <div className="flex flex-col gap-1">
+                        <div className="text-xl font-black text-white font-mono tracking-tighter">
+                          {unit.lease_end}
+                        </div>
+                        {(() => {
+                          const days = getDaysRemaining(unit.lease_end);
+                          if (days === null) return null;
+                          const isExpiringSoon = days >= 0 && days <= 30;
+                          const isExpired = days < 0;
+                          return (
+                            <div className={`text-[10px] font-black uppercase tracking-widest ${isExpiringSoon || isExpired ? 'text-red-500' : 'text-zinc-500'}`}>
+                              {isExpired ? 'Expired' : `${days} Days Remaining`}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-zinc-600 italic font-mono font-bold tracking-widest">N/A</span>
+                    )}
                   </td>
                   <td className="px-10 py-10 text-right">
                     <div className="flex items-center justify-end gap-4">
@@ -843,63 +1001,153 @@ Are you absolutely sure you want to proceed?`,
 
                 {/* Unit Management (GM/Owner Only) */}
                 {isGMOrOwner && (
-                  <div className="p-6 border-t border-white/5 bg-white/[0.01]">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Unit Management</h4>
-                      <button 
-                        onClick={() => {
-                          setIsEditingUnit(!isEditingUnit);
-                          setEditUnitData({ 
-                            status: selectedUnit.status, 
-                            photos: selectedUnit.photos || '' 
-                          });
-                        }}
-                        className="text-[10px] font-black text-irish-green uppercase tracking-widest hover:text-irish-green-lt transition-colors"
-                      >
-                        {isEditingUnit ? 'Cancel' : 'Edit Unit'}
-                      </button>
-                    </div>
-
-                    {isEditingUnit ? (
-                      <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/5">
-                        <div>
-                          <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</label>
-                          <select 
-                            value={editUnitData.status}
-                            onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
-                            className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
-                          >
-                            <option value="Occupied">Occupied</option>
-                            <option value="Vacant">Vacant</option>
-                            <option value="Maintenance">Maintenance</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photo URL</label>
-                          <input 
-                            type="text"
-                            value={editUnitData.photos}
-                            onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
-                            placeholder="https://..."
-                            className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
-                          />
-                        </div>
+                  <div className="p-6 border-t border-white/5 bg-white/[0.01] space-y-6">
+                    {/* Unit Status/Photos */}
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Unit Management</h4>
                         <button 
-                          onClick={handleUpdateUnit}
-                          className="w-full py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-irish-green-lt transition-all"
+                          onClick={() => {
+                            setIsEditingUnit(!isEditingUnit);
+                            setEditUnitData({ 
+                              status: selectedUnit.status, 
+                              photos: selectedUnit.photos || '' 
+                            });
+                          }}
+                          className="text-[10px] font-black text-irish-green uppercase tracking-widest hover:text-irish-green-lt transition-colors"
                         >
-                          Save Changes
+                          {isEditingUnit ? 'Cancel' : 'Edit Unit'}
                         </button>
                       </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                          <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</span>
-                          <span className="text-xs font-bold text-white uppercase">{selectedUnit.status}</span>
+
+                      {isEditingUnit ? (
+                        <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                          <div>
+                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</label>
+                            <select 
+                              value={editUnitData.status}
+                              onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
+                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                            >
+                              <option value="Occupied">Occupied</option>
+                              <option value="Vacant">Vacant</option>
+                              <option value="Maintenance">Maintenance</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photo URL</label>
+                            <input 
+                              type="text"
+                              value={editUnitData.photos}
+                              onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
+                              placeholder="https://..."
+                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                            />
+                          </div>
+                          <button 
+                            onClick={handleUpdateUnit}
+                            className="w-full py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-irish-green-lt transition-all"
+                          >
+                            Save Changes
+                          </button>
                         </div>
-                        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                          <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photos</span>
-                          <span className="text-xs font-bold text-white uppercase">{selectedUnit.photos ? 'Available' : 'None'}</span>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 rounded-lg bg-white/5 border border-white/5">
+                            <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</span>
+                            <span className="text-xs font-bold text-white uppercase">{selectedUnit.status}</span>
+                          </div>
+                          <div className="p-3 rounded-lg bg-white/5 border border-white/5">
+                            <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photos</span>
+                            <span className="text-xs font-bold text-white uppercase">{selectedUnit.photos ? 'Available' : 'None'}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Lease Violations */}
+                    {selectedUnit.tenant_id && (
+                      <div className="pt-6 border-t border-white/5">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                            <ShieldAlert className="w-3 h-3 text-red-500" /> Lease Violations
+                          </h4>
+                          <button 
+                            onClick={() => setIsLoggingViolation(!isLoggingViolation)}
+                            className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors"
+                          >
+                            {isLoggingViolation ? 'Cancel' : 'Log Violation'}
+                          </button>
+                        </div>
+
+                        {isLoggingViolation ? (
+                          <div className="space-y-4 bg-red-500/5 p-4 rounded-xl border border-red-500/10">
+                            <input 
+                              type="date"
+                              value={violationData.violation_date}
+                              onChange={(e) => setViolationData({ ...violationData, violation_date: e.target.value })}
+                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold"
+                            />
+                            <textarea 
+                              value={violationData.description}
+                              onChange={(e) => setViolationData({ ...violationData, description: e.target.value })}
+                              placeholder="Describe the violation (e.g., unauthorized guest, noise)..."
+                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold min-h-[80px]"
+                            />
+                            <button 
+                              onClick={handleLogViolation}
+                              className="w-full py-2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-red-500 transition-all"
+                            >
+                              Log Violation
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {violations.map(v => (
+                              <div key={v.id} className="p-3 rounded-lg bg-white/5 border border-white/5 flex justify-between items-start">
+                                <div>
+                                  <div className="text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">{v.violation_date}</div>
+                                  <div className="text-xs text-zinc-300 leading-relaxed">{v.description}</div>
+                                </div>
+                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{v.status}</span>
+                              </div>
+                            ))}
+                            {violations.length === 0 && (
+                              <div className="text-[10px] text-zinc-600 italic">No violations logged.</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Legal Notices Tracking */}
+                    {selectedUnit.tenant_id && (
+                      <div className="pt-6 border-t border-white/5">
+                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <Gavel className="w-3 h-3 text-irish-green" /> Notice Tracking
+                        </h4>
+                        <div className="space-y-3">
+                          {notices.map(n => (
+                            <div key={n.id} className="p-3 rounded-lg bg-white/5 border border-white/5">
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="text-xs font-bold text-white">{n.title}</div>
+                                <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
+                                  n.status === 'Acknowledged' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'
+                                }`}>
+                                  {n.status}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-[8px] font-black text-zinc-500 uppercase tracking-widest">
+                                <div>Sent: {new Date(n.sent_at).toLocaleDateString()}</div>
+                                {n.viewed_at && <div>Viewed: {new Date(n.viewed_at).toLocaleDateString()}</div>}
+                                {n.acknowledged_at && <div className="col-span-2 text-emerald-500">Ack: {new Date(n.acknowledged_at).toLocaleString()}</div>}
+                                {n.acknowledged_ip && <div className="col-span-2 opacity-50">IP: {n.acknowledged_ip}</div>}
+                              </div>
+                            </div>
+                          ))}
+                          {notices.length === 0 && (
+                            <div className="text-[10px] text-zinc-600 italic">No notices issued.</div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -972,6 +1220,58 @@ Are you absolutely sure you want to proceed?`,
                   </div>
                 </section>
               </div>
+              
+              {/* Legal Defense Package */}
+              <section className="mb-12 space-y-6">
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b-2 border-black pb-2">Legal Defense Package (Evidence Log)</h2>
+                
+                <div className="space-y-8">
+                  {/* Notice Acknowledgments */}
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest">1. Notice Acknowledgments</h3>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-black/10">
+                          <th className="text-left py-2">Notice Title</th>
+                          <th className="text-left py-2">Sent</th>
+                          <th className="text-left py-2">Viewed</th>
+                          <th className="text-left py-2">Acknowledged</th>
+                          <th className="text-right py-2">IP Address</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/5">
+                        {reportData.notices.map((n: any) => (
+                          <tr key={n.id}>
+                            <td className="py-2 font-bold">{n.title}</td>
+                            <td className="py-2">{new Date(n.sent_at).toLocaleDateString()}</td>
+                            <td className="py-2">{n.viewed_at ? new Date(n.viewed_at).toLocaleDateString() : 'N/A'}</td>
+                            <td className="py-2 font-bold text-emerald-600">{n.acknowledged_at ? new Date(n.acknowledged_at).toLocaleString() : 'PENDING'}</td>
+                            <td className="py-2 text-right font-mono text-[10px]">{n.acknowledged_ip || n.viewed_ip || 'N/A'}</td>
+                          </tr>
+                        ))}
+                        {reportData.notices.length === 0 && <tr><td colSpan={5} className="py-4 text-center italic text-zinc-400">No notices issued.</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Lease Violations */}
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest">2. Documented Lease Violations</h3>
+                    <div className="space-y-3">
+                      {reportData.violations.map((v: any) => (
+                        <div key={v.id} className="p-4 bg-zinc-50 border border-black/5 rounded-lg">
+                          <div className="flex justify-between mb-1">
+                            <span className="font-bold">{v.violation_date}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{v.status}</span>
+                          </div>
+                          <p className="text-sm">{v.description}</p>
+                        </div>
+                      ))}
+                      {reportData.violations.length === 0 && <p className="text-sm italic text-zinc-400">No violations documented.</p>}
+                    </div>
+                  </div>
+                </div>
+              </section>
 
               <section className="mb-12">
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] border-b border-black/10 pb-2 mb-6">Payment History</h2>

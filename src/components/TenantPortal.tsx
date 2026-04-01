@@ -19,8 +19,14 @@ import {
   Mail,
   Eye,
   Cpu,
-  ShieldAlert
+  ShieldAlert,
+  FileWarning,
+  Gavel,
+  Wrench,
+  LayoutGrid
 } from 'lucide-react';
+
+import { LeaseUpdateWalkthrough } from './LeaseUpdateWalkthrough';
 
 interface UserSettings {
   preferred_notification_time: string;
@@ -43,8 +49,34 @@ interface ConstructionUpdate {
   update_date: string;
 }
 
+interface TenantNotice {
+  id: number;
+  title: string;
+  content: string;
+  status: string;
+  sent_at: string;
+  viewed_at?: string;
+  acknowledged_at?: string;
+}
+
+interface LeaseViolation {
+  id: number;
+  description: string;
+  violation_date: string;
+  status: string;
+  gm_notes?: string;
+}
+
+interface LeaseUpdate {
+  id: number;
+  year: number;
+  status: string;
+  walkthrough_completed: number;
+  signed_at?: string;
+}
+
 export const TenantPortal = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'legal' | 'maintenance'>('dashboard');
   const [settings, setSettings] = useState<UserSettings>({
     preferred_notification_time: '09:00',
     sms_enabled: true,
@@ -52,6 +84,12 @@ export const TenantPortal = () => {
   });
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [constructionUpdates, setConstructionUpdates] = useState<ConstructionUpdate[]>([]);
+  const [notices, setNotices] = useState<TenantNotice[]>([]);
+  const [violations, setViolations] = useState<LeaseViolation[]>([]);
+  const [maintenanceRequests, setMaintenanceRequests] = useState<any[]>([]);
+  const [leaseUpdate, setLeaseUpdate] = useState<LeaseUpdate | null>(null);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState<TenantNotice | null>(null);
   const [referralData, setReferralData] = useState({ name: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reportText, setReportText] = useState('');
@@ -62,7 +100,15 @@ export const TenantPortal = () => {
     fetch('/api/user-settings/1').then(res => res.json()).then(setSettings);
     fetch('/api/security-events/1').then(res => res.json()).then(setSecurityEvents);
     fetch('/api/construction-updates/1').then(res => res.json()).then(setConstructionUpdates);
+    fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
+    fetch('/api/lease-violations/1').then(res => res.json()).then(setViolations);
+    fetch('/api/maintenance?unit_id=1').then(res => res.json()).then(setMaintenanceRequests);
+    fetch('/api/lease-updates/1').then(res => res.json()).then(data => setLeaseUpdate(data[0] || null));
   }, []);
+
+  const fetchLeaseUpdate = () => {
+    fetch('/api/lease-updates/1').then(res => res.json()).then(data => setLeaseUpdate(data[0] || null));
+  };
 
   const handleUpdateSettings = async (newSettings: Partial<UserSettings>) => {
     const updated = { ...settings, ...newSettings };
@@ -106,13 +152,56 @@ export const TenantPortal = () => {
     }, 1000);
   };
 
+  const handleViewNotice = async (notice: TenantNotice) => {
+    setSelectedNotice(notice);
+    if (notice.status === 'Sent') {
+      await fetch(`/api/tenant-notices/${notice.id}/view`, { method: 'PATCH' });
+      fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
+    }
+  };
+
+  const handleAcknowledgeNotice = async (noticeId: number) => {
+    setIsSubmitting(true);
+    try {
+      await fetch(`/api/tenant-notices/${noticeId}/acknowledge`, { method: 'PATCH' });
+      fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
+      setSelectedNotice(null);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateMaintenance = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unit_id: 1, // Mock
+          description: reportText,
+          photo_url: ''
+        })
+      });
+      setReportText('');
+      setShowReportSuccess(true);
+      fetch('/api/maintenance?unit_id=1').then(res => res.json()).then(setMaintenanceRequests);
+      setTimeout(() => setShowReportSuccess(false), 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Portal Navigation */}
       <div className="flex gap-8 border-b border-oakland-ink/5 overflow-x-auto pb-px">
         {[
-          { id: 'dashboard', label: 'Dashboard', icon: LayoutGridIcon },
+          { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+          { id: 'maintenance', label: 'Maintenance', icon: Wrench },
           { id: 'security', label: 'Security', icon: ShieldCheck },
+          { id: 'legal', label: 'Legal & Notices', icon: Gavel },
           { id: 'refer', label: 'Refer a Friend', icon: Users },
           { id: 'settings', label: 'Notifications', icon: Bell }
         ].map((tab) => (
@@ -128,6 +217,19 @@ export const TenantPortal = () => {
         ))}
       </div>
 
+      <AnimatePresence>
+        {showWalkthrough && (
+          <LeaseUpdateWalkthrough 
+            tenantId={1} 
+            onClose={() => setShowWalkthrough(false)}
+            onComplete={() => {
+              setShowWalkthrough(false);
+              fetchLeaseUpdate();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {activeTab === 'dashboard' && (
           <motion.div
@@ -139,6 +241,32 @@ export const TenantPortal = () => {
           >
             {/* Rent Status Card */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Lease Update Banner */}
+              {leaseUpdate?.status === 'Pending' && (
+                <div className="p-8 rounded-[2.5rem] bg-oakland-ink text-white shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                    <ShieldCheck className="w-24 h-24" />
+                  </div>
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div className="p-4 bg-oakland-terracotta rounded-2xl">
+                      <FileWarning className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="flex-grow text-center md:text-left">
+                      <h4 className="text-2xl font-serif font-bold">2026 Lease Update <span className="italic text-oakland-terracotta">Required</span></h4>
+                      <p className="text-sm text-white/50 mt-1 leading-relaxed">
+                        Review your updated tenant rights, building features, and sign your 2026 lease agreement.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setShowWalkthrough(true)}
+                      className="px-8 py-4 bg-oakland-terracotta text-white rounded-2xl font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+                    >
+                      Start Walkthrough
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Sublease Reminder Banner */}
               <div className="p-6 rounded-[2rem] bg-oakland-terracotta/5 border border-oakland-terracotta/10 flex items-center gap-6">
                 <div className="w-12 h-12 rounded-2xl bg-oakland-terracotta/10 flex items-center justify-center shrink-0">
@@ -287,6 +415,121 @@ export const TenantPortal = () => {
                     </motion.div>
                   )}
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'maintenance' && (
+          <motion.div
+            key="maintenance"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            <div className="lg:col-span-2 space-y-8">
+              <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                <h3 className="text-2xl font-serif font-bold mb-8">Request Maintenance</h3>
+                <form onSubmit={handleCreateMaintenance} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40 ml-4">Issue Description</label>
+                    <textarea 
+                      required
+                      value={reportText}
+                      onChange={(e) => setReportText(e.target.value)}
+                      placeholder="Describe the issue in detail..."
+                      className="w-full p-6 bg-oakland-ink/5 border border-transparent rounded-[2rem] focus:bg-white focus:border-oakland-terracotta/20 focus:outline-none transition-all min-h-[150px] resize-none"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting || !reportText.trim()}
+                    className="w-full py-5 bg-oakland-ink text-white rounded-[2rem] font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Submitting...' : (
+                      <>
+                        <Wrench className="w-5 h-5" /> Submit Request
+                      </>
+                    )}
+                  </button>
+                  {showReportSuccess && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center text-sm font-bold text-emerald-600 uppercase tracking-widest"
+                    >
+                      Request Logged Successfully
+                    </motion.div>
+                  )}
+                </form>
+              </div>
+
+              <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                <h3 className="text-2xl font-serif font-bold mb-8">Request History</h3>
+                <div className="space-y-6">
+                  {maintenanceRequests.length === 0 ? (
+                    <div className="text-center py-12 text-oakland-ink/30 italic font-serif">
+                      No maintenance history found.
+                    </div>
+                  ) : (
+                    maintenanceRequests.map((req) => (
+                      <div key={req.id} className="p-6 rounded-3xl bg-oakland-ink/[0.02] border border-oakland-ink/5 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                            req.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                          }`}>
+                            {req.status === 'Completed' ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                          </div>
+                          <div>
+                            <div className="font-bold text-oakland-ink">{req.description}</div>
+                            <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mt-1">
+                              {new Date(req.created_at).toLocaleDateString()} • {req.status}
+                            </div>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-oakland-ink/10" />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="p-8 rounded-[2.5rem] bg-oakland-ink text-white shadow-xl">
+                <h3 className="text-xl font-serif font-bold mb-6">Repair Standards</h3>
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-5 h-5 text-oakland-terracotta" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm">Emergency Response</div>
+                      <p className="text-[10px] text-white/40 leading-relaxed mt-1">
+                        Fires, floods, or major leaks are addressed within 4 hours.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                      <Clock className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm">Standard Repairs</div>
+                      <p className="text-[10px] text-white/40 leading-relaxed mt-1">
+                        Non-emergency issues are typically resolved within 48-72 hours.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 rounded-[2.5rem] bg-oakland-terracotta/5 border border-oakland-terracotta/10">
+                <h4 className="font-bold text-oakland-terracotta text-sm mb-2 uppercase tracking-widest">Legal Notice</h4>
+                <p className="text-[10px] text-oakland-ink/60 leading-relaxed italic">
+                  All maintenance requests are logged with timestamps and IP addresses for legal record-keeping. Unauthorized repairs by tenants are prohibited.
+                </p>
               </div>
             </div>
           </motion.div>
@@ -531,13 +774,137 @@ export const TenantPortal = () => {
             </div>
           </motion.div>
         )}
+
+        {activeTab === 'legal' && (
+          <motion.div
+            key="legal"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-8"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                  <h3 className="text-2xl font-serif font-bold mb-8">Official Notices</h3>
+                  <div className="space-y-4">
+                    {notices.length > 0 ? notices.map(notice => (
+                      <div 
+                        key={notice.id} 
+                        onClick={() => handleViewNotice(notice)}
+                        className="p-6 rounded-3xl bg-oakland-ink/[0.02] border border-oakland-ink/5 hover:border-oakland-terracotta/20 transition-all cursor-pointer flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-2xl ${notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                            <FileWarning className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-oakland-ink">{notice.title}</h4>
+                            <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">
+                              Issued: {new Date(notice.sent_at).toLocaleDateString()} • Status: {notice.status}
+                            </div>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-oakland-ink/20 group-hover:text-oakland-terracotta transition-colors" />
+                      </div>
+                    )) : (
+                      <div className="text-center py-12 text-oakland-ink/30 italic">No official notices at this time.</div>
+                    )}
+                  </div>
+                </div>
+
+                {violations.length > 0 && (
+                  <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                    <h3 className="text-2xl font-serif font-bold mb-8">Lease Violations</h3>
+                    <div className="space-y-4">
+                      {violations.map(violation => (
+                        <div key={violation.id} className="p-6 rounded-3xl bg-irish-red/5 border border-irish-red/10 flex items-center gap-6">
+                          <div className="w-12 h-12 rounded-2xl bg-irish-red/10 flex items-center justify-center shrink-0">
+                            <AlertCircle className="w-6 h-6 text-irish-red" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-oakland-ink">{violation.description}</h4>
+                            <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mt-1">
+                              Logged: {new Date(violation.violation_date).toLocaleDateString()} • Status: {violation.status}
+                            </div>
+                            {violation.gm_notes && (
+                              <p className="text-xs text-oakland-ink/60 mt-2 italic">Note from management: {violation.gm_notes}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-8">
+                <div className="p-8 rounded-[2.5rem] bg-oakland-ink text-white shadow-xl">
+                  <h3 className="text-xl font-serif font-bold mb-4">Legal Defense Log</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-6">
+                    Every action in this portal is cryptographically logged. This provides a verifiable paper trail for all official communications and notice deliveries.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">IP Logging Active</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Timestamp Verification</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Digital Signatures</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notice Detail Modal */}
+            {selectedNotice && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-full max-w-2xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+                >
+                  <div className="p-8 border-b border-oakland-ink/5 flex items-center justify-between">
+                    <h3 className="text-2xl font-serif font-bold">{selectedNotice.title}</h3>
+                    <button onClick={() => setSelectedNotice(null)} className="p-2 hover:bg-oakland-ink/5 rounded-full transition-colors">
+                      <Plus className="w-6 h-6 rotate-45 text-oakland-ink/40" />
+                    </button>
+                  </div>
+                  <div className="p-8 overflow-y-auto flex-1 font-serif text-oakland-ink/80 leading-relaxed whitespace-pre-wrap">
+                    {selectedNotice.content}
+                  </div>
+                  <div className="p-8 bg-oakland-ink/[0.02] border-t border-oakland-ink/5 flex flex-col gap-4">
+                    {selectedNotice.status !== 'Acknowledged' ? (
+                      <>
+                        <p className="text-[10px] text-oakland-ink/40 italic text-center">
+                          By clicking acknowledge, you confirm that you have read and understood this notice. Your IP address and timestamp will be logged for legal compliance.
+                        </p>
+                        <button 
+                          onClick={() => handleAcknowledgeNotice(selectedNotice.id)}
+                          disabled={isSubmitting}
+                          className="w-full py-4 bg-oakland-ink text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-oakland-terracotta transition-all disabled:opacity-50"
+                        >
+                          {isSubmitting ? 'Processing...' : 'Acknowledge Notice'}
+                        </button>
+                      </>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2 text-emerald-600 font-bold uppercase tracking-widest text-sm">
+                        <CheckCircle2 className="w-5 h-5" /> Acknowledged on {new Date(selectedNotice.acknowledged_at!).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
 };
-
-const LayoutGridIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-  </svg>
-);

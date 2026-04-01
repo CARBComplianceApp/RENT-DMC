@@ -50,11 +50,12 @@ export const AIPropertyVisualizer: React.FC = () => {
       });
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
+        model: 'gemini-3.1-flash-image-preview',
         contents: { parts },
         config: {
           imageConfig: {
             aspectRatio: "16:9",
+            imageSize: "1K"
           },
         },
       });
@@ -78,9 +79,9 @@ export const AIPropertyVisualizer: React.FC = () => {
     <section className="py-24 px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-irish-green/10 border border-irish-green/20 text-irish-green text-xs font-medium uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-irish-orange/10 border border-irish-orange/20 text-irish-orange text-xs font-medium uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
-            Nano Banana 2 Powered
+            Flash 2.0 Powered
           </div>
           <h2 className="text-5xl font-bold tracking-tight text-white leading-tight font-serif">
             Visualize Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-irish-green to-irish-orange">Property's Potential</span>
@@ -151,7 +152,7 @@ export const AIPropertyVisualizer: React.FC = () => {
           {error && <p className="text-red-400 text-sm">{error}</p>}
         </div>
 
-        <div className="relative aspect-video rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl">
+        <div className="relative aspect-video rounded-3xl overflow-hidden bg-black/40 border border-white/10 shadow-2xl backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {isGenerating ? (
               <motion.div

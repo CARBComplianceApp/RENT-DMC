@@ -55,6 +55,7 @@ import { CommunityModule } from './components/CommunityModule';
 import { CEOBriefingPortal } from './components/CEOBriefingPortal';
 import { SFPlusModule } from './components/SFPlusModule';
 import { MarketMaxModule } from './components/MarketMaxModule';
+import { AdminLegalLog } from './components/AdminLegalLog';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -73,7 +74,7 @@ const distributionData = [
 
 export default function App() {
   const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log'>('portfolio');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -193,10 +194,10 @@ export default function App() {
                 <img 
                   src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
                   alt="3875 Ruby Street - Authentic 1924 Oakland Architecture" 
-                  className="w-full h-full object-cover grayscale-[0.1] brightness-[0.8]"
+                  className="w-full h-full object-cover grayscale-[0.1] brightness-[0.7]"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-oakland-paper"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-oakland-paper"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
@@ -404,11 +405,11 @@ export default function App() {
                 </div>
 
                 {/* The Mosaic Grid */}
-                <div className="grid grid-cols-12 grid-rows-6 gap-4 h-[1000px] md:h-[800px]">
+                <div className="grid grid-cols-12 grid-rows-6 gap-4 h-[1200px] md:h-[900px]">
                   {/* Building Exterior - Large Anchor */}
                   <div className="col-span-12 md:col-span-6 row-span-4 group relative overflow-hidden rounded-[3rem] shadow-2xl">
                     <img 
-                      src="https://picsum.photos/seed/ruby-exterior/1200/1600" 
+                      src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200" 
                       alt="3875 Ruby St Exterior" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
@@ -473,14 +474,30 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Local Coffee/Culture - The Vibe */}
+                  {/* Piedmont Avenue - Walkable Shopping */}
                   <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                     <img 
-                      src="https://picsum.photos/seed/oakland-coffee/800/600" 
-                      alt="Local Oakland Coffee" 
+                      src="https://picsum.photos/seed/piedmont-ave/800/600" 
+                      alt="Piedmont Avenue Shops" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
+                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink shadow-sm">
+                      Piedmont Ave
+                    </div>
+                  </div>
+
+                  {/* Temescal District - Food & Culture */}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
+                    <img 
+                      src="https://picsum.photos/seed/temescal-oakland/800/600" 
+                      alt="Temescal District" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-oakland-olive/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                      Temescal Vibe
+                    </div>
                   </div>
                 </div>
               </div>
@@ -725,6 +742,13 @@ export default function App() {
                   Market Max
                   {adminTab === 'marketmax' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
                 </button>
+                <button 
+                  onClick={() => setAdminTab('legal-log')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'legal-log' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Legal Log
+                  {adminTab === 'legal-log' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
               </div>
 
               {/* Dynamic Admin Content */}
@@ -760,9 +784,13 @@ export default function App() {
                 <section id="sfplus" className="py-12">
                   <SFPlusModule />
                 </section>
-              ) : (
+              ) : adminTab === 'marketmax' ? (
                 <section id="marketmax" className="py-12">
                   <MarketMaxModule />
+                </section>
+              ) : (
+                <section id="legal-log" className="py-12">
+                  <AdminLegalLog />
                 </section>
               )}
 

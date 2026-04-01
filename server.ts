@@ -29,6 +29,8 @@ db.exec(`
     rent_amount REAL NOT NULL,
     status TEXT DEFAULT 'Vacant',
     photos TEXT,
+    needs_reply INTEGER DEFAULT 0,
+    last_tenant_activity_at DATETIME,
     FOREIGN KEY (property_id) REFERENCES properties(id)
   );
 
@@ -174,6 +176,62 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (property_id) REFERENCES properties(id)
   );
+
+  CREATE TABLE IF NOT EXISTS tenant_notices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status TEXT DEFAULT 'Sent', -- 'Sent', 'Viewed', 'Acknowledged'
+    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    viewed_at DATETIME,
+    acknowledged_at DATETIME,
+    viewed_ip TEXT,
+    acknowledged_ip TEXT,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS lease_violations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    description TEXT NOT NULL,
+    violation_date DATE NOT NULL,
+    photo_url TEXT,
+    gm_notes TEXT,
+    status TEXT DEFAULT 'Logged', -- 'Logged', 'Notice Sent', 'Resolved'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS legal_library_2026 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL, -- 'Disclosure', 'Notice', 'Checklist', 'Lease'
+    pdf_url TEXT,
+    external_link TEXT,
+    is_mandatory INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS lease_updates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    year INTEGER NOT NULL,
+    status TEXT DEFAULT 'Pending', -- 'Pending', 'In Progress', 'Completed'
+    walkthrough_completed INTEGER DEFAULT 0,
+    signed_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS lease_update_steps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    order_index INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -281,7 +339,12 @@ if (propertyCount.count === 0) {
 
       if (isOccupied) {
         const name = `Tenant ${unitNum}`;
-        insertTenant.run(unitId, name, `${name.toLowerCase().replace(/ /g, '.')}@example.com`, "2024-01-01", "2025-01-01", 0, new Date().toISOString(), "127.0.0.1");
+        // Varied lease ends for testing
+        let leaseEnd = "2027-01-01";
+        if (unitIdx === 1) leaseEnd = "2026-04-10"; // Expiring soon
+        if (unitIdx === 2) leaseEnd = "2026-03-20"; // Already expired
+        
+        insertTenant.run(unitId, name, `${name.toLowerCase().replace(/ /g, '.')}@example.com`, "2024-01-01", leaseEnd, 0, new Date().toISOString(), "127.0.0.1");
         insertPayment.run(unitId, Math.round(rent), "2024-03-01", "Paid");
       }
     }
@@ -325,6 +388,39 @@ if (propertyCount.count === 0) {
   const insertProjection = db.prepare("INSERT INTO investment_projections (property_id, projected_roi, banked_rents, target_occupancy) VALUES (?, ?, ?, ?)");
   insertProjection.run(rubyId, 0.085, 125000, 0.96);
   insertProjection.run(piedmontId, 0.072, 85000, 0.94);
+
+  // Seed Tenant Notices
+  const insertNotice = db.prepare("INSERT INTO tenant_notices (tenant_id, title, content, status, viewed_at, viewed_ip) VALUES (?, ?, ?, ?, ?, ?)");
+  insertNotice.run(1, "Sublease Law Reminder", "This is a formal reminder that subleasing is strictly prohibited...", "Viewed", new Date().toISOString(), "192.168.1.1");
+  insertNotice.run(1, "3-Day Notice to Pay or Quit", "Rent for March 2026 is overdue. Please pay within 3 days...", "Sent", null, null);
+
+  // Seed Lease Violations
+  const insertViolation = db.prepare("INSERT INTO lease_violations (tenant_id, description, violation_date, status) VALUES (?, ?, ?, ?)");
+  insertViolation.run(1, "Unauthorized Guest Pattern Detected", "2026-03-24", "Logged");
+
+  // Seed Legal Library 2026
+  const insertLibrary = db.prepare("INSERT INTO legal_library_2026 (title, description, category, pdf_url, external_link, is_mandatory) VALUES (?, ?, ?, ?, ?, ?)");
+  insertLibrary.run("Oakland RAP Notice 2026", "Mandatory notice regarding the Rent Adjustment Program for all Oakland tenants.", "Notice", "/pdfs/oakland_rap_2026.pdf", "https://www.oaklandca.gov/topics/rent-adjustment-program", 1);
+  insertLibrary.run("Lead-Based Paint Disclosure", "Required for all properties built before 1978.", "Disclosure", "/pdfs/lead_paint_disclosure.pdf", "https://www.epa.gov/lead/real-estate-disclosures-about-potential-lead-hazards", 1);
+  insertLibrary.run("Mold Disclosure Addendum", "California mandatory disclosure regarding mold awareness and prevention.", "Disclosure", "/pdfs/mold_disclosure.pdf", "https://www.cdph.ca.gov/Programs/CCDPC/DEODC/EHLB/IAQ/Pages/Mold.aspx", 1);
+  insertLibrary.run("Bed Bug Information Sheet", "Mandatory information sheet for all new and renewing tenants.", "Disclosure", "/pdfs/bed_bug_info.pdf", "https://www.dca.ca.gov/publications/landlordtenant/index.shtml", 1);
+  insertLibrary.run("2026 Standard Lease Agreement", "Updated lease agreement reflecting 2026 California and Oakland laws.", "Lease", "/pdfs/lease_2026.pdf", null, 1);
+  insertLibrary.run("3-Day Notice to Pay or Quit", "Standard legal notice for rent non-payment, provided for tenant awareness.", "Notice", "/pdfs/3_day_notice_template.pdf", null, 0);
+  insertLibrary.run("Move-In/Move-Out Checklist", "Comprehensive checklist for documenting unit condition.", "Checklist", "/pdfs/checklist.pdf", null, 0);
+
+  // Seed Lease Update Steps
+  const insertStep = db.prepare("INSERT INTO lease_update_steps (title, content, order_index) VALUES (?, ?, ?)");
+  insertStep.run("Welcome to 2026", "Welcome to your annual lease update. We've added several new features this year, including enhanced AI security cameras and a new legal defense log for your protection.", 1);
+  insertStep.run("Legal Rights Update", "California and Oakland laws have updated for 2026. We've included the latest Rent Adjustment Program (RAP) notices and updated disclosures in your library.", 2);
+  insertStep.run("Document Review", "Please review the mandatory disclosures in your legal library, including the Lead-Based Paint and Mold Disclosure Addendums.", 3);
+  insertStep.run("Building Features", "Your building now features smart trash monitoring and automated street sweeping alerts via SMS. Make sure your notification settings are up to date.", 4);
+  insertStep.run("Security & AI Intelligence", "Learn about our new AI-powered security system. Recognition cameras are now active in common areas to enhance safety and deter unauthorized activity.", 5);
+  insertStep.run("Walkthrough Confirmation", "Please confirm that you have reviewed the building's safety features, including fire exit locations and the new recognition camera system.", 6);
+  insertStep.run("Tenant Acknowledgment", "By proceeding, you acknowledge that you have read and understood the updated building rules and community guidelines for 2026.", 7);
+  insertStep.run("Sign New Lease", "Finally, please review and sign your updated 2026 lease agreement to complete the annual update process.", 8);
+
+  // Seed initial lease update for tenant 1
+  db.prepare("INSERT INTO lease_updates (tenant_id, year, status) VALUES (?, ?, ?)").run(1, 2026, 'Pending');
 }
 
 async function startServer() {
@@ -358,6 +454,7 @@ async function startServer() {
         u.unit_number, 
         u.rent_amount, 
         u.status,
+        t.id as tenant_id,
         t.name as tenant_name,
         t.lease_end,
         t.balance_due,
@@ -387,6 +484,14 @@ async function startServer() {
   app.post("/api/messages", (req, res) => {
     const { unit_id, sender, content } = req.body;
     db.prepare("INSERT INTO messages (unit_id, sender, content) VALUES (?, ?, ?)").run(unit_id, sender, content);
+    
+    // Update unit reply status
+    if (sender !== 'Manager') {
+      db.prepare("UPDATE units SET needs_reply = 1, last_tenant_activity_at = CURRENT_TIMESTAMP WHERE id = ?").run(unit_id);
+    } else {
+      db.prepare("UPDATE units SET needs_reply = 0 WHERE id = ?").run(unit_id);
+    }
+    
     res.json({ status: "ok" });
   });
 
@@ -411,6 +516,10 @@ async function startServer() {
       INSERT INTO maintenance_requests (unit_id, description, photo_url, assigned_to, gm_notes, status) 
       VALUES (?, ?, ?, ?, ?, ?)
     `).run(unit_id, description, photo_url, assigned_to, gm_notes, 'Pending Review');
+    
+    // Maintenance request counts as tenant activity needing reply
+    db.prepare("UPDATE units SET needs_reply = 1, last_tenant_activity_at = CURRENT_TIMESTAMP WHERE id = ?").run(unit_id);
+    
     res.json({ status: "ok" });
   });
 
@@ -439,6 +548,12 @@ async function startServer() {
       is_escalated !== undefined ? (is_escalated ? 1 : 0) : null,
       id
     );
+
+    // If manager updates status, it counts as a reply
+    const request = db.prepare("SELECT unit_id FROM maintenance_requests WHERE id = ?").get(id) as { unit_id: number };
+    if (request) {
+      db.prepare("UPDATE units SET needs_reply = 0 WHERE id = ?").run(request.unit_id);
+    }
     
     res.json({ status: "ok" });
   });
@@ -560,6 +675,64 @@ async function startServer() {
     res.json(forms);
   });
 
+  // Tenant Notices
+  app.get("/api/tenant-notices", (req, res) => {
+    const notices = db.prepare(`
+      SELECT tn.*, t.name as tenant_name, u.unit_number
+      FROM tenant_notices tn
+      JOIN tenants t ON tn.tenant_id = t.id
+      JOIN units u ON t.unit_id = u.id
+      ORDER BY tn.sent_at DESC
+    `).all();
+    res.json(notices);
+  });
+
+  app.get("/api/tenant-notices/:tenantId", (req, res) => {
+    const notices = db.prepare("SELECT * FROM tenant_notices WHERE tenant_id = ? ORDER BY sent_at DESC").all(req.params.tenantId);
+    res.json(notices);
+  });
+
+  app.post("/api/tenant-notices", (req, res) => {
+    const { tenant_id, title, content } = req.body;
+    db.prepare("INSERT INTO tenant_notices (tenant_id, title, content, status) VALUES (?, ?, ?, ?)").run(tenant_id, title, content, 'Sent');
+    res.json({ status: "ok" });
+  });
+
+  app.patch("/api/tenant-notices/:id/view", (req, res) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    db.prepare("UPDATE tenant_notices SET status = 'Viewed', viewed_at = ?, viewed_ip = ? WHERE id = ? AND status = 'Sent'").run(new Date().toISOString(), ip, req.params.id);
+    res.json({ status: "ok" });
+  });
+
+  app.patch("/api/tenant-notices/:id/acknowledge", (req, res) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    db.prepare("UPDATE tenant_notices SET status = 'Acknowledged', acknowledged_at = ?, acknowledged_ip = ? WHERE id = ?").run(new Date().toISOString(), ip, req.params.id);
+    res.json({ status: "ok" });
+  });
+
+  // Lease Violations
+  app.get("/api/lease-violations", (req, res) => {
+    const violations = db.prepare(`
+      SELECT lv.*, t.name as tenant_name, u.unit_number
+      FROM lease_violations lv
+      JOIN tenants t ON lv.tenant_id = t.id
+      JOIN units u ON t.unit_id = u.id
+      ORDER BY lv.violation_date DESC
+    `).all();
+    res.json(violations);
+  });
+
+  app.get("/api/lease-violations/:tenantId", (req, res) => {
+    const violations = db.prepare("SELECT * FROM lease_violations WHERE tenant_id = ? ORDER BY violation_date DESC").all(req.params.tenantId);
+    res.json(violations);
+  });
+
+  app.post("/api/lease-violations", (req, res) => {
+    const { tenant_id, description, violation_date, photo_url, gm_notes } = req.body;
+    db.prepare("INSERT INTO lease_violations (tenant_id, description, violation_date, photo_url, gm_notes) VALUES (?, ?, ?, ?, ?)").run(tenant_id, description, violation_date, photo_url, gm_notes);
+    res.json({ status: "ok" });
+  });
+
   app.get("/api/laws-regulations", (req, res) => {
     const laws = db.prepare("SELECT * FROM laws_regulations ORDER BY jurisdiction, title").all();
     res.json(laws);
@@ -590,6 +763,44 @@ async function startServer() {
       JOIN properties p ON ip.property_id = p.id
     `).all();
     res.json(projections);
+  });
+
+  // Legal Library 2026
+  app.get("/api/legal-library-2026", (req, res) => {
+    const library = db.prepare("SELECT * FROM legal_library_2026 ORDER BY category, title").all();
+    res.json(library);
+  });
+
+  // Lease Updates
+  app.get("/api/lease-updates/:tenantId", (req, res) => {
+    const updates = db.prepare("SELECT * FROM lease_updates WHERE tenant_id = ? ORDER BY year DESC").all(req.params.tenantId);
+    res.json(updates);
+  });
+
+  app.post("/api/lease-updates", (req, res) => {
+    const { tenant_id, year, status, walkthrough_completed, signed_at } = req.body;
+    const existing = db.prepare("SELECT id FROM lease_updates WHERE tenant_id = ? AND year = ?").get(tenant_id, year);
+    
+    if (existing) {
+      db.prepare(`
+        UPDATE lease_updates 
+        SET status = COALESCE(?, status),
+            walkthrough_completed = COALESCE(?, walkthrough_completed),
+            signed_at = COALESCE(?, signed_at)
+        WHERE id = ?
+      `).run(status, walkthrough_completed, signed_at, existing.id);
+    } else {
+      db.prepare(`
+        INSERT INTO lease_updates (tenant_id, year, status, walkthrough_completed, signed_at)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(tenant_id, year, status || 'Pending', walkthrough_completed || 0, signed_at || null);
+    }
+    res.json({ status: "ok" });
+  });
+
+  app.get("/api/lease-update-steps", (req, res) => {
+    const steps = db.prepare("SELECT * FROM lease_update_steps ORDER BY order_index ASC").all();
+    res.json(steps);
   });
 
   app.get("/api/me", (req, res) => {
