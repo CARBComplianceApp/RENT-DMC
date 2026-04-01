@@ -33,3 +33,9 @@
       #050505;
   }
 }
+
+@layer utilities {
+  .bg-radial-gradient {
+    background: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%);
+  }
+}

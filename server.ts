@@ -232,6 +232,17 @@ db.exec(`
     order_index INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS vendors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    service_type TEXT NOT NULL, -- 'Plumbing', 'Electrical', 'Cleaning', 'Security'
+    contact_person TEXT,
+    email TEXT,
+    phone TEXT,
+    insurance_expiry_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -370,8 +381,11 @@ if (propertyCount.count === 0) {
 
   // Seed Laws & Regulations
   const insertLaw = db.prepare("INSERT INTO laws_regulations (title, jurisdiction, summary, link, last_updated) VALUES (?, ?, ?, ?, ?)");
-  insertLaw.run("Oakland Rent Adjustment Program", "Oakland", "Limits annual rent increases for covered units based on CPI.", "https://www.oaklandca.gov/topics/rent-adjustment-program", "2024-01-01");
-  insertLaw.run("AB 1482 - Tenant Protection Act", "California", "Statewide rent cap and just cause eviction protections.", "https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=201920200AB1482", "2020-01-01");
+  insertLaw.run("Oakland Rent Adjustment Program (RAP)", "Oakland", "Limits annual rent increases for covered units based on CPI. For 2026, the allowable increase is 2.1%.", "https://www.oaklandca.gov/topics/rent-adjustment-program", "2026-01-01");
+  insertLaw.run("Oakland Just Cause for Eviction", "Oakland", "Specifies 11 just causes for eviction, including material breach of lease (like unauthorized subletting) and non-payment of rent.", "https://www.oaklandca.gov/resources/just-cause-for-eviction-ordinance", "2026-01-01");
+  insertLaw.run("AB 1482 - CA Tenant Protection Act", "California", "Statewide rent cap and just cause eviction protections. Allows eviction for 'At-Fault Just Cause' including lease violations.", "https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=201920200AB1482", "2026-01-01");
+  insertLaw.run("Alameda County Fair Chance Act", "Alameda", "Regulates the use of criminal history in housing decisions to ensure fair access.", "https://www.acgov.org/cda/hcd/fair-chance.htm", "2025-12-01");
+  insertLaw.run("Landlord Right of Entry (CC 1954)", "California", "Landlords may enter for repairs, inspections, or showing the unit with 24-hour written notice.", "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1954&lawCode=CIV", "2026-01-01");
 
   // Seed Market Comparables
   const insertComparable = db.prepare("INSERT INTO market_comparables (property_name, address, sale_price, rental_rate, occupancy_rate, distance_miles, last_updated) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -391,7 +405,7 @@ if (propertyCount.count === 0) {
 
   // Seed Tenant Notices
   const insertNotice = db.prepare("INSERT INTO tenant_notices (tenant_id, title, content, status, viewed_at, viewed_ip) VALUES (?, ?, ?, ?, ?, ?)");
-  insertNotice.run(1, "Sublease Law Reminder", "This is a formal reminder that subleasing is strictly prohibited...", "Viewed", new Date().toISOString(), "192.168.1.1");
+  insertNotice.run(1, "Sublease Law Reminder", "This is a formal reminder that subleasing is strictly prohibited without written consent. Under Oakland's Just Cause for Eviction Ordinance, unauthorized subletting is a material breach of the lease. If an unauthorized occupant is discovered, management will issue a 'Notice to Cure or Quit'. Failure to remove the unauthorized occupant within the specified timeframe is legal grounds for eviction. Landlord reserves all rights to recover possession and damages.", "Viewed", new Date().toISOString(), "192.168.1.1");
   insertNotice.run(1, "3-Day Notice to Pay or Quit", "Rent for March 2026 is overdue. Please pay within 3 days...", "Sent", null, null);
 
   // Seed Lease Violations
@@ -404,23 +418,33 @@ if (propertyCount.count === 0) {
   insertLibrary.run("Lead-Based Paint Disclosure", "Required for all properties built before 1978.", "Disclosure", "/pdfs/lead_paint_disclosure.pdf", "https://www.epa.gov/lead/real-estate-disclosures-about-potential-lead-hazards", 1);
   insertLibrary.run("Mold Disclosure Addendum", "California mandatory disclosure regarding mold awareness and prevention.", "Disclosure", "/pdfs/mold_disclosure.pdf", "https://www.cdph.ca.gov/Programs/CCDPC/DEODC/EHLB/IAQ/Pages/Mold.aspx", 1);
   insertLibrary.run("Bed Bug Information Sheet", "Mandatory information sheet for all new and renewing tenants.", "Disclosure", "/pdfs/bed_bug_info.pdf", "https://www.dca.ca.gov/publications/landlordtenant/index.shtml", 1);
-  insertLibrary.run("2026 Standard Lease Agreement", "Updated lease agreement reflecting 2026 California and Oakland laws.", "Lease", "/pdfs/lease_2026.pdf", null, 1);
+  insertLibrary.run("Subletting & Guest Policy 2026", "Detailed policy on subletting and long-term guests. Subletting without written consent is a material breach of lease.", "Policy", "/pdfs/sublet_policy_2026.pdf", null, 1);
+  insertLibrary.run("2026 Standard Lease Agreement", "Updated lease agreement reflecting 2026 California and Oakland laws, including strict sublet prohibitions.", "Lease", "/pdfs/lease_2026.pdf", null, 1);
   insertLibrary.run("3-Day Notice to Pay or Quit", "Standard legal notice for rent non-payment, provided for tenant awareness.", "Notice", "/pdfs/3_day_notice_template.pdf", null, 0);
+  insertLibrary.run("Notice of Right to Inspection", "Information on the landlord's right to enter for repairs and inspections per CC 1954.", "Notice", "/pdfs/right_to_inspection.pdf", null, 0);
   insertLibrary.run("Move-In/Move-Out Checklist", "Comprehensive checklist for documenting unit condition.", "Checklist", "/pdfs/checklist.pdf", null, 0);
 
   // Seed Lease Update Steps
   const insertStep = db.prepare("INSERT INTO lease_update_steps (title, content, order_index) VALUES (?, ?, ?)");
   insertStep.run("Welcome to 2026", "Welcome to your annual lease update. We've added several new features this year, including enhanced AI security cameras and a new legal defense log for your protection.", 1);
-  insertStep.run("Legal Rights Update", "California and Oakland laws have updated for 2026. We've included the latest Rent Adjustment Program (RAP) notices and updated disclosures in your library.", 2);
-  insertStep.run("Document Review", "Please review the mandatory disclosures in your legal library, including the Lead-Based Paint and Mold Disclosure Addendums.", 3);
-  insertStep.run("Building Features", "Your building now features smart trash monitoring and automated street sweeping alerts via SMS. Make sure your notification settings are up to date.", 4);
-  insertStep.run("Security & AI Intelligence", "Learn about our new AI-powered security system. Recognition cameras are now active in common areas to enhance safety and deter unauthorized activity.", 5);
-  insertStep.run("Walkthrough Confirmation", "Please confirm that you have reviewed the building's safety features, including fire exit locations and the new recognition camera system.", 6);
-  insertStep.run("Tenant Acknowledgment", "By proceeding, you acknowledge that you have read and understood the updated building rules and community guidelines for 2026.", 7);
-  insertStep.run("Sign New Lease", "Finally, please review and sign your updated 2026 lease agreement to complete the annual update process.", 8);
+  insertStep.run("Legal Rights Update", "California and Oakland laws have updated for 2026. We've included the latest Rent Adjustment Program (RAP) notices and updated disclosures in your library. Note that the 2026 allowable rent increase is 2.1%.", 2);
+  insertStep.run("Strict Sublet Policy", "Unauthorized subletting is a material breach of your lease and a 'Just Cause' for eviction under Oakland law. All occupants must be listed on the lease, and any subletting requires prior written consent from management.", 3);
+  insertStep.run("Document Review", "Please review the mandatory disclosures in your legal library, including the Lead-Based Paint, Mold Disclosure, and the updated Subletting Policy.", 4);
+  insertStep.run("Building Features", "Your building now features smart trash monitoring and automated street sweeping alerts via SMS. Make sure your notification settings are up to date.", 5);
+  insertStep.run("Security & AI Intelligence", "Learn about our new AI-powered security system. Recognition cameras are now active in common areas to enhance safety and deter unauthorized activity.", 6);
+  insertStep.run("Walkthrough Confirmation", "Please confirm that you have reviewed the building's safety features, including fire exit locations and the new recognition camera system.", 7);
+  insertStep.run("Tenant Acknowledgment", "By proceeding, you acknowledge that you have read and understood the updated building rules, including the strict sublet policy and landlord right of entry for 2026.", 8);
+  insertStep.run("Sign New Lease", "Finally, please review and sign your updated 2026 lease agreement to complete the annual update process.", 9);
 
   // Seed initial lease update for tenant 1
   db.prepare("INSERT INTO lease_updates (tenant_id, year, status) VALUES (?, ?, ?)").run(1, 2026, 'Pending');
+
+  // Seed Vendors
+  const insertVendor = db.prepare("INSERT INTO vendors (name, service_type, contact_person, email, phone, insurance_expiry_date) VALUES (?, ?, ?, ?, ?, ?)");
+  insertVendor.run("Oakland Plumbing Pros", "Plumbing", "Mike Ross", "mike@oaklandplumbing.com", "(510) 555-0987", "2026-12-31");
+  insertVendor.run("Sparky's Electrical", "Electrical", "Sarah Chen", "sarah@sparkys.com", "(510) 555-1234", "2026-06-15");
+  insertVendor.run("Green Clean Oakland", "Cleaning", "Maria Garcia", "maria@greenclean.com", "(510) 555-4567", "2027-01-20");
+  insertVendor.run("Ruby Security Systems", "Security", "David Kim", "david@rubysecurity.com", "(510) 555-7890", "2026-09-30");
 }
 
 async function startServer() {
@@ -771,6 +795,26 @@ async function startServer() {
     res.json(library);
   });
 
+  app.get("/api/tenant-rent/:tenantId", (req, res) => {
+    const tenant = db.prepare(`
+      SELECT t.balance_due, u.rent_amount,
+             (SELECT MAX(payment_date) FROM payments WHERE unit_id = t.unit_id) as last_payment
+      FROM tenants t
+      JOIN units u ON t.unit_id = u.id
+      WHERE t.id = ?
+    `).get(req.params.tenantId) as { balance_due: number, rent_amount: number, last_payment: string } | undefined;
+
+    if (!tenant) {
+      return res.status(404).json({ error: "Tenant not found" });
+    }
+
+    res.json({
+      amount: tenant.rent_amount,
+      last_payment: tenant.last_payment,
+      status: tenant.balance_due <= 0 ? 'Paid' : 'Overdue'
+    });
+  });
+
   // Lease Updates
   app.get("/api/lease-updates/:tenantId", (req, res) => {
     const updates = db.prepare("SELECT * FROM lease_updates WHERE tenant_id = ? ORDER BY year DESC").all(req.params.tenantId);
@@ -801,6 +845,11 @@ async function startServer() {
   app.get("/api/lease-update-steps", (req, res) => {
     const steps = db.prepare("SELECT * FROM lease_update_steps ORDER BY order_index ASC").all();
     res.json(steps);
+  });
+
+  app.get("/api/vendors", (req, res) => {
+    const vendors = db.prepare("SELECT * FROM vendors ORDER BY name ASC").all();
+    res.json(vendors);
   });
 
   app.get("/api/me", (req, res) => {

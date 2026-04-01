@@ -56,6 +56,8 @@ import { CEOBriefingPortal } from './components/CEOBriefingPortal';
 import { SFPlusModule } from './components/SFPlusModule';
 import { MarketMaxModule } from './components/MarketMaxModule';
 import { AdminLegalLog } from './components/AdminLegalLog';
+import { VendorManagement } from './components/VendorManagement';
+import { BuildingIntelligence } from './components/BuildingIntelligence';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -74,11 +76,11 @@ const distributionData = [
 
 export default function App() {
   const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log' | 'vendors'>('portfolio');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className={`min-h-screen ${view === 'hub' ? 'bg-oakland-paper text-oakland-ink' : 'bg-zinc-950 text-zinc-100'} font-sans selection:bg-oakland-terracotta/30 transition-colors duration-700`}>
+    <div className={`min-h-screen ${view === 'hub' ? 'bg-oakland-cream text-oakland-ink' : 'bg-zinc-950 text-zinc-100'} font-sans selection:bg-oakland-terracotta/30 transition-colors duration-700`}>
       {view === 'admin' && <ShimmerBackground />}
       
       {/* Navigation */}
@@ -110,13 +112,13 @@ export default function App() {
 
           <div className="flex items-center gap-4">
             {/* View Toggle */}
-            <div className={`flex p-1 rounded-full ${view === 'hub' ? 'bg-oakland-ink/5' : 'bg-white/5'} border ${view === 'hub' ? 'border-oakland-ink/10' : 'border-white/10'}`}>
+            <div className={`flex p-1 rounded-full ${view === 'hub' ? 'bg-oakland-ink/10' : 'bg-white/5'} border ${view === 'hub' ? 'border-oakland-ink/20' : 'border-white/10'}`}>
               <button 
                 onClick={() => setView('hub')}
                 className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'hub' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : 'text-oakland-ink/40 hover:text-oakland-ink'
+                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
                 }`}
               >
                 Hub
@@ -126,7 +128,7 @@ export default function App() {
                 className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'admin' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : 'text-oakland-ink/40 hover:text-oakland-ink'
+                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
                 }`}
               >
                 Admin
@@ -136,7 +138,7 @@ export default function App() {
                 className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'tenant' 
                   ? 'bg-oakland-terracotta text-white shadow-lg' 
-                  : 'text-oakland-ink/40 hover:text-oakland-ink'
+                  : view === 'hub' ? 'text-oakland-ink/60 hover:text-oakland-ink' : 'text-white/40 hover:text-white'
                 }`}
               >
                 Tenant
@@ -192,12 +194,14 @@ export default function App() {
             <section className="relative h-[90vh] flex items-center overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2000&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?q=80&w=2000&auto=format&fit=crop" 
                   alt="3875 Ruby Street - Authentic 1924 Oakland Architecture" 
-                  className="w-full h-full object-cover grayscale-[0.1] brightness-[0.7]"
+                  className="w-full h-full object-cover brightness-[0.85] contrast-[1.1]"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-oakland-paper"></div>
+                {/* Luminia Glow Effect */}
+                <div className="absolute inset-0 bg-radial-gradient from-oakland-terracotta/20 via-transparent to-transparent opacity-50 mix-blend-screen animate-pulse"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
@@ -205,23 +209,26 @@ export default function App() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="max-w-4xl"
+                  className="max-w-4xl relative"
                 >
+                  {/* Luminia Aura */}
+                  <div className="absolute -inset-20 bg-oakland-terracotta/10 blur-[100px] rounded-full -z-10 animate-pulse"></div>
+                  
                   <div className="inline-block px-4 py-2 bg-oakland-terracotta text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
                     Est. 1924 // Oakland, CA
                   </div>
-                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
-                    RUBY <br /> <span className="text-oakland-terracotta">SOUL.</span>
+                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-[0_0_30px_rgba(242,125,38,0.5)] uppercase">
+                    RUBY <br /> <span className="text-oakland-terracotta drop-shadow-[0_0_50px_rgba(242,125,38,0.8)]">SOUL.</span>
                   </h1>
                   <div className="mt-12 flex flex-col md:flex-row md:items-end gap-12">
-                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
-                      Where 1920s Craftsmanship <br /> Meets 2020s <span className="underline decoration-oakland-terracotta underline-offset-8">Urban Grit</span>.
+                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight drop-shadow-lg">
+                      Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-oakland-terracotta underline-offset-8">progress of 100 years</span>.
                     </div>
                     <div className="flex flex-col gap-4">
-                      <button className="px-10 py-5 bg-white text-oakland-ink font-black text-sm uppercase tracking-widest rounded-full hover:bg-oakland-terracotta hover:text-white transition-all shadow-2xl hover:scale-105">
+                      <button className="px-10 py-5 bg-oakland-terracotta text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-oakland-ink transition-all shadow-[0_0_30px_rgba(242,125,38,0.4)] hover:scale-105">
                         Explore Units
                       </button>
-                      <div className="flex items-center gap-4 px-6 py-3 bg-black/20 backdrop-blur-md rounded-full border border-white/10">
+                      <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-md rounded-full border border-white/20">
                         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                         <span className="text-[10px] font-bold text-white uppercase tracking-widest">2 Units Available Now</span>
                       </div>
@@ -264,8 +271,8 @@ export default function App() {
                 <div className="relative">
                   <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl">
                     <img 
-                      src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop" 
-                      alt="Oakland Residential Architecture" 
+                      src="https://images.unsplash.com/photo-1605146769289-440113cc3d00?q=80&w=1000&auto=format&fit=crop" 
+                      alt="3875 Ruby Street - Google Street View Style" 
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
@@ -293,9 +300,9 @@ export default function App() {
                       <div className="text-4xl font-serif font-bold text-oakland-terracotta">3</div>
                       <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40 mt-2">Stories</div>
                     </div>
-                    <div>
-                      <div className="text-4xl font-serif font-bold text-oakland-terracotta">100%</div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40 mt-2">Oakland Owned</div>
+                    <div className="col-span-2 md:col-span-1">
+                      <div className="text-6xl font-serif font-black text-oakland-terracotta leading-none">100%</div>
+                      <div className="text-sm font-black uppercase tracking-[0.2em] text-oakland-ink mt-2">Oakland Owned</div>
                     </div>
                     <div>
                       <div className="text-4xl font-serif font-bold text-oakland-terracotta">94/100</div>
@@ -309,8 +316,8 @@ export default function App() {
             {/* Amenities Grid */}
             <section id="amenities" className="py-32 px-6 max-w-7xl mx-auto">
               <div className="text-center mb-20 space-y-4">
-                <h2 className="text-5xl font-serif font-black">Life at <span className="italic text-oakland-terracotta">Ruby</span>.</h2>
-                <p className="text-oakland-ink/50 max-w-xl mx-auto">Everything you need to thrive in the heart of the city.</p>
+                <h2 className="text-6xl font-serif font-black tracking-tighter">Life at <span className="italic text-oakland-terracotta underline decoration-oakland-terracotta/30 underline-offset-12">Ruby</span>.</h2>
+                <p className="text-oakland-ink/50 max-w-xl mx-auto text-lg font-medium">Everything you need to thrive in the heart of the city.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -322,16 +329,19 @@ export default function App() {
                   { title: 'Hospital Proximity', desc: 'Perfect for medical professionals working at nearby centers.', icon: Hospital },
                   { title: 'Mosswood Park', desc: 'Your backyard just got bigger. Recreation, dog park, and more.', icon: TreePine },
                 ].map((item, i) => (
-                  <div key={item.title} className="p-10 rounded-[2.5rem] bg-oakland-paper border border-oakland-ink/5 hover:border-oakland-terracotta/20 transition-all group">
-                    <div className="w-14 h-14 rounded-2xl bg-oakland-olive/10 flex items-center justify-center mb-8 group-hover:bg-oakland-terracotta/10 transition-colors">
-                      <item.icon className="w-7 h-7 text-oakland-olive group-hover:text-oakland-terracotta transition-colors" />
+                  <div key={item.title} className="p-12 rounded-[3rem] bg-white border-2 border-oakland-ink/5 hover:border-oakland-terracotta/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
+                    <div className="w-16 h-16 rounded-2xl bg-oakland-olive/10 flex items-center justify-center mb-10 group-hover:bg-oakland-terracotta/10 transition-colors">
+                      <item.icon className="w-8 h-8 text-oakland-olive group-hover:text-oakland-terracotta transition-colors" />
                     </div>
-                    <h3 className="text-2xl font-serif font-bold mb-4">{item.title}</h3>
-                    <p className="text-oakland-ink/60 leading-relaxed">{item.desc}</p>
+                    <h3 className="text-3xl font-serif font-bold mb-4 tracking-tight">{item.title}</h3>
+                    <p className="text-oakland-ink/60 leading-relaxed text-lg font-light">{item.desc}</p>
                   </div>
                 ))}
               </div>
             </section>
+
+            {/* Building Intelligence Section */}
+            <BuildingIntelligence />
 
             {/* Gallery Section */}
             <section id="gallery" className="py-32 bg-oakland-ink text-oakland-paper overflow-hidden">
@@ -347,13 +357,13 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   <div className="md:col-span-8 group relative overflow-hidden rounded-[3rem] shadow-2xl">
                     <img 
-                      src="https://picsum.photos/seed/ruby-main-building/1200/800" 
-                      alt="3875 Ruby St Building" 
+                      src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1000&auto=format&fit=crop" 
+                      alt="Amazon Hub Lockers at Ruby St" 
                       className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
-                      <div className="text-2xl font-serif italic text-white">Classic Oakland Architecture</div>
+                      <div className="text-2xl font-serif italic text-white">Secure Amazon Hub Lockers</div>
                     </div>
                   </div>
                   <div className="md:col-span-4 grid grid-rows-2 gap-6">
@@ -749,6 +759,13 @@ export default function App() {
                   Legal Log
                   {adminTab === 'legal-log' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
                 </button>
+                <button 
+                  onClick={() => setAdminTab('vendors')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'vendors' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                >
+                  Vendors
+                  {adminTab === 'vendors' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                </button>
               </div>
 
               {/* Dynamic Admin Content */}
@@ -788,9 +805,13 @@ export default function App() {
                 <section id="marketmax" className="py-12">
                   <MarketMaxModule />
                 </section>
-              ) : (
+              ) : adminTab === 'legal-log' ? (
                 <section id="legal-log" className="py-12">
                   <AdminLegalLog />
+                </section>
+              ) : (
+                <section id="vendors" className="py-12">
+                  <VendorManagement />
                 </section>
               )}
 

@@ -76,7 +76,7 @@ interface LeaseUpdate {
 }
 
 export const TenantPortal = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'legal' | 'maintenance'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'legal' | 'maintenance' | 'mailbox'>('mailbox');
   const [settings, setSettings] = useState<UserSettings>({
     preferred_notification_time: '09:00',
     sms_enabled: true,
@@ -95,6 +95,20 @@ export const TenantPortal = () => {
   const [reportText, setReportText] = useState('');
   const [showReportSuccess, setShowReportSuccess] = useState(false);
 
+  const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
+  const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string, sticker?: string }>>({
+    '101': { color: '#F27D26' },
+    '208': { color: '#5A5A40' },
+    '305': { color: '#141414' }
+  });
+  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
+
+  const units = [
+    '101', '102', '103', '104', '105', '106', '107', '108',
+    '201', '208',
+    '301', '302', '303', '304', '305', '306', '307', '308'
+  ];
+
   useEffect(() => {
     // Mock user ID 1 for demo
     fetch('/api/user-settings/1').then(res => res.json()).then(setSettings);
@@ -104,6 +118,9 @@ export const TenantPortal = () => {
     fetch('/api/lease-violations/1').then(res => res.json()).then(setViolations);
     fetch('/api/maintenance?unit_id=1').then(res => res.json()).then(setMaintenanceRequests);
     fetch('/api/lease-updates/1').then(res => res.json()).then(data => setLeaseUpdate(data[0] || null));
+    
+    // Fetch rent status
+    fetch('/api/tenant-rent/1').then(res => res.json()).then(setRentStatus);
   }, []);
 
   const fetchLeaseUpdate = () => {
@@ -198,6 +215,7 @@ export const TenantPortal = () => {
       {/* Portal Navigation */}
       <div className="flex gap-8 border-b border-oakland-ink/5 overflow-x-auto pb-px">
         {[
+          { id: 'mailbox', label: 'Mailbox Hub', icon: Mail },
           { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
           { id: 'maintenance', label: 'Maintenance', icon: Wrench },
           { id: 'security', label: 'Security', icon: ShieldCheck },
@@ -231,6 +249,145 @@ export const TenantPortal = () => {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
+        {activeTab === 'mailbox' && (
+          <motion.div
+            key="mailbox"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative min-h-[700px] rounded-[4rem] overflow-hidden shadow-2xl bg-oakland-ink group"
+          >
+            {/* Background: Ruby Street 100 Years Ago */}
+            <div className="absolute inset-0 z-0">
+              <img 
+                src="https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?q=80&w=2000&auto=format&fit=crop" 
+                alt="Ruby Street 100 Years Ago" 
+                className="w-full h-full object-cover grayscale brightness-[0.4] contrast-[1.2]"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink via-transparent to-transparent"></div>
+            </div>
+
+            {/* Semi-Circle Mailboxes */}
+            <div className="relative z-10 h-full flex flex-col items-center justify-center p-12">
+              <div className="text-center mb-16">
+                <h2 className="text-5xl font-serif font-black text-white tracking-tighter">Ruby <span className="italic text-oakland-terracotta">Mailbox Hub</span>.</h2>
+                <p className="text-white/40 text-sm font-bold uppercase tracking-[0.3em] mt-4">Select your unit to access your private portal</p>
+              </div>
+
+              <div className="relative w-full max-w-4xl aspect-[2/1] mt-12">
+                {units.map((unit, index) => {
+                  const total = units.length;
+                  const angle = (index / (total - 1)) * Math.PI; // 0 to PI (180 degrees)
+                  const radius = 350; // Radius in pixels
+                  const x = Math.cos(angle + Math.PI) * radius; // Offset by PI to start from left
+                  const y = Math.sin(angle + Math.PI) * radius;
+                  
+                  const custom = mailboxCustomizations[unit] || { color: '#ffffff20' };
+
+                  return (
+                    <motion.button
+                      key={unit}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.05, type: 'spring' }}
+                      onClick={() => setSelectedMailbox(unit)}
+                      style={{ 
+                        left: `calc(50% + ${x}px)`, 
+                        top: `calc(100% + ${y}px)`,
+                        backgroundColor: custom.color,
+                        borderColor: activeTab === 'mailbox' && unit === '101' ? '#F27D26' : 'rgba(255,255,255,0.1)'
+                      }}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 w-16 h-20 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(242,125,38,0.3)] group ${unit === '101' ? 'ring-4 ring-oakland-terracotta/20' : ''}`}
+                    >
+                      <div className="text-[10px] font-black text-white/40 mb-1">UNIT</div>
+                      <div className="text-xl font-serif font-black text-white">{unit}</div>
+                      
+                      {/* Flag visual */}
+                      <div className="absolute -right-1 top-4 w-1 h-6 bg-red-600 rounded-full origin-bottom transition-transform group-hover:rotate-45" />
+                      
+                      {/* Interaction Hint */}
+                      {unit === '101' && (
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-oakland-terracotta text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce">
+                          YOUR UNIT
+                        </div>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Quick Links Overlay when a mailbox is selected */}
+              <AnimatePresence>
+                {selectedMailbox && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white/95 backdrop-blur-2xl p-8 rounded-[3rem] shadow-2xl border border-white/20 z-30"
+                  >
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-4">
+                        <div 
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg"
+                          style={{ backgroundColor: mailboxCustomizations[selectedMailbox]?.color || '#141414' }}
+                        >
+                          <Mail className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-serif font-bold text-oakland-ink">Unit {selectedMailbox} Portal</h3>
+                          <p className="text-[10px] font-bold text-oakland-ink/40 uppercase tracking-widest">Secure Access Authenticated</p>
+                        </div>
+                      </div>
+                      <button onClick={() => setSelectedMailbox(null)} className="p-2 hover:bg-oakland-ink/5 rounded-full transition-colors">
+                        <Plus className="w-6 h-6 rotate-45 text-oakland-ink/40" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {[
+                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'legal', label: 'Lease', icon: Gavel, color: 'bg-blue-50 text-blue-600' },
+                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-orange-50 text-orange-600' },
+                        { id: 'legal', label: 'Notices', icon: Bell, color: 'bg-red-50 text-red-600' },
+                      ].map((link) => (
+                        <button
+                          key={link.label}
+                          onClick={() => {
+                            setActiveTab(link.id as any);
+                            setSelectedMailbox(null);
+                          }}
+                          className="p-6 rounded-3xl bg-oakland-ink/[0.02] border border-oakland-ink/5 hover:border-oakland-terracotta/20 transition-all group text-center"
+                        >
+                          <div className={`w-10 h-10 rounded-xl ${link.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                            <link.icon className="w-5 h-5" />
+                          </div>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink">{link.label}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Customization Option */}
+                    <div className="mt-8 pt-8 border-t border-oakland-ink/5 flex items-center justify-between">
+                      <div className="text-xs font-bold text-oakland-ink/40 uppercase tracking-widest">Customize Mailbox</div>
+                      <div className="flex gap-2">
+                        {['#F27D26', '#5A5A40', '#141414', '#0066CC', '#CC0000'].map(color => (
+                          <button
+                            key={color}
+                            onClick={() => setMailboxCustomizations({ ...mailboxCustomizations, [selectedMailbox]: { color } })}
+                            style={{ backgroundColor: color }}
+                            className={`w-6 h-6 rounded-full border-2 ${mailboxCustomizations[selectedMailbox]?.color === color ? 'border-oakland-ink scale-125' : 'border-transparent'}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'dashboard' && (
           <motion.div
             key="dashboard"
@@ -284,16 +441,23 @@ export const TenantPortal = () => {
                 <div className="flex justify-between items-start mb-8">
                   <div>
                     <h3 className="text-2xl font-serif font-bold">Rent Status</h3>
-                    <p className="text-oakland-ink/40 text-sm mt-1">March 2026</p>
+                    <p className="text-oakland-ink/40 text-sm mt-1">{new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
                   </div>
-                  <div className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                    <CheckCircle2 className="w-3 h-3" /> Received
+                  <div className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 ${
+                    rentStatus?.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                  }`}>
+                    {rentStatus?.status === 'Paid' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />} 
+                    {rentStatus?.status || 'Loading...'}
                   </div>
                 </div>
                 
                 <div className="flex items-end gap-4 mb-8">
-                  <div className="text-5xl font-serif font-black text-oakland-ink">$2,450</div>
-                  <div className="text-sm font-bold text-oakland-ink/30 mb-2 uppercase tracking-widest">Paid on Mar 1</div>
+                  <div className="text-5xl font-serif font-black text-oakland-ink">
+                    ${rentStatus?.amount?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-sm font-bold text-oakland-ink/30 mb-2 uppercase tracking-widest">
+                    {rentStatus?.last_payment ? `Last payment: ${new Date(rentStatus.last_payment).toLocaleDateString()}` : 'No recent payments'}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -301,8 +465,46 @@ export const TenantPortal = () => {
                     <CreditCard className="w-4 h-4" /> View Ledger
                   </button>
                   <button className="p-4 rounded-2xl bg-oakland-terracotta text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-md">
-                    <Plus className="w-4 h-4" /> Pre-pay April
+                    <Plus className="w-4 h-4" /> {rentStatus?.status === 'Paid' ? 'Pre-pay Next' : 'Pay Now'}
                   </button>
+                </div>
+              </div>
+
+              {/* Recent Notices Preview */}
+              <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-2xl font-serif font-bold">Recent Notices</h3>
+                  <button 
+                    onClick={() => setActiveTab('legal')}
+                    className="text-[10px] font-bold text-oakland-terracotta uppercase tracking-widest hover:underline"
+                  >
+                    View All
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {notices.slice(0, 2).map((notice) => (
+                    <div 
+                      key={notice.id} 
+                      onClick={() => handleViewNotice(notice)}
+                      className="p-4 rounded-2xl bg-oakland-ink/[0.02] border border-oakland-ink/5 hover:border-oakland-terracotta/20 transition-all cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-xl ${notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                          <FileWarning className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-sm text-oakland-ink">{notice.title}</div>
+                          <div className="text-[9px] font-bold text-oakland-ink/30 uppercase tracking-widest">
+                            {new Date(notice.sent_at).toLocaleDateString()} • {notice.status}
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-oakland-ink/10 group-hover:text-oakland-terracotta transition-colors" />
+                    </div>
+                  ))}
+                  {notices.length === 0 && (
+                    <p className="text-sm text-oakland-ink/30 italic">No recent notices.</p>
+                  )}
                 </div>
               </div>
 
@@ -856,6 +1058,39 @@ export const TenantPortal = () => {
                     <div className="flex items-center gap-3">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span className="text-[10px] font-bold uppercase tracking-widest">Digital Signatures</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 rounded-[2.5rem] bg-oakland-terracotta/5 border border-oakland-terracotta/10">
+                  <h3 className="text-xl font-serif font-bold text-oakland-terracotta mb-4">Landlord Rights</h3>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <ShieldCheck className="w-5 h-5 text-oakland-terracotta shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-oakland-ink uppercase tracking-widest">Right of Entry</div>
+                        <p className="text-[10px] text-oakland-ink/60 leading-relaxed mt-1">
+                          Per CC 1954, management may enter for repairs, inspections, or showings with 24-hour written notice.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <ShieldCheck className="w-5 h-5 text-oakland-terracotta shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-oakland-ink uppercase tracking-widest">Strict Sublet Enforcement</div>
+                        <p className="text-[10px] text-oakland-ink/60 leading-relaxed mt-1">
+                          Unauthorized subletting is a material breach of lease and a 'Just Cause' for eviction under Oakland law.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <ShieldCheck className="w-5 h-5 text-oakland-terracotta shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-oakland-ink uppercase tracking-widest">Legal Fee Recovery</div>
+                        <p className="text-[10px] text-oakland-ink/60 leading-relaxed mt-1">
+                          Landlord reserves the right to recover attorney's fees and costs in any legal action where the landlord is the prevailing party.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
