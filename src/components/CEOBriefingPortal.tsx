@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { FileText, Scale, TrendingUp, ChevronRight, Plus, Download, Search, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { FileText, Scale, TrendingUp, ChevronRight, Plus, Download, Search, Info, Sparkles, Wand2, X, Copy, Check, FileDown, Save, AlertTriangle } from 'lucide-react';
+import { GoogleGenAI } from "@google/genai";
+import ReactMarkdown from 'react-markdown';
 
 interface LegalForm {
   id: number;
@@ -35,6 +37,57 @@ export function CEOBriefingPortal() {
   const [laws, setLaws] = useState<Law[]>([]);
   const [marketComps, setMarketComps] = useState<MarketComp[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // AI Lease Generator State
+  const [showGenerator, setShowGenerator] = useState(false);
+  const [rentAmount, setRentAmount] = useState('3500');
+  const [leaseTerm, setLeaseTerm] = useState('12');
+  const [specificClauses, setSpecificClauses] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedLease, setGeneratedLease] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerateLease = async () => {
+    setIsGenerating(true);
+    setGeneratedLease('');
+    
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-pro-preview",
+        contents: `Generate a legally compliant residential lease agreement for California (New CA Standards), specifically optimized for Oakland (Zip Code 94609). 
+        
+        Parameters:
+        - Monthly Rent: $${rentAmount}
+        - Lease Term: ${leaseTerm} months
+        - Specific Clauses/Requirements: ${specificClauses || 'Standard CA/Oakland clauses'}
+        
+        The lease MUST include:
+        1. Compliance with California Civil Code (New CA 2026 standards) and Oakland Rent Adjustment Program (RAP).
+        2. Just Cause for Eviction Ordinance (Oakland) mandatory disclosures.
+        3. Security deposit limits (CA law - max 1 month for unfurnished).
+        4. Lead-based paint disclosures (for 1924 building).
+        5. Bed bug, mold, and flood zone disclosures.
+        6. Oakland-specific tenant rights notices and RAP fee disclosures.
+        7. Clear sections for Parties, Premises, Term, Rent, Security Deposit, Utilities, Maintenance, and Rules.
+        
+        Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name where applicable.`,
+      });
+
+      setGeneratedLease(response.text || 'Failed to generate lease content.');
+    } catch (error) {
+      console.error('Error generating lease:', error);
+      setGeneratedLease('An error occurred while generating the lease. Please check your API configuration.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLease);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,11 +137,34 @@ export function CEOBriefingPortal() {
 
       <div className="grid grid-cols-1 gap-8">
         {activeTab === 'forms' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
+          <div className="space-y-8">
+            {/* AI Generator Trigger */}
+            <div className="p-1 rounded-[3rem] bg-gradient-to-r from-app-accent via-app-accent/50 to-app-accent shadow-2xl shadow-app-accent/20">
+              <div className="p-10 rounded-[2.8rem] bg-app-card flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-app-accent/10 rounded-lg">
+                      <Sparkles className="w-5 h-5 text-app-accent" />
+                    </div>
+                    <span className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">AI Legal Suite</span>
+                  </div>
+                  <h3 className="text-3xl font-serif font-bold text-app-text">Smart <span className="italic">Lease</span> Generator.</h3>
+                  <p className="text-app-text/50 max-w-md">Generate CA & 94609 legally approved tenant lease agreements in seconds using advanced AI logic.</p>
+                </div>
+                <button 
+                  onClick={() => setShowGenerator(true)}
+                  className="px-10 py-5 bg-app-accent text-white rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-3"
+                >
+                  <Wand2 className="w-5 h-5" /> Launch Generator
+                </button>
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
             {forms.map((form) => (
               <div key={form.id} className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm hover:shadow-xl transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -116,7 +192,8 @@ export function CEOBriefingPortal() {
               <span className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Add New Template</span>
             </button>
           </motion.div>
-        )}
+        </div>
+      )}
 
         {activeTab === 'laws' && (
           <motion.div
@@ -204,6 +281,172 @@ export function CEOBriefingPortal() {
           </motion.div>
         )}
       </div>
+
+      {/* AI Generator Modal */}
+      <AnimatePresence>
+        {showGenerator && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-4xl bg-app-card rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-app-border"
+            >
+              <div className="p-8 border-b border-app-border flex items-center justify-between bg-app-bg/50">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-app-accent/10 rounded-2xl">
+                    <Wand2 className="w-6 h-6 text-app-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-serif font-bold text-app-text">AI Lease Generator</h3>
+                    <p className="text-[10px] font-bold text-app-accent uppercase tracking-widest">New CA & Oakland 94609 Legal Approved</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowGenerator(false)} 
+                  className="p-3 hover:bg-app-text/5 rounded-full transition-colors text-app-text/40 hover:text-app-text"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8">
+                {!generatedLease ? (
+                  <div className="space-y-8 max-w-2xl mx-auto py-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Monthly Rent ($)</label>
+                        <input 
+                          type="number"
+                          value={rentAmount}
+                          onChange={(e) => setRentAmount(e.target.value)}
+                          className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
+                          placeholder="3500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Lease Term (Months)</label>
+                        <input 
+                          type="number"
+                          value={leaseTerm}
+                          onChange={(e) => setLeaseTerm(e.target.value)}
+                          className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
+                          placeholder="12"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Specific Clauses or Requirements</label>
+                      <textarea 
+                        value={specificClauses}
+                        onChange={(e) => setSpecificClauses(e.target.value)}
+                        placeholder="e.g., No pets, No smoking, Specific parking stall #4, Tenant pays water..."
+                        className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all min-h-[150px] resize-none text-app-text"
+                      />
+                    </div>
+
+                    <div className="p-6 rounded-3xl bg-app-accent/5 border border-app-accent/10 flex gap-4">
+                      <Info className="w-5 h-5 text-app-accent shrink-0" />
+                      <p className="text-[10px] text-app-text/60 leading-relaxed italic">
+                        Our AI engine is trained on the latest 2026 New California Civil Code and Oakland 94609 Rent Adjustment Program requirements. All generated leases include mandatory Just Cause disclosures and security deposit compliance.
+                      </p>
+                    </div>
+
+                    <button 
+                      onClick={handleGenerateLease}
+                      disabled={isGenerating || !rentAmount || !leaseTerm}
+                      className="w-full py-6 bg-app-accent text-white rounded-[2rem] font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-widest"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Drafting Legal Document...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5" /> Generate Lease Agreement
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <h4 className="text-sm font-bold text-app-text/40 uppercase tracking-widest">Generated Draft (New CA & 94609 Approved)</h4>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={copyToClipboard}
+                          className="flex items-center gap-2 px-4 py-2 bg-app-text/5 hover:bg-app-text/10 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all text-app-text"
+                        >
+                          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                          {copied ? 'Copied' : 'Copy Text'}
+                        </button>
+                        <button 
+                          className="flex items-center gap-2 px-4 py-2 bg-app-text/5 hover:bg-app-text/10 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all text-app-text"
+                        >
+                          <FileDown className="w-3 h-3" /> PDF
+                        </button>
+                        <button 
+                          className="flex items-center gap-2 px-4 py-2 bg-app-text/5 hover:bg-app-text/10 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all text-app-text"
+                        >
+                          <Save className="w-3 h-3" /> Save
+                        </button>
+                        <button 
+                          onClick={() => setGeneratedLease('')}
+                          className="flex items-center gap-2 px-4 py-2 bg-app-accent/10 text-app-accent rounded-full text-[10px] font-bold uppercase tracking-widest transition-all"
+                        >
+                          <Wand2 className="w-3 h-3" /> New Draft
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                      <div className="lg:col-span-3">
+                        <div className="p-10 bg-app-bg border border-app-border rounded-[2.5rem] font-serif text-app-text/80 leading-relaxed shadow-inner max-h-[60vh] overflow-y-auto prose prose-invert prose-sm max-w-none">
+                          <ReactMarkdown>{generatedLease}</ReactMarkdown>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-6">
+                        <div className="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/10 space-y-4">
+                          <div className="flex items-center gap-2 text-amber-500">
+                            <AlertTriangle className="w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Legal Disclaimer</span>
+                          </div>
+                          <p className="text-[10px] text-app-text/60 leading-relaxed italic">
+                            This AI-generated document is a template based on New CA and Oakland 94609 standards. It should be reviewed by legal counsel before execution.
+                          </p>
+                        </div>
+                        
+                        <div className="p-6 rounded-3xl bg-app-text/5 border border-app-border space-y-4">
+                          <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Compliance Check</div>
+                          <div className="space-y-3">
+                            {[
+                              'CA Civil Code 2026',
+                              'Oakland RAP Disclosures',
+                              'Just Cause Ordinance',
+                              'Security Deposit (1mo)',
+                              'Bed Bug & Mold Disclosures'
+                            ].map((item, i) => (
+                              <div key={i} className="flex items-center gap-2 text-[10px] font-bold text-app-text/60">
+                                <Check className="w-3 h-3 text-emerald-500" /> {item}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

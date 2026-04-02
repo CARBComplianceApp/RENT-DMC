@@ -23,10 +23,15 @@ import {
   FileWarning,
   Gavel,
   Wrench,
-  LayoutGrid
+  LayoutGrid,
+  MapPin,
+  X
 } from 'lucide-react';
 
 import { LeaseUpdateWalkthrough } from './LeaseUpdateWalkthrough';
+import { db, auth } from '../firebase';
+import { doc, getDoc, setDoc, onSnapshot, collection } from 'firebase/firestore';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 interface UserSettings {
   preferred_notification_time: string;
@@ -76,7 +81,7 @@ interface LeaseUpdate {
 }
 
 export const TenantPortal = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'legal' | 'maintenance' | 'mailbox'>('mailbox');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'maintenance' | 'mailbox'>('mailbox');
   const [settings, setSettings] = useState<UserSettings>({
     preferred_notification_time: '09:00',
     sms_enabled: true,
@@ -96,21 +101,53 @@ export const TenantPortal = () => {
   const [showReportSuccess, setShowReportSuccess] = useState(false);
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
-  const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string, sticker?: string }>>({
-    '101': { color: '#F27D26' },
-    '208': { color: '#5A5A40' },
-    '305': { color: '#141414' }
-  });
+  const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
   const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
+  const [currentUserUnit, setCurrentUserUnit] = useState<string>('101'); // Mocked for demo
 
   const units = [
-    '101', '102', '103', '104', '105', '106', '107', '108',
-    '201', '208',
-    '301', '302', '303', '304', '305', '306', '307', '308'
+    '101', '102', '103', '104', '105', '106',
+    '107', '108', '201', '202', '203', '204',
+    '301', '302', '303', '304', '305', '306'
+  ];
+
+  const curatedColors = [
+    { name: 'Ruby Red', value: '#E0115F' },
+    { name: 'Giants Orange', value: '#FD5A1E' },
+    { name: 'SF Bay Blue', value: '#0077BE' },
+    { name: 'Golden Gate Gold', value: '#FFD700' },
+    { name: 'Fog Grey', value: '#808080' },
+    { name: 'Night Black', value: '#1A1A1A' }
   ];
 
   useEffect(() => {
-    // Mock user ID 1 for demo
+    // Auth and Firebase Sync
+    const initFirebase = async () => {
+      try {
+        await signInAnonymously(auth);
+      } catch (err) {
+        console.error("Auth failed:", err);
+      }
+    };
+
+    initFirebase();
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Sync public customizations
+        const unsubCustom = onSnapshot(collection(db, 'mailboxCustomizations'), (snapshot) => {
+          const customs: Record<string, { color: string }> = {};
+          snapshot.forEach(doc => {
+            customs[doc.id] = doc.data() as { color: string };
+          });
+          setMailboxCustomizations(customs);
+        });
+
+        return () => unsubCustom();
+      }
+    });
+
+    // Existing API fetches
     fetch('/api/user-settings/1').then(res => res.json()).then(setSettings);
     fetch('/api/security-events/1').then(res => res.json()).then(setSecurityEvents);
     fetch('/api/construction-updates/1').then(res => res.json()).then(setConstructionUpdates);
@@ -188,6 +225,26 @@ export const TenantPortal = () => {
     }
   };
 
+  const handleUpdateMailboxColor = async (unit: string, color: string) => {
+    if (unit !== currentUserUnit) return; // Secure: only tenant can update their own
+
+    try {
+      // Update public customization
+      await setDoc(doc(db, 'mailboxCustomizations', unit), { unit, color });
+      
+      // Update private settings (if user is logged in with UID)
+      if (auth.currentUser) {
+        await setDoc(doc(db, 'userSettings', auth.currentUser.uid), {
+          uid: auth.currentUser.uid,
+          unit,
+          mailboxColor: color
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.error("Failed to save mailbox color:", err);
+    }
+  };
+
   const handleCreateMaintenance = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -219,7 +276,6 @@ export const TenantPortal = () => {
           { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
           { id: 'maintenance', label: 'Maintenance', icon: Wrench },
           { id: 'security', label: 'Security', icon: ShieldCheck },
-          { id: 'legal', label: 'Legal & Notices', icon: Gavel },
           { id: 'refer', label: 'Refer a Friend', icon: Users },
           { id: 'settings', label: 'Notifications', icon: Bell }
         ].map((tab) => (
@@ -255,66 +311,90 @@ export const TenantPortal = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative min-h-[700px] rounded-[4rem] overflow-hidden shadow-2xl bg-app-card group"
+            className="relative min-h-[800px] rounded-[4rem] overflow-hidden shadow-2xl bg-[#0B1A2D] group"
           >
-            {/* Background: Ruby Street 100 Years Ago */}
+            {/* Background: Oracle Park / SF Bay Vibe */}
             <div className="absolute inset-0 z-0">
               <img 
-                src="https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?q=80&w=2000&auto=format&fit=crop" 
-                alt="Ruby Street 100 Years Ago" 
-                className="w-full h-full object-cover grayscale brightness-[0.4] contrast-[1.2]"
+                src="https://images.unsplash.com/photo-1541467522944-75d65e5952a3?q=80&w=2000&auto=format&fit=crop" 
+                alt="SF Bay View" 
+                className="w-full h-full object-cover opacity-30 grayscale brightness-[0.6]"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-app-card via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1A2D] via-transparent to-transparent"></div>
             </div>
 
-            {/* Semi-Circle Mailboxes */}
-            <div className="relative z-10 h-full flex flex-col items-center justify-center p-12">
+            {/* Stadium Architecture Elements */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              {/* The "Field" */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] bg-emerald-900/20 rounded-[100%] blur-3xl transform -rotate-2"></div>
+              {/* Stadium Arches */}
+              <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/40 to-transparent flex justify-around px-20">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-16 h-full border-x border-white/5 rounded-b-full"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Giants Stadium Rows Layout */}
+            <div className="relative z-10 h-full flex flex-col items-center justify-start pt-20 p-12">
               <div className="text-center mb-16">
-                <h2 className="text-5xl font-black text-white tracking-tighter uppercase">Ruby <span className="italic text-app-accent">Mailbox Hub</span>.</h2>
-                <p className="text-white/40 text-sm font-bold uppercase tracking-[0.3em] mt-4">Select your unit to access your private portal</p>
+                <h2 className="text-6xl font-black text-white tracking-tighter uppercase">
+                  Ruby <span className="italic text-[#FD5A1E]">Stadium Hub</span>.
+                </h2>
+                <p className="text-white/40 text-xs font-bold uppercase tracking-[0.4em] mt-4">3 Rows Behind Home Plate • Looking Out at the Bay</p>
               </div>
 
-              <div className="relative w-full max-w-4xl aspect-[2/1] mt-12">
-                {units.map((unit, index) => {
-                  const total = units.length;
-                  const angle = (index / (total - 1)) * Math.PI; // 0 to PI (180 degrees)
-                  const radius = 350; // Radius in pixels
-                  const x = Math.cos(angle + Math.PI) * radius; // Offset by PI to start from left
-                  const y = Math.sin(angle + Math.PI) * radius;
-                  
-                  const custom = mailboxCustomizations[unit] || { color: '#ffffff20' };
+              <div className="relative w-full max-w-5xl flex flex-col gap-12 items-center">
+                {[0, 1, 2].map((rowIdx) => (
+                  <div 
+                    key={rowIdx} 
+                    className={`flex gap-6 justify-center transition-all duration-700 ${
+                      rowIdx === 0 ? 'scale-110 z-30' : rowIdx === 1 ? 'scale-100 z-20 opacity-80' : 'scale-90 z-10 opacity-60'
+                    }`}
+                  >
+                    {units.slice(rowIdx * 6, (rowIdx + 1) * 6).map((unit, idx) => {
+                      const custom = mailboxCustomizations[unit] || { color: '#ffffff10' };
+                      const isCurrentUser = unit === currentUserUnit;
 
-                  return (
-                    <motion.button
-                      key={unit}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05, type: 'spring' }}
-                      onClick={() => setSelectedMailbox(unit)}
-                      style={{ 
-                        left: `calc(50% + ${x}px)`, 
-                        top: `calc(100% + ${y}px)`,
-                        backgroundColor: custom.color,
-                        borderColor: activeTab === 'mailbox' && unit === '101' ? 'var(--color-ruby)' : 'rgba(255,255,255,0.1)'
-                      }}
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 w-16 h-20 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_30px_rgba(var(--color-ruby-rgb),0.3)] group ${unit === '101' ? 'ring-4 ring-app-accent/20' : ''}`}
-                    >
-                      <div className="text-[10px] font-black text-white/40 mb-1">UNIT</div>
-                      <div className="text-xl font-black text-white">{unit}</div>
-                      
-                      {/* Flag visual */}
-                      <div className="absolute -right-1 top-4 w-1 h-6 bg-app-accent rounded-full origin-bottom transition-transform group-hover:rotate-45" />
-                      
-                      {/* Interaction Hint */}
-                      {unit === '101' && (
-                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-app-accent text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce">
-                          YOUR UNIT
-                        </div>
-                      )}
-                    </motion.button>
-                  );
-                })}
+                      return (
+                        <motion.button
+                          key={unit}
+                          initial={{ opacity: 0, y: 50 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: (rowIdx * 6 + idx) * 0.03 }}
+                          onClick={() => setSelectedMailbox(unit)}
+                          style={{ 
+                            backgroundColor: custom.color,
+                            borderColor: isCurrentUser ? '#FD5A1E' : 'rgba(255,255,255,0.1)'
+                          }}
+                          className={`w-20 h-24 rounded-t-2xl rounded-b-lg border-2 flex flex-col items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_40px_rgba(253,90,30,0.4)] group relative shadow-2xl ${isCurrentUser ? 'ring-4 ring-[#FD5A1E]/30' : ''}`}
+                        >
+                          <div className="text-[8px] font-black text-white/40 mb-1">UNIT</div>
+                          <div className="text-2xl font-black text-white tracking-tighter">{unit}</div>
+                          
+                          {/* Stadium Seat Detail */}
+                          <div className="absolute bottom-2 left-2 right-2 h-1 bg-white/10 rounded-full"></div>
+                          
+                          {/* Flag visual */}
+                          <div className="absolute -right-1 top-4 w-1.5 h-8 bg-[#FD5A1E] rounded-full origin-bottom transition-transform group-hover:rotate-45" />
+                          
+                          {isCurrentUser && (
+                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#FD5A1E] text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
+                              HOME PLATE
+                            </div>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+
+              {/* SF Bay / Field Hint */}
+              <div className="mt-20 flex flex-col items-center gap-4 opacity-40">
+                <div className="w-1 h-20 bg-gradient-to-b from-white/20 to-transparent"></div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-white">Field & SF Bay View</div>
               </div>
 
               {/* Quick Links Overlay when a mailbox is selected */}
@@ -324,32 +404,31 @@ export const TenantPortal = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-app-card/95 backdrop-blur-2xl p-8 rounded-[3rem] shadow-2xl border border-app-border z-30"
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-[#0B1A2D]/95 backdrop-blur-3xl p-10 rounded-[3.5rem] shadow-2xl border border-white/10 z-50"
                   >
-                    <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between mb-10">
+                      <div className="flex items-center gap-5">
                         <div 
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg"
-                          style={{ backgroundColor: mailboxCustomizations[selectedMailbox]?.color || 'var(--color-app-bg)' }}
+                          className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-colors duration-500"
+                          style={{ backgroundColor: mailboxCustomizations[selectedMailbox]?.color || '#1A1A1A' }}
                         >
-                          <Mail className="w-6 h-6" />
+                          <Mail className="w-7 h-7" />
                         </div>
                         <div>
-                          <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">Unit {selectedMailbox} Portal</h3>
-                          <p className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Secure Access Authenticated</p>
+                          <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Unit {selectedMailbox} Portal</h3>
+                          <p className="text-[10px] font-bold text-[#FD5A1E] uppercase tracking-widest">Secure Stadium Access</p>
                         </div>
                       </div>
-                      <button onClick={() => setSelectedMailbox(null)} className="p-2 hover:bg-app-text/5 rounded-full transition-colors">
-                        <Plus className="w-6 h-6 rotate-45 text-app-text/40" />
+                      <button onClick={() => setSelectedMailbox(null)} className="p-3 hover:bg-white/5 rounded-full transition-colors">
+                        <X className="w-6 h-6 text-white/40" />
                       </button>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[
                         { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-emerald-500/10 text-emerald-500' },
-                        { id: 'legal', label: 'Lease', icon: Gavel, color: 'bg-blue-500/10 text-blue-500' },
-                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-app-accent/10 text-app-accent' },
-                        { id: 'legal', label: 'Notices', icon: Bell, color: 'bg-app-accent/10 text-app-accent' },
+                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
                       ].map((link) => (
                         <button
                           key={link.label}
@@ -357,30 +436,42 @@ export const TenantPortal = () => {
                             setActiveTab(link.id as any);
                             setSelectedMailbox(null);
                           }}
-                          className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-border hover:border-app-accent/20 transition-all group text-center"
+                          className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:border-[#FD5A1E]/30 transition-all group text-center"
                         >
-                          <div className={`w-10 h-10 rounded-xl ${link.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
-                            <link.icon className="w-5 h-5" />
+                          <div className={`w-12 h-12 rounded-xl ${link.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-lg`}>
+                            <link.icon className="w-6 h-6" />
                           </div>
-                          <div className="text-[10px] font-bold uppercase tracking-widest text-app-text">{link.label}</div>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-white/80">{link.label}</div>
                         </button>
                       ))}
                     </div>
 
-                    {/* Customization Option */}
-                    <div className="mt-8 pt-8 border-t border-app-border flex items-center justify-between">
-                      <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Customize Mailbox</div>
-                      <div className="flex gap-2">
-                        {['#F27D26', '#5A5A40', '#141414', '#0066CC', '#CC0000'].map(color => (
-                          <button
-                            key={color}
-                            onClick={() => setMailboxCustomizations({ ...mailboxCustomizations, [selectedMailbox]: { color } })}
-                            style={{ backgroundColor: color }}
-                            className={`w-6 h-6 rounded-full border-2 ${mailboxCustomizations[selectedMailbox]?.color === color ? 'border-app-text scale-125' : 'border-transparent'}`}
-                          />
-                        ))}
+                    {/* Customization Option - Only for current user */}
+                    {selectedMailbox === currentUserUnit && (
+                      <div className="mt-10 pt-10 border-t border-white/10">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-[#FD5A1E]" />
+                            <div className="text-xs font-bold text-white/60 uppercase tracking-widest">Customize Your Seat Color</div>
+                          </div>
+                          <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Syncing with Cloud</div>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-3xl">
+                          <div className="flex gap-3">
+                            {curatedColors.map(color => (
+                              <button
+                                key={color.value}
+                                onClick={() => handleUpdateMailboxColor(selectedMailbox, color.value)}
+                                style={{ backgroundColor: color.value }}
+                                title={color.name}
+                                className={`w-10 h-10 rounded-full border-4 transition-all hover:scale-110 ${mailboxCustomizations[selectedMailbox]?.color === color.value ? 'border-white shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'border-transparent'}`}
+                              />
+                            ))}
+                          </div>
+                          <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter italic">Giants Edition</div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -474,12 +565,6 @@ export const TenantPortal = () => {
               <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">Recent Notices</h3>
-                  <button 
-                    onClick={() => setActiveTab('legal')}
-                    className="text-[10px] font-bold text-app-accent uppercase tracking-widest hover:underline"
-                  >
-                    View All
-                  </button>
                 </div>
                 <div className="space-y-4">
                   {notices.slice(0, 2).map((notice) => (
@@ -980,168 +1065,6 @@ export const TenantPortal = () => {
           </motion.div>
         )}
 
-        {activeTab === 'legal' && (
-          <motion.div
-            key="legal"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
-                  <h3 className="text-2xl font-serif font-bold mb-8">Official Notices</h3>
-                  <div className="space-y-4">
-                    {notices.length > 0 ? notices.map(notice => (
-                      <div 
-                        key={notice.id} 
-                        onClick={() => handleViewNotice(notice)}
-                        className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-text/5 hover:border-app-accent/20 transition-all cursor-pointer flex items-center justify-between group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`p-3 rounded-2xl ${notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                            <FileWarning className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-app-text">{notice.title}</h4>
-                            <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">
-                              Issued: {new Date(notice.sent_at).toLocaleDateString()} • Status: {notice.status}
-                            </div>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-app-text/20 group-hover:text-app-accent transition-colors" />
-                      </div>
-                    )) : (
-                      <div className="text-center py-12 text-app-text/30 italic">No official notices at this time.</div>
-                    )}
-                  </div>
-                </div>
-
-                {violations.length > 0 && (
-                  <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
-                    <h3 className="text-2xl font-serif font-bold mb-8">Lease Violations</h3>
-                    <div className="space-y-4">
-                      {violations.map(violation => (
-                        <div key={violation.id} className="p-6 rounded-3xl bg-app-accent/5 border border-app-accent/10 flex items-center gap-6">
-                          <div className="w-12 h-12 rounded-2xl bg-app-accent/10 flex items-center justify-center shrink-0">
-                            <AlertCircle className="w-6 h-6 text-app-accent" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-app-text">{violation.description}</h4>
-                            <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mt-1">
-                              Logged: {new Date(violation.violation_date).toLocaleDateString()} • Status: {violation.status}
-                            </div>
-                            {violation.gm_notes && (
-                              <p className="text-xs text-app-text/60 mt-2 italic">Note from management: {violation.gm_notes}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-8">
-                <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-xl">
-                  <h3 className="text-xl font-serif font-bold mb-4 text-app-bg">Legal Defense Log</h3>
-                  <p className="text-xs text-app-bg/50 leading-relaxed mb-6">
-                    Every action in this portal is cryptographically logged. This provides a verifiable paper trail for all official communications and notice deliveries.
-                  </p>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-app-bg">IP Logging Active</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-app-bg">Timestamp Verification</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-app-bg">Digital Signatures</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-8 rounded-[2.5rem] bg-app-accent/5 border border-app-accent/10">
-                  <h3 className="text-xl font-serif font-bold text-app-accent mb-4">Landlord Rights</h3>
-                  <div className="space-y-4">
-                    <div className="flex gap-3">
-                      <ShieldCheck className="w-5 h-5 text-app-accent shrink-0" />
-                      <div>
-                        <div className="text-xs font-bold text-app-text uppercase tracking-widest">Right of Entry</div>
-                        <p className="text-[10px] text-app-text/60 leading-relaxed mt-1">
-                          Per CC 1954, management may enter for repairs, inspections, or showings with 24-hour written notice.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <ShieldCheck className="w-5 h-5 text-app-accent shrink-0" />
-                      <div>
-                        <div className="text-xs font-bold text-app-text uppercase tracking-widest">Strict Sublet Enforcement</div>
-                        <p className="text-[10px] text-app-text/60 leading-relaxed mt-1">
-                          Unauthorized subletting is a material breach of lease and a 'Just Cause' for eviction under Oakland law.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <ShieldCheck className="w-5 h-5 text-app-accent shrink-0" />
-                      <div>
-                        <div className="text-xs font-bold text-app-text uppercase tracking-widest">Legal Fee Recovery</div>
-                        <p className="text-[10px] text-app-text/60 leading-relaxed mt-1">
-                          Landlord reserves the right to recover attorney's fees and costs in any legal action where the landlord is the prevailing party.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notice Detail Modal */}
-            {selectedNotice && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="w-full max-w-2xl bg-app-card rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
-                >
-                  <div className="p-8 border-b border-app-text/5 flex items-center justify-between">
-                    <h3 className="text-2xl font-serif font-bold text-app-text">{selectedNotice.title}</h3>
-                    <button onClick={() => setSelectedNotice(null)} className="p-2 hover:bg-app-text/5 rounded-full transition-colors">
-                      <Plus className="w-6 h-6 rotate-45 text-app-text/40" />
-                    </button>
-                  </div>
-                  <div className="p-8 overflow-y-auto flex-1 font-serif text-app-text/80 leading-relaxed whitespace-pre-wrap">
-                    {selectedNotice.content}
-                  </div>
-                  <div className="p-8 bg-app-text/[0.02] border-t border-app-text/5 flex flex-col gap-4">
-                    {selectedNotice.status !== 'Acknowledged' ? (
-                      <>
-                        <p className="text-[10px] text-app-text/40 italic text-center">
-                          By clicking acknowledge, you confirm that you have read and understood this notice. Your IP address and timestamp will be logged for legal compliance.
-                        </p>
-                        <button 
-                          onClick={() => handleAcknowledgeNotice(selectedNotice.id)}
-                          disabled={isSubmitting}
-                          className="w-full py-4 bg-app-text text-app-bg rounded-2xl font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-all disabled:opacity-50"
-                        >
-                          {isSubmitting ? 'Processing...' : 'Acknowledge Notice'}
-                        </button>
-                      </>
-                    ) : (
-                      <div className="flex items-center justify-center gap-2 text-emerald-600 font-bold uppercase tracking-widest text-sm">
-                        <CheckCircle2 className="w-5 h-5" /> Acknowledged on {new Date(selectedNotice.acknowledged_at!).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </motion.div>
-        )}
       </AnimatePresence>
     </div>
   );

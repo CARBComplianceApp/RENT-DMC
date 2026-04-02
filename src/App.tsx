@@ -28,7 +28,9 @@ import {
   Share2,
   DollarSign,
   Activity,
-  FileText
+  FileText,
+  Mail,
+  Wrench
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -61,6 +63,7 @@ import { AdminLegalLog } from './components/AdminLegalLog';
 import { VendorManagement } from './components/VendorManagement';
 import { BuildingIntelligence } from './components/BuildingIntelligence';
 import { ProductTour } from './components/ProductTour';
+import { OwnerPresentation } from './components/OwnerPresentation';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -82,11 +85,17 @@ export default function App() {
   const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
   const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log' | 'vendors'>('portfolio');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showOwnerVision, setShowOwnerVision] = useState(false);
 
   return (
     <div className={`min-h-screen font-sans selection:bg-app-accent/30 transition-colors duration-700`}>
       {view === 'admin' && <ShimmerBackground />}
       
+      <AnimatePresence>
+        {showOwnerVision && (
+          <OwnerPresentation onClose={() => setShowOwnerVision(false)} />
+        )}
+      </AnimatePresence>
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 border-b border-app-border bg-app-bg/80 backdrop-blur-xl transition-all duration-500`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -117,6 +126,14 @@ export default function App() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
+            {view === 'admin' && (
+              <button 
+                onClick={() => setShowOwnerVision(true)}
+                className="hidden lg:flex items-center gap-2 px-4 py-1.5 bg-app-accent/10 border border-app-accent/20 text-app-accent text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-app-accent hover:text-white transition-all"
+              >
+                <ShieldCheck className="w-3 h-3" /> Vision Deck
+              </button>
+            )}
             {/* View Toggle */}
             <div className={`flex p-1 rounded-full bg-app-text/10 border border-app-border`}>
               <button 
@@ -197,45 +214,77 @@ export default function App() {
             className="pt-20"
           >
             {/* Hero Section */}
-            <section className="relative h-[90vh] flex items-center overflow-hidden">
-              <div className="absolute inset-0 z-0">
-                <img 
-                  src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?q=80&w=2000&auto=format&fit=crop" 
-                  alt="3875 Ruby Street - Authentic 1924 Oakland Architecture" 
-                  className="w-full h-full object-cover brightness-[0.85] contrast-[1.1]"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-app-bg"></div>
+            <section className="relative h-[90vh] flex items-center overflow-hidden bg-[#0B1A2D]">
+              <div className="absolute inset-0 z-0 opacity-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-app-accent/20 via-transparent to-transparent"></div>
+                <div className="grid grid-cols-8 h-full w-full">
+                  {[...Array(64)].map((_, i) => (
+                    <div key={i} className="border-[0.5px] border-white/5"></div>
+                  ))}
+                </div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className="max-w-4xl"
-                >
-                  <div className="inline-block px-4 py-2 bg-app-accent text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
-                    Est. 1924 // Oakland, CA
-                  </div>
-                  <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
-                    RUBY <br /> <span className="text-app-accent">SOUL.</span>
-                  </h1>
-                  <div className="mt-12 flex flex-col md:flex-row md:items-end gap-12">
-                    <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                  <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                  >
+                    <div className="inline-block px-4 py-2 bg-app-accent text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
+                      Est. 1924 // Oakland, CA
+                    </div>
+                    <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
+                      RUBY <br /> <span className="text-app-accent">SOUL.</span>
+                    </h1>
+                    <div className="mt-12 text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
                       Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-app-accent underline-offset-8">progress of 100 years</span>.
                     </div>
-                    <div className="flex flex-col gap-4">
+                    <div className="mt-12 flex flex-col sm:flex-row gap-6">
                       <button className="px-10 py-5 bg-app-accent text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-app-text transition-all shadow-2xl hover:scale-105">
                         Explore Units
                       </button>
-                      <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-md rounded-full border border-white/20">
+                      <div className="flex items-center gap-4 px-6 py-3 bg-white/5 backdrop-blur-md rounded-full border border-white/10">
                         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                         <span className="text-[10px] font-bold text-white uppercase tracking-widest">2 Units Available Now</span>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="space-y-8"
+                  >
+                    <div className="text-xs font-bold text-app-accent uppercase tracking-[0.4em] mb-4">Neighborhood Landmarks</div>
+                    <div className="grid grid-cols-1 gap-4">
+                      {[
+                        { name: 'Mosswood Park', dist: '0.1 miles', desc: 'Historic green space & recreation' },
+                        { name: 'MacArthur BART', dist: '0.4 miles', desc: '10-minute walk to transit heart' },
+                        { name: 'Kaiser Permanente', dist: '0.3 miles', desc: 'Premier medical district access' },
+                        { name: 'Piedmont Avenue', dist: '0.6 miles', desc: 'Boutique dining & shopping' },
+                        { name: 'Alta Bates Summit', dist: '0.5 miles', desc: 'Leading healthcare center' }
+                      ].map((item, i) => (
+                        <motion.div 
+                          key={item.name}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 + (i * 0.1) }}
+                          className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-app-accent/40 transition-all group flex items-center justify-between"
+                        >
+                          <div>
+                            <h4 className="text-xl font-bold text-white uppercase tracking-tight">{item.name}</h4>
+                            <p className="text-xs text-white/40 uppercase tracking-widest mt-1">{item.desc}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-app-accent font-serif italic text-lg">{item.dist}</div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </section>
 
@@ -284,30 +333,30 @@ export default function App() {
                     <div className="text-2xl font-serif italic">A Century of Soul.</div>
                   </div>
                 </div>
-                <div className="space-y-8">
+                <div className="space-y-8 p-12 bg-black rounded-[3rem] text-white">
                   <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">The Vision</div>
                   <h2 className="text-5xl md:text-7xl font-serif font-black leading-tight">
                     Historic Charm. <br /> Modern <span className="italic text-app-accent/60">Utility</span>.
                   </h2>
-                  <p className="text-xl text-app-text/90 leading-relaxed font-light">
+                  <p className="text-xl text-white/90 leading-relaxed font-light">
                     3875 Ruby Street is a living testament to Oakland's diverse history. This 24-unit, 3-story building preserves its 1924 architectural soul while fostering a community that celebrates every culture. From secure Amazon Hubs to the vibrant Mosswood vibe, this is authentic Oakland living.
                   </p>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-8">
                     <div>
                       <div className="text-4xl font-serif font-bold text-app-accent">24</div>
-                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Boutique Units</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-white/60 mt-2">Boutique Units</div>
                     </div>
                     <div>
                       <div className="text-4xl font-serif font-bold text-app-accent">3</div>
-                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Stories</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-white/60 mt-2">Stories</div>
                     </div>
                     <div className="col-span-2 md:col-span-1">
                       <div className="text-6xl font-serif font-black text-app-accent leading-none">100%</div>
-                      <div className="text-sm font-black uppercase tracking-[0.2em] text-app-text mt-2">Oakland Owned</div>
+                      <div className="text-sm font-black uppercase tracking-[0.2em] text-white mt-2">Oakland Owned</div>
                     </div>
                     <div>
                       <div className="text-4xl font-serif font-bold text-app-accent">94/100</div>
-                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Walk Score</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-white/60 mt-2">Walk Score</div>
                     </div>
                   </div>
                 </div>
@@ -343,6 +392,117 @@ export default function App() {
 
             {/* Building Intelligence Section */}
             <BuildingIntelligence />
+
+            {/* Platform Ecosystem Presentation */}
+            <section id="platform-ecosystem" className="py-32 bg-[#0B1A2D] text-white">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-24">
+                  <div className="text-xs font-bold text-[#E0115F] uppercase tracking-[0.4em] mb-4">The Ecosystem</div>
+                  <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none">
+                    One Platform. <br /> <span className="text-[#E0115F]">Infinite Control.</span>
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  {/* Owner Features Presentation */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    className="p-12 rounded-[4rem] bg-white/5 border border-white/10 hover:border-[#E0115F]/30 transition-all group"
+                  >
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-16 h-16 rounded-3xl bg-[#E0115F] flex items-center justify-center shadow-2xl">
+                        <ShieldCheck className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-3xl font-black uppercase tracking-tighter">Owner Intelligence</h3>
+                        <p className="text-[#E0115F] text-[10px] font-bold uppercase tracking-widest">Asset Management Suite</p>
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      {[
+                        { title: 'CEO Briefing Portal', desc: 'AI-generated lease agreements, real-time legal updates, and market data visualization.', icon: FileText },
+                        { title: 'SF Plus Financials', desc: 'Automated bank transaction matching and rent collection tracking.', icon: DollarSign },
+                        { title: 'Market Max Projections', desc: 'ROI forecasting and occupancy optimization using neighborhood data.', icon: TrendingUp },
+                        { title: 'Vendor Management', desc: 'Centralized directory for plumbing, electrical, and security services.', icon: Users }
+                      ].map((feature) => (
+                        <div key={feature.title} className="flex gap-6 p-6 rounded-3xl hover:bg-white/5 transition-colors">
+                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0">
+                            <feature.icon className="w-6 h-6 text-white/40" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-bold mb-1">{feature.title}</h4>
+                            <p className="text-sm text-white/40 leading-relaxed">{feature.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Tenant Features Presentation */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    className="p-12 rounded-[4rem] bg-white/5 border border-white/10 hover:border-[#FD5A1E]/30 transition-all group"
+                  >
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-16 h-16 rounded-3xl bg-[#FD5A1E] flex items-center justify-center shadow-2xl">
+                        <Users className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-3xl font-black uppercase tracking-tighter">Tenant Experience</h3>
+                        <p className="text-[#FD5A1E] text-[10px] font-bold uppercase tracking-widest">Community & Lifestyle</p>
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      {[
+                        { title: 'Stadium Mailbox Hub', desc: 'Customizable mailbox icons in a Giants-inspired stadium layout.', icon: Mail },
+                        { title: 'Maintenance Portal', desc: 'One-click reporting with photo uploads and real-time status tracking.', icon: Wrench },
+                        { title: 'Community Referrals', desc: 'Earn rewards by referring friends to the Ruby community.', icon: Share2 },
+                        { title: 'Lease Walkthrough', desc: 'Interactive, step-by-step digital lease updates and legal disclosures.', icon: ArrowRight }
+                      ].map((feature) => (
+                        <div key={feature.title} className="flex gap-6 p-6 rounded-3xl hover:bg-white/5 transition-colors">
+                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0">
+                            <feature.icon className="w-6 h-6 text-white/40" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-bold mb-1">{feature.title}</h4>
+                            <p className="text-sm text-white/40 leading-relaxed">{feature.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Rent Roll Capability Showcase */}
+                <div className="mt-12 p-12 rounded-[4rem] bg-gradient-to-br from-[#E0115F]/20 to-transparent border border-white/5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+                    <div className="md:col-span-1">
+                      <h3 className="text-4xl font-black uppercase tracking-tighter mb-4">The Intelligent <br /> <span className="text-[#E0115F]">Rent Roll</span>.</h3>
+                      <p className="text-white/40 text-sm leading-relaxed">
+                        Our proprietary rent roll system does more than track payments. It monitors tenant activity, identifies sublease risks, and automates late fee applications.
+                      </p>
+                    </div>
+                    <div className="md:col-span-2 grid grid-cols-2 gap-6">
+                      {[
+                        { label: 'Automated Late Fees', value: 'Instant $50 Application' },
+                        { label: 'Sublease Detection', value: 'AI Pattern Recognition' },
+                        { label: 'Financial Sync', value: 'Direct Bank Integration' },
+                        { label: 'Legal Compliance', value: 'Auto-Notice Generation' }
+                      ].map((stat) => (
+                        <div key={stat.label} className="p-6 rounded-3xl bg-white/5 border border-white/5">
+                          <div className="text-[10px] font-bold text-[#E0115F] uppercase tracking-widest mb-2">{stat.label}</div>
+                          <div className="text-xl font-bold">{stat.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Product Tour Section */}
             <ProductTour />

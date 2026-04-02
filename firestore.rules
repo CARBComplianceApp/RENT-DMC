@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: userSettings
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required) - User's Firebase Auth UID
+    //   - unit: string (required) - Tenant's unit number
+    //   - mailboxColor: string (optional) - Hex color code
+    //   - preferred_notification_time: string (optional)
+    //   - sms_enabled: bool (optional)
+    //   - email_enabled: bool (optional)
+    //
+    // Collection: mailboxCustomizations
+    // Document ID: {unit}
+    // Fields:
+    //   - unit: string (required) - Unit number
+    //   - color: string (required) - Hex color code
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "admin@mobilecarbsmoketest.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidColor(color) {
+      return color is string && color.matches("^#[0-9A-Fa-f]{6}$");
+    }
+
+    function isValidUserSettings(data) {
+      return data.keys().hasAll(['uid', 'unit']) &&
+             data.uid is string &&
+             data.unit is string &&
+             (!('mailboxColor' in data) || isValidColor(data.mailboxColor));
+    }
+
+    function isValidMailboxCustomization(data) {
+      return data.keys().hasAll(['unit', 'color']) &&
+             data.unit is string &&
+             isValidColor(data.color);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /userSettings/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && isValidUserSettings(request.resource.data);
+      allow update: if isOwner(uid) && isValidUserSettings(request.resource.data);
+    }
+
+    match /mailboxCustomizations/{unit} {
+      allow read: if true; // Publicly visible (anonymized)
+      allow create, update: if isAuthenticated() && 
+                             isValidMailboxCustomization(request.resource.data) &&
+                             (isAdmin() || (get(/databases/$(database)/documents/userSettings/$(request.auth.uid)).data.unit == unit));
+      allow delete: if isAdmin();
+    }
+    
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
