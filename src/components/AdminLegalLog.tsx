@@ -89,6 +89,7 @@ export const AdminLegalLog: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [selectedAuditNotice, setSelectedAuditNotice] = useState<Notice | null>(null);
   const [newNotice, setNewNotice] = useState({ tenant_id: '', title: '', content: '' });
 
   useEffect(() => {
@@ -372,8 +373,8 @@ export const AdminLegalLog: React.FC = () => {
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Tenant / Unit</th>
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Notice Title</th>
                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Status</th>
-                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Sent At</th>
-                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Tracking</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Chain of Custody</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-app-text/5">
@@ -395,45 +396,59 @@ export const AdminLegalLog: React.FC = () => {
                         <div className="text-xs text-app-text/40 truncate max-w-[200px]">{notice.content}</div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                          notice.status === 'Viewed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                          'bg-orange-50 text-orange-600 border border-orange-100'
-                        }`}>
-                          {notice.status === 'Acknowledged' && <CheckCircle2 className="w-3 h-3" />}
-                          {notice.status === 'Viewed' && <Eye className="w-3 h-3" />}
-                          {notice.status === 'Sent' && <Clock className="w-3 h-3" />}
-                          {notice.status}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="text-sm font-medium text-app-text">
-                          {new Date(notice.sent_at).toLocaleDateString()}
-                        </div>
-                        <div className="text-[10px] text-app-text/30 font-mono">
-                          {new Date(notice.sent_at).toLocaleTimeString()}
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="space-y-1">
-                          {notice.viewed_at && (
-                            <div className="flex items-center gap-2 text-[10px] text-app-text/60">
-                              <Eye className="w-3 h-3 text-blue-500" />
-                              <span>Viewed: {new Date(notice.viewed_at).toLocaleString()}</span>
-                              <span className="font-mono text-[8px] bg-app-text/5 px-1 rounded">IP: {notice.viewed_ip}</span>
-                            </div>
-                          )}
+                        <div className="flex flex-col gap-2">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit ${
+                            notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                            notice.status === 'Viewed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                            'bg-orange-50 text-orange-600 border border-orange-100'
+                          }`}>
+                            {notice.status === 'Acknowledged' && <CheckCircle2 className="w-3 h-3" />}
+                            {notice.status === 'Viewed' && <Eye className="w-3 h-3" />}
+                            {notice.status === 'Sent' && <Clock className="w-3 h-3" />}
+                            {notice.status}
+                          </span>
                           {notice.acknowledged_at && (
-                            <div className="flex items-center gap-2 text-[10px] text-app-text/60">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                              <span>Ack: {new Date(notice.acknowledged_at).toLocaleString()}</span>
-                              <span className="font-mono text-[8px] bg-app-text/5 px-1 rounded">IP: {notice.acknowledged_ip}</span>
-                            </div>
-                          )}
-                          {!notice.viewed_at && !notice.acknowledged_at && (
-                            <div className="text-[10px] text-app-text/30 italic">No tracking data yet</div>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-tighter rounded w-fit">
+                              <ShieldCheck className="w-2 h-2" /> Verified Defense
+                            </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                            <div className="w-0.5 h-4 bg-app-text/10" />
+                            <div className={`w-2 h-2 rounded-full ${notice.viewed_at ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-app-text/10'}`} />
+                            <div className="w-0.5 h-4 bg-app-text/10" />
+                            <div className={`w-2 h-2 rounded-full ${notice.acknowledged_at ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-app-text/10'}`} />
+                          </div>
+                          <div className="space-y-3">
+                            <div className="text-[10px] leading-none">
+                              <span className="font-bold text-app-text/40 uppercase tracking-widest block mb-1">Sent</span>
+                              <span className="text-app-text font-medium">{new Date(notice.sent_at).toLocaleString()}</span>
+                            </div>
+                            <div className={`text-[10px] leading-none ${notice.viewed_at ? 'opacity-100' : 'opacity-20'}`}>
+                              <span className="font-bold text-app-text/40 uppercase tracking-widest block mb-1">Viewed</span>
+                              <span className="text-app-text font-medium">{notice.viewed_at ? new Date(notice.viewed_at).toLocaleString() : 'Pending...'}</span>
+                              {notice.viewed_ip && <span className="ml-2 font-mono text-[8px] bg-app-text/5 px-1 rounded">IP: {notice.viewed_ip}</span>}
+                            </div>
+                            <div className={`text-[10px] leading-none ${notice.acknowledged_at ? 'opacity-100' : 'opacity-20'}`}>
+                              <span className="font-bold text-app-text/40 uppercase tracking-widest block mb-1">Acknowledged</span>
+                              <span className="text-app-text font-medium">{notice.acknowledged_at ? new Date(notice.acknowledged_at).toLocaleString() : 'Pending...'}</span>
+                              {notice.acknowledged_ip && <span className="ml-2 font-mono text-[8px] bg-app-text/5 px-1 rounded">IP: {notice.acknowledged_ip}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <button 
+                          onClick={() => setSelectedAuditNotice(notice)}
+                          className="p-3 bg-app-text/5 text-app-text/40 rounded-xl hover:bg-app-accent hover:text-white transition-all group"
+                          title="View Full Audit Trail"
+                        >
+                          <Search className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -558,6 +573,120 @@ export const AdminLegalLog: React.FC = () => {
             </div>
           )}
         </motion.div>
+      </AnimatePresence>
+
+      {/* Audit Trail Modal */}
+      <AnimatePresence>
+        {selectedAuditNotice && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-app-text/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-2xl bg-app-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-app-text/10"
+            >
+              <div className="p-8 border-b border-app-text/5 bg-app-bg/30 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-serif font-black text-app-text">Chain of <span className="italic text-app-accent">Custody</span></h3>
+                  <p className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest mt-1">Audit Trail // Notice ID: {selectedAuditNotice.id}</p>
+                </div>
+                <button onClick={() => setSelectedAuditNotice(null)} className="p-2 hover:bg-app-text/5 rounded-full transition-colors">
+                  <Plus className="w-6 h-6 rotate-45 text-app-text/40" />
+                </button>
+              </div>
+              
+              <div className="p-10 space-y-12">
+                <div className="flex items-center gap-6 p-6 bg-app-text/5 rounded-3xl border border-app-text/5">
+                  <div className="w-16 h-16 rounded-2xl bg-app-accent text-white flex items-center justify-center shadow-lg">
+                    <ShieldCheck className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-serif font-bold text-app-text">{selectedAuditNotice.title}</h4>
+                    <p className="text-xs text-app-text/50 uppercase tracking-widest font-bold">Issued to {selectedAuditNotice.tenant_name} (Unit {selectedAuditNotice.unit_number})</p>
+                  </div>
+                </div>
+
+                <div className="relative space-y-12 pl-8">
+                  {/* Vertical Line */}
+                  <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-app-text/10" />
+
+                  {/* Sent Step */}
+                  <div className="relative">
+                    <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-emerald-500 border-4 border-app-card shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black uppercase tracking-widest text-app-text">Notice Issued</span>
+                        <span className="text-[10px] font-mono text-app-text/40">{new Date(selectedAuditNotice.sent_at).toLocaleString()}</span>
+                      </div>
+                      <div className="p-4 bg-app-bg/50 rounded-2xl border border-app-text/5 text-[10px] text-app-text/60 leading-relaxed italic">
+                        Notice successfully dispatched via digital portal. Cryptographic timestamp generated.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Viewed Step */}
+                  <div className="relative">
+                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.viewed_at ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-app-text/10'}`} />
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-black uppercase tracking-widest ${selectedAuditNotice.viewed_at ? 'text-app-text' : 'text-app-text/20'}`}>Tenant Viewed</span>
+                        <span className="text-[10px] font-mono text-app-text/40">{selectedAuditNotice.viewed_at ? new Date(selectedAuditNotice.viewed_at).toLocaleString() : 'Pending'}</span>
+                      </div>
+                      {selectedAuditNotice.viewed_at ? (
+                        <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10 flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <Eye className="w-4 h-4 text-blue-500" />
+                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Read Receipt Confirmed</span>
+                          </div>
+                          <span className="font-mono text-[10px] text-app-text/40 bg-white/50 px-2 py-0.5 rounded">IP: {selectedAuditNotice.viewed_ip}</span>
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-app-text/20 italic ml-4">Waiting for tenant interaction...</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Acknowledged Step */}
+                  <div className="relative">
+                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.acknowledged_at ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-app-text/10'}`} />
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-black uppercase tracking-widest ${selectedAuditNotice.acknowledged_at ? 'text-app-text' : 'text-app-text/20'}`}>Digital Acknowledgment</span>
+                        <span className="text-[10px] font-mono text-app-text/40">{selectedAuditNotice.acknowledged_at ? new Date(selectedAuditNotice.acknowledged_at).toLocaleString() : 'Pending'}</span>
+                      </div>
+                      {selectedAuditNotice.acknowledged_at ? (
+                        <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Legally Binding Signature</span>
+                          </div>
+                          <span className="font-mono text-[10px] text-app-text/40 bg-white/50 px-2 py-0.5 rounded">IP: {selectedAuditNotice.acknowledged_ip}</span>
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-app-text/20 italic ml-4">Waiting for tenant signature...</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedAuditNotice.acknowledged_at && (
+                  <div className="p-6 bg-app-text text-app-bg rounded-3xl flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <ShieldCheck className="w-8 h-8 text-emerald-400" />
+                      <div>
+                        <div className="text-sm font-black uppercase tracking-tighter">Defense-Ready Document</div>
+                        <div className="text-[10px] font-bold text-app-bg/50 uppercase tracking-widest">Verified Chain of Custody Complete</div>
+                      </div>
+                    </div>
+                    <button className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all">
+                      Download PDF
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
 
       {/* Audit Stats */}

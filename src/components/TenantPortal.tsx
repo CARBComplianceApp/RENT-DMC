@@ -112,7 +112,7 @@ export const TenantPortal = () => {
   ];
 
   const curatedColors = [
-    { name: 'Ruby Red', value: '#E0115F' },
+    { name: 'Ruby Red', value: '#9B111E' },
     { name: 'Giants Orange', value: '#FD5A1E' },
     { name: 'SF Bay Blue', value: '#0077BE' },
     { name: 'Golden Gate Gold', value: '#FFD700' },

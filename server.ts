@@ -314,7 +314,7 @@ if (propertyCount.count === 0) {
     "Mosswood",
     "Tuesday",
     "2nd & 4th Thursday",
-    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800"
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200"
   ).lastInsertRowid;
 
   // Property 2: Piedmont Ave
@@ -324,7 +324,7 @@ if (propertyCount.count === 0) {
     "Piedmont Ave",
     "Monday",
     "1st & 3rd Wednesday",
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=800"
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200"
   ).lastInsertRowid;
 
   // Property 3: Berkeley Lofts
@@ -334,7 +334,7 @@ if (propertyCount.count === 0) {
     "Downtown Berkeley",
     "Friday",
     "Every Tuesday",
-    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=800"
+    "https://images.unsplash.com/photo-1600607687940-467f4b637779?q=80&w=1200"
   ).lastInsertRowid;
 
   const insertUser = db.prepare("INSERT INTO users (email, role, name) VALUES (?, ?, ?)");

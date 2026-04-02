@@ -397,9 +397,9 @@ export default function App() {
             <section id="platform-ecosystem" className="py-32 bg-[#0B1A2D] text-white">
               <div className="max-w-7xl mx-auto px-6">
                 <div className="text-center mb-24">
-                  <div className="text-xs font-bold text-[#E0115F] uppercase tracking-[0.4em] mb-4">The Ecosystem</div>
+                  <div className="text-xs font-bold text-app-accent uppercase tracking-[0.4em] mb-4">The Ecosystem</div>
                   <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none">
-                    One Platform. <br /> <span className="text-[#E0115F]">Infinite Control.</span>
+                    One Platform. <br /> <span className="text-app-accent">Infinite Control.</span>
                   </h2>
                 </div>
 
@@ -409,15 +409,15 @@ export default function App() {
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="p-12 rounded-[4rem] bg-white/5 border border-white/10 hover:border-[#E0115F]/30 transition-all group"
+                    className="p-12 rounded-[4rem] bg-white/5 border border-white/10 hover:border-app-accent/30 transition-all group"
                   >
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-16 h-16 rounded-3xl bg-[#E0115F] flex items-center justify-center shadow-2xl">
+                      <div className="w-16 h-16 rounded-3xl bg-app-accent flex items-center justify-center shadow-2xl">
                         <ShieldCheck className="w-8 h-8 text-white" />
                       </div>
                       <div>
                         <h3 className="text-3xl font-black uppercase tracking-tighter">Owner Intelligence</h3>
-                        <p className="text-[#E0115F] text-[10px] font-bold uppercase tracking-widest">Asset Management Suite</p>
+                        <p className="text-app-accent text-[10px] font-bold uppercase tracking-widest">Asset Management Suite</p>
                       </div>
                     </div>
                     <div className="space-y-6">
@@ -478,10 +478,10 @@ export default function App() {
                 </div>
 
                 {/* Rent Roll Capability Showcase */}
-                <div className="mt-12 p-12 rounded-[4rem] bg-gradient-to-br from-[#E0115F]/20 to-transparent border border-white/5">
+                <div className="mt-12 p-12 rounded-[4rem] bg-gradient-to-br from-app-accent/20 to-transparent border border-white/5">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
                     <div className="md:col-span-1">
-                      <h3 className="text-4xl font-black uppercase tracking-tighter mb-4">The Intelligent <br /> <span className="text-[#E0115F]">Rent Roll</span>.</h3>
+                      <h3 className="text-4xl font-black uppercase tracking-tighter mb-4">The Intelligent <br /> <span className="text-app-accent">Rent Roll</span>.</h3>
                       <p className="text-white/40 text-sm leading-relaxed">
                         Our proprietary rent roll system does more than track payments. It monitors tenant activity, identifies sublease risks, and automates late fee applications.
                       </p>
@@ -494,7 +494,7 @@ export default function App() {
                         { label: 'Legal Compliance', value: 'Auto-Notice Generation' }
                       ].map((stat) => (
                         <div key={stat.label} className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                          <div className="text-[10px] font-bold text-[#E0115F] uppercase tracking-widest mb-2">{stat.label}</div>
+                          <div className="text-[10px] font-bold text-app-accent uppercase tracking-widest mb-2">{stat.label}</div>
                           <div className="text-xl font-bold">{stat.value}</div>
                         </div>
                       ))}

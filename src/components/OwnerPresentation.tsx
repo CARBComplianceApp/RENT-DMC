@@ -26,64 +26,64 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    title: "3875 Ruby",
-    subtitle: "The Intelligent Evolution",
+    title: "The Ecosystem",
+    subtitle: "A Unified Vision for 3875 Ruby",
     content: [
-      "Preserving 1924 craftsmanship through 2026 technology.",
-      "A phased rollout designed for owner control and tenant retention.",
-      "Focusing first on the 'First Order': Efficiency and Precision."
+      "Homepage: A cinematic entry point for owners, tenants, and prospects.",
+      "Stakeholder Alignment: Features tailored for every role in the portfolio.",
+      "Brand Identity: Consistent 'Ruby' aesthetic across all touchpoints."
     ],
-    icon: ShieldCheck,
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200",
-    color: "#E0115F"
+    icon: Users,
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200",
+    color: "#9B111E"
   },
   {
-    title: "Phase 1: First Order",
-    subtitle: "Maintenance & Communication",
+    title: "Tenant Portal",
+    subtitle: "The 'Stadium Hub' Experience",
     content: [
-      "Centralized Maintenance: One-click reporting with photo verification.",
-      "Legal Defense Log: Every notice sent is logged with IP and Timestamp.",
-      "Building Intelligence: AI cameras monitoring for patterns, not just motion."
+      "Immersive UI: Giants stadium theme behind home plate for the Mailbox Hub.",
+      "Self-Service: Maintenance reporting, rent payments, and lease updates.",
+      "Customization: Tenants can personalize their digital unit identity."
     ],
-    icon: Wrench,
-    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200",
-    color: "#FD5A1E"
+    icon: MessageSquare,
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200",
+    color: "#9B111E"
   },
   {
-    title: "Phase 1: Precision",
-    subtitle: "Rent Collection & Reporting",
+    title: "Owner Features",
+    subtitle: "Real-Time Portfolio Intelligence",
     content: [
-      "Intelligent Rent Roll: Automated $50 late fee application.",
-      "SF Plus: Direct bank sync eliminates manual matching errors.",
-      "Real-time Ledger: Instant visibility into portfolio liquidity."
+      "CEO Briefing: High-level metrics on ROI, occupancy, and liquidity.",
+      "AI Lease Generator: Legally vetted templates generated in seconds.",
+      "Market Max: Neighborhood data driving strategic rent adjustments."
+    ],
+    icon: BarChart3,
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
+    color: "#9B111E"
+  },
+  {
+    title: "Rent Roll Precision",
+    subtitle: "Automated Collection & Reporting",
+    content: [
+      "Dynamic Rent Roll: Real-time status of every unit in the portfolio.",
+      "SF Plus: Direct bank sync for automated transaction matching.",
+      "Late Fee Automation: Instant $50 application for overdue accounts."
     ],
     icon: CreditCard,
     image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200",
-    color: "#0077BE"
+    color: "#9B111E"
   },
   {
-    title: "Phase 2: Control",
-    subtitle: "Leases on Your Terms",
+    title: "Legal Defense",
+    subtitle: "Chain of Custody Tracking",
     content: [
-      "AI Lease Generator: Legally vetted CA/Oakland templates in seconds.",
-      "Digital Walkthrough: Interactive tenant onboarding and disclosures.",
-      "Compliance Shield: Automated updates for 2026 Oakland Rent Laws."
+      "Audit Trail: Every notice tracked with IP and Timestamp verification.",
+      "Compliance Shield: Automated updates for 2026 Oakland Rent Laws.",
+      "Verified Defense: Legally binding digital signatures and read receipts."
     ],
-    icon: Zap,
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200",
-    color: "#E0115F"
-  },
-  {
-    title: "The Vision",
-    subtitle: "Portfolio Optimization",
-    content: [
-      "Market Max: ROI forecasting based on real neighborhood data.",
-      "Tenant Experience: The 'Stadium Hub' driving long-term renewals.",
-      "Scalable Infrastructure: One platform to manage 1 or 100 properties."
-    ],
-    icon: TrendingUp,
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
-    color: "#1A1A1A"
+    icon: ShieldCheck,
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200",
+    color: "#9B111E"
   }
 ];
 
@@ -144,15 +144,15 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
               transition={{ duration: 0.5 }}
               className="space-y-12"
             >
-              <div>
+                  <div>
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: 80 }}
-                  className="h-1.5 bg-[#E0115F] mb-8 rounded-full"
+                  className="h-1.5 bg-[#9B111E] mb-8 rounded-full"
                 />
                 <h2 className="text-6xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-none">
                   {slide.title.split(' ').map((word, i) => (
-                    <span key={i} className={i === slide.title.split(' ').length - 1 ? "text-[#E0115F]" : ""}>
+                    <span key={i} className={i === slide.title.split(' ').length - 1 ? "text-[#9B111E]" : ""}>
                       {word}{' '}
                     </span>
                   ))}
@@ -165,7 +165,7 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
               <div className="space-y-6">
                 {slide.content.map((item, i) => (
                   <div key={i} className="flex items-start gap-6 group">
-                    <div className="mt-2 w-2 h-2 rounded-full bg-[#E0115F] shrink-0 group-hover:scale-150 transition-transform" />
+                    <div className="mt-2 w-2 h-2 rounded-full bg-[#9B111E] shrink-0 group-hover:scale-150 transition-transform" />
                     <p className="text-xl text-white/80 font-light leading-relaxed">
                       {item}
                     </p>
@@ -178,7 +178,7 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   onClick={onClose}
-                  className="px-12 py-6 bg-[#E0115F] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-4"
+                  className="px-12 py-6 bg-[#9B111E] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-4"
                 >
                   Launch Platform <ArrowRight className="w-6 h-6" />
                 </motion.button>
@@ -211,7 +211,7 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
           {slides.map((_, i) => (
             <div 
               key={i} 
-              className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-12 bg-[#E0115F]' : 'w-3 bg-white/10'}`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-12 bg-[#9B111E]' : 'w-3 bg-white/10'}`}
             />
           ))}
         </div>
@@ -221,7 +221,7 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
             <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Owner Vision Deck</div>
             <div className="text-xs font-black text-white uppercase tracking-tighter">3875 Ruby // 2026</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#E0115F] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#9B111E] flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
         </div>
