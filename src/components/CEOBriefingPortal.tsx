@@ -57,23 +57,23 @@ export function CEOBriefingPortal() {
     fetchData();
   }, []);
 
-  if (loading) return <div className="p-12 text-center text-oakland-ink/40">Loading Briefing Data...</div>;
+  if (loading) return <div className="p-12 text-center text-app-text/40">Loading Briefing Data...</div>;
 
   return (
     <div className="space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-4">
-          <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">Executive Suite</div>
-          <h2 className="text-5xl font-serif font-black">CEO <span className="italic text-oakland-terracotta">Briefing</span> Portal.</h2>
+          <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">Executive Suite</div>
+          <h2 className="text-5xl font-serif font-black text-app-text">CEO <span className="italic text-app-accent">Briefing</span> Portal.</h2>
         </div>
         
-        <div className="flex p-1 bg-oakland-ink/5 rounded-full border border-oakland-ink/10">
+        <div className="flex p-1 bg-app-text/5 rounded-full border border-app-border">
           {(['forms', 'laws', 'market'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${
-                activeTab === tab ? 'bg-oakland-terracotta text-white shadow-lg' : 'text-oakland-ink/40 hover:text-oakland-ink'
+                activeTab === tab ? 'bg-app-accent text-white shadow-lg' : 'text-app-text/40 hover:text-app-text'
               }`}
             >
               {tab === 'forms' ? 'Legal Forms' : tab === 'laws' ? 'Laws & Regs' : 'Market Data'}
@@ -90,30 +90,30 @@ export function CEOBriefingPortal() {
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
             {forms.map((form) => (
-              <div key={form.id} className="p-8 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm hover:shadow-xl transition-all group">
+              <div key={form.id} className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm hover:shadow-xl transition-all group">
                 <div className="flex justify-between items-start mb-6">
-                  <div className="p-4 rounded-2xl bg-oakland-ink/5 group-hover:bg-oakland-terracotta/10 transition-colors">
-                    <FileText className="w-6 h-6 text-oakland-ink group-hover:text-oakland-terracotta transition-colors" />
+                  <div className="p-4 rounded-2xl bg-app-text/5 group-hover:bg-app-accent/10 transition-colors">
+                    <FileText className="w-6 h-6 text-app-text group-hover:text-app-accent transition-colors" />
                   </div>
-                  <span className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">{form.category}</span>
+                  <span className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">{form.category}</span>
                 </div>
-                <h3 className="text-2xl font-serif font-bold mb-4">{form.title}</h3>
-                <p className="text-oakland-ink/50 text-sm line-clamp-2 mb-8">{form.content_template}</p>
+                <h3 className="text-2xl font-serif font-bold mb-4 text-app-text">{form.title}</h3>
+                <p className="text-app-text/50 text-sm line-clamp-2 mb-8">{form.content_template}</p>
                 <div className="flex gap-4">
-                  <button className="flex-grow py-4 bg-oakland-ink text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-oakland-terracotta transition-colors">
+                  <button className="flex-grow py-4 bg-app-text text-app-bg rounded-full text-xs font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-colors">
                     Create Notice
                   </button>
-                  <button className="p-4 bg-oakland-ink/5 rounded-full hover:bg-oakland-ink/10 transition-colors">
+                  <button className="p-4 bg-app-text/5 rounded-full hover:bg-app-text/10 transition-colors text-app-text">
                     <Download className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             ))}
-            <button className="p-8 rounded-[2.5rem] border-2 border-dashed border-oakland-ink/10 flex flex-col items-center justify-center gap-4 hover:border-oakland-terracotta/40 transition-all group">
-              <div className="w-12 h-12 rounded-full bg-oakland-ink/5 flex items-center justify-center group-hover:bg-oakland-terracotta/10">
-                <Plus className="w-6 h-6 text-oakland-ink/40 group-hover:text-oakland-terracotta" />
+            <button className="p-8 rounded-[2.5rem] border-2 border-dashed border-app-border flex flex-col items-center justify-center gap-4 hover:border-app-accent/40 transition-all group">
+              <div className="w-12 h-12 rounded-full bg-app-text/5 flex items-center justify-center group-hover:bg-app-accent/10">
+                <Plus className="w-6 h-6 text-app-text/40 group-hover:text-app-accent" />
               </div>
-              <span className="text-xs font-bold text-oakland-ink/40 uppercase tracking-widest">Add New Template</span>
+              <span className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Add New Template</span>
             </button>
           </motion.div>
         )}
@@ -125,23 +125,23 @@ export function CEOBriefingPortal() {
             className="space-y-6"
           >
             {laws.map((law) => (
-              <div key={law.id} className="p-8 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center">
-                <div className="p-6 rounded-3xl bg-oakland-olive/10">
-                  <Scale className="w-8 h-8 text-oakland-olive" />
+              <div key={law.id} className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center">
+                <div className="p-6 rounded-3xl bg-app-accent/10">
+                  <Scale className="w-8 h-8 text-app-accent" />
                 </div>
                 <div className="flex-grow space-y-2">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-2xl font-serif font-bold">{law.title}</h3>
-                    <span className="px-3 py-1 bg-oakland-ink/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">{law.jurisdiction}</span>
+                    <h3 className="text-2xl font-serif font-bold text-app-text">{law.title}</h3>
+                    <span className="px-3 py-1 bg-app-text/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text/40">{law.jurisdiction}</span>
                   </div>
-                  <p className="text-oakland-ink/60 leading-relaxed">{law.summary}</p>
-                  <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">Last Updated: {law.last_updated}</div>
+                  <p className="text-app-text/60 leading-relaxed">{law.summary}</p>
+                  <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">Last Updated: {law.last_updated}</div>
                 </div>
                 <a 
                   href={law.link} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-8 py-4 bg-oakland-ink/5 hover:bg-oakland-ink hover:text-white rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2"
+                  className="px-8 py-4 bg-app-text/5 hover:bg-app-text hover:text-app-bg rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 text-app-text"
                 >
                   Full Text <ChevronRight className="w-4 h-4" />
                 </a>
@@ -158,46 +158,46 @@ export function CEOBriefingPortal() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {marketComps.map((comp) => (
-                <div key={comp.id} className="p-8 rounded-[3rem] bg-white border border-oakland-ink/5 shadow-sm overflow-hidden relative group">
+                <div key={comp.id} className="p-8 rounded-[3rem] bg-app-card border border-app-border shadow-sm overflow-hidden relative group">
                   <div className="absolute top-0 right-0 p-8">
-                    <TrendingUp className="w-12 h-12 text-oakland-terracotta/10 group-hover:text-oakland-terracotta/20 transition-colors" />
+                    <TrendingUp className="w-12 h-12 text-app-accent/10 group-hover:text-app-accent/20 transition-colors" />
                   </div>
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-2xl font-serif font-bold">{comp.property_name}</h3>
-                      <p className="text-oakland-ink/40 text-sm">{comp.address}</p>
+                      <h3 className="text-2xl font-serif font-bold text-app-text">{comp.property_name}</h3>
+                      <p className="text-app-text/40 text-sm">{comp.address}</p>
                     </div>
                     
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="p-4 rounded-2xl bg-oakland-ink/5">
-                        <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Sale Price</div>
-                        <div className="text-lg font-serif font-bold">${(comp.sale_price / 1000000).toFixed(1)}M</div>
+                      <div className="p-4 rounded-2xl bg-app-text/5">
+                        <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Sale Price</div>
+                        <div className="text-lg font-serif font-bold text-app-text">${(comp.sale_price / 1000000).toFixed(1)}M</div>
                       </div>
-                      <div className="p-4 rounded-2xl bg-oakland-ink/5">
-                        <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Rent/Unit</div>
-                        <div className="text-lg font-serif font-bold">${comp.rental_rate}</div>
+                      <div className="p-4 rounded-2xl bg-app-text/5">
+                        <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Rent/Unit</div>
+                        <div className="text-lg font-serif font-bold text-app-text">${comp.rental_rate}</div>
                       </div>
-                      <div className="p-4 rounded-2xl bg-oakland-ink/5">
-                        <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Occupancy</div>
-                        <div className="text-lg font-serif font-bold">{(comp.occupancy_rate * 100).toFixed(0)}%</div>
+                      <div className="p-4 rounded-2xl bg-app-text/5">
+                        <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Occupancy</div>
+                        <div className="text-lg font-serif font-bold text-app-text">{(comp.occupancy_rate * 100).toFixed(0)}%</div>
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-4 border-t border-oakland-ink/5">
-                      <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">{comp.distance_miles} miles away</div>
-                      <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">Updated: {comp.last_updated}</div>
+                    <div className="flex justify-between items-center pt-4 border-t border-app-border">
+                      <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">{comp.distance_miles} miles away</div>
+                      <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">Updated: {comp.last_updated}</div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             
-            <div className="p-12 rounded-[3rem] bg-oakland-ink text-white flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="p-12 rounded-[3rem] bg-app-text text-app-bg flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="space-y-4">
                 <h3 className="text-3xl font-serif font-bold italic">Market Opportunity Analysis</h3>
-                <p className="text-white/50 max-w-md">Your portfolio is currently performing 12% above the neighborhood average in occupancy, with a 4.2% higher rental yield.</p>
+                <p className="text-app-bg/50 max-w-md">Your portfolio is currently performing 12% above the neighborhood average in occupancy, with a 4.2% higher rental yield.</p>
               </div>
-              <button className="px-12 py-6 bg-oakland-terracotta text-white rounded-full text-sm font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-2xl">
+              <button className="px-12 py-6 bg-app-accent text-white rounded-full text-sm font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-2xl">
                 Generate Full Market Report
               </button>
             </div>

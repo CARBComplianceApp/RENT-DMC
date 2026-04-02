@@ -44,7 +44,7 @@ export const PropertyHierarchy = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-oakland-terracotta border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-app-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -53,38 +53,38 @@ export const PropertyHierarchy = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-4xl font-serif font-black text-oakland-ink">Portfolio <span className="italic">Hierarchy</span></h2>
-          <p className="text-oakland-ink/50 mt-2">Managing {properties.length} properties across Oakland & Berkeley.</p>
+          <h2 className="text-4xl font-serif font-black text-app-text">Portfolio <span className="italic">Hierarchy</span></h2>
+          <p className="text-app-text/50 mt-2">Managing {properties.length} properties across Oakland & Berkeley.</p>
         </div>
         
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative flex-grow md:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-oakland-ink/30" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-app-text/30" />
             <input 
               type="text"
               placeholder="Search properties..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-oakland-ink/10 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-oakland-terracotta/20 transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-app-card border border-app-border rounded-full text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/20 transition-all"
             />
           </div>
           
-          <div className="flex p-1 bg-oakland-ink/5 rounded-full border border-oakland-ink/5">
+          <div className="flex p-1 bg-app-text/5 rounded-full border border-app-border">
             <button 
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-full transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+              className={`p-2 rounded-full transition-all ${viewMode === 'grid' ? 'bg-app-card shadow-sm text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button 
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-full transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+              className={`p-2 rounded-full transition-all ${viewMode === 'list' ? 'bg-app-card shadow-sm text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
             >
               <List className="w-4 h-4" />
             </button>
           </div>
 
-          <button className="p-3 bg-oakland-terracotta text-white rounded-full hover:scale-105 transition-transform shadow-lg">
+          <button className="p-3 bg-app-accent text-white rounded-full hover:scale-105 transition-transform shadow-lg">
             <Plus className="w-5 h-5" />
           </button>
         </div>
@@ -107,35 +107,35 @@ export const PropertyHierarchy = () => {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-app-text/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
                     View Dashboard <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
-                <div className="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink shadow-lg">
+                <div className="absolute top-6 right-6 px-4 py-2 bg-app-card/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text shadow-lg">
                   {property.neighborhood}
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-2xl font-serif font-bold group-hover:text-oakland-terracotta transition-colors">{property.name}</h3>
-                <div className="flex items-center gap-2 text-oakland-ink/40 text-sm">
+                <h3 className="text-2xl font-serif font-bold text-app-text group-hover:text-app-accent transition-colors">{property.name}</h3>
+                <div className="flex items-center gap-2 text-app-text/40 text-sm">
                   <MapPin className="w-4 h-4" />
                   {property.address}
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 pt-4">
-                  <div className="p-4 rounded-2xl bg-white border border-oakland-ink/5 group-hover:border-oakland-terracotta/20 transition-colors">
-                    <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Units</div>
-                    <div className="text-lg font-serif font-bold">24</div>
+                  <div className="p-4 rounded-2xl bg-app-card border border-app-border group-hover:border-app-accent/20 transition-colors">
+                    <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Units</div>
+                    <div className="text-lg font-serif font-bold text-app-text">24</div>
                   </div>
-                  <div className="p-4 rounded-2xl bg-white border border-oakland-ink/5 group-hover:border-oakland-terracotta/20 transition-colors">
-                    <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Occupancy</div>
+                  <div className="p-4 rounded-2xl bg-app-card border border-app-border group-hover:border-app-accent/20 transition-colors">
+                    <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Occupancy</div>
                     <div className="text-lg font-serif font-bold text-emerald-600">98%</div>
                   </div>
-                  <div className="p-4 rounded-2xl bg-white border border-oakland-ink/5 group-hover:border-oakland-terracotta/20 transition-colors">
-                    <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">Revenue</div>
-                    <div className="text-lg font-serif font-bold">$42k</div>
+                  <div className="p-4 rounded-2xl bg-app-card border border-app-border group-hover:border-app-accent/20 transition-colors">
+                    <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">Revenue</div>
+                    <div className="text-lg font-serif font-bold text-app-text">$42k</div>
                   </div>
                 </div>
               </div>
@@ -143,49 +143,49 @@ export const PropertyHierarchy = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-[2.5rem] border border-oakland-ink/5 overflow-hidden shadow-sm">
+        <div className="bg-app-card rounded-[2.5rem] border border-app-border overflow-hidden shadow-sm">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-oakland-ink/5">
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Property</th>
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Neighborhood</th>
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Units</th>
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Occupancy</th>
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40">Revenue</th>
-                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40"></th>
+              <tr className="border-b border-app-border">
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Property</th>
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Neighborhood</th>
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Units</th>
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Occupancy</th>
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Revenue</th>
+                <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40"></th>
               </tr>
             </thead>
             <tbody>
               {filteredProperties.map((property) => (
-                <tr key={property.id} className="border-b border-oakland-ink/5 hover:bg-oakland-ink/[0.02] transition-colors group cursor-pointer">
+                <tr key={property.id} className="border-b border-app-border hover:bg-app-text/[0.02] transition-colors group cursor-pointer">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-oakland-ink/5">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-app-text/5">
                         <img src={property.image_url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       </div>
                       <div>
-                        <div className="font-bold text-oakland-ink">{property.name}</div>
-                        <div className="text-xs text-oakland-ink/40">{property.address}</div>
+                        <div className="font-bold text-app-text">{property.name}</div>
+                        <div className="text-xs text-app-text/40">{property.address}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className="px-3 py-1 bg-oakland-ink/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink/60">
+                    <span className="px-3 py-1 bg-app-text/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text/60">
                       {property.neighborhood}
                     </span>
                   </td>
-                  <td className="px-8 py-6 font-serif font-bold">24</td>
+                  <td className="px-8 py-6 font-serif font-bold text-app-text">24</td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-16 h-1.5 bg-oakland-ink/5 rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-app-text/5 rounded-full overflow-hidden">
                         <div className="h-full bg-emerald-500 w-[98%]"></div>
                       </div>
                       <span className="text-xs font-bold text-emerald-600">98%</span>
                     </div>
                   </td>
-                  <td className="px-8 py-6 font-serif font-bold text-oakland-ink">$42,850</td>
+                  <td className="px-8 py-6 font-serif font-bold text-app-text">$42,850</td>
                   <td className="px-8 py-6 text-right">
-                    <button className="p-2 text-oakland-ink/20 group-hover:text-oakland-terracotta transition-colors">
+                    <button className="p-2 text-app-text/20 group-hover:text-app-accent transition-colors">
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </td>

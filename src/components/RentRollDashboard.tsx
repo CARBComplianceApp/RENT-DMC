@@ -431,7 +431,7 @@ Are you absolutely sure you want to proceed?`,
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-irish-green/20 border-t-irish-green rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-app-accent/20 border-t-app-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -452,15 +452,15 @@ Are you absolutely sure you want to proceed?`,
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-6 rounded-[2rem] bg-red-600/10 border border-red-600/20 flex items-center justify-between gap-6 shadow-2xl shadow-red-600/5"
+          className="p-6 rounded-[2rem] bg-app-accent/10 border border-app-accent/20 flex items-center justify-between gap-6 shadow-2xl shadow-app-accent/5"
         >
           <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-600/40 animate-pulse">
+            <div className="w-16 h-16 rounded-2xl bg-app-accent flex items-center justify-center text-white shadow-lg shadow-app-accent/40 animate-pulse">
               <ShieldAlert className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Legal Compliance Alert</h3>
-              <p className="text-red-500 font-mono text-xs font-bold uppercase tracking-widest mt-1">
+              <h3 className="text-2xl font-black text-app-text tracking-tighter uppercase">Legal Compliance Alert</h3>
+              <p className="text-app-accent font-mono text-xs font-bold uppercase tracking-widest mt-1">
                 {data.filter(isUnansweredAlert).length} Tenant messages unanswered for 48+ hours. Immediate response required for legal defense.
               </p>
             </div>
@@ -474,7 +474,7 @@ Are you absolutely sure you want to proceed?`,
                   setIsDetailOpen(true);
                 }
               }}
-              className="px-8 py-4 rounded-2xl bg-red-600 text-white text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+              className="px-8 py-4 rounded-2xl bg-app-accent text-white text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-app-accent/20"
             >
               Review Alerts
             </button>
@@ -484,78 +484,78 @@ Are you absolutely sure you want to proceed?`,
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl">
+        <div className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-4 rounded-2xl bg-irish-green/10 text-irish-green">
+            <div className="p-4 rounded-2xl bg-app-accent/10 text-app-accent">
               <Building2 className="w-8 h-8" />
             </div>
-            <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">Occupancy Rate</span>
+            <span className="text-sm font-black text-app-text/40 uppercase tracking-widest">Occupancy Rate</span>
           </div>
-          <div className="text-6xl font-black text-white tracking-tighter">
+          <div className="text-6xl font-black text-app-text tracking-tighter">
             {stats ? Math.round((stats.occupied_units / stats.total_units) * 100) : 0}%
           </div>
-          <div className="mt-4 text-sm font-mono text-zinc-600 uppercase tracking-widest">
+          <div className="mt-4 text-sm font-mono text-app-text/30 uppercase tracking-widest">
             {stats?.occupied_units} / {stats?.total_units} Units Active
           </div>
         </div>
 
-        <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl">
+        <div className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-4 rounded-2xl bg-irish-orange/10 text-irish-orange">
+            <div className="p-4 rounded-2xl bg-app-accent/10 text-app-accent">
               <CreditCard className="w-8 h-8" />
             </div>
-            <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">Potential Revenue</span>
+            <span className="text-sm font-black text-app-text/40 uppercase tracking-widest">Potential Revenue</span>
           </div>
-          <div className="text-6xl font-black text-white tracking-tighter">
+          <div className="text-6xl font-black text-app-text tracking-tighter">
             ${stats ? formatCurrency(stats.total_potential_revenue) : 0}
           </div>
-          <div className="mt-4 text-sm font-mono text-zinc-600 uppercase tracking-widest">
+          <div className="mt-4 text-sm font-mono text-app-text/30 uppercase tracking-widest">
             Monthly Target • Silverback Projection
           </div>
         </div>
 
-        <div className="p-8 rounded-[2.5rem] bg-irish-green/10 border border-irish-green/20 shadow-xl relative overflow-hidden group">
+        <div className="p-8 rounded-[2.5rem] bg-app-accent/10 border border-app-accent/20 shadow-xl relative overflow-hidden group">
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-4">
-              <div className="p-4 rounded-2xl bg-irish-green/20 text-irish-green">
+              <div className="p-4 rounded-2xl bg-app-accent/20 text-app-accent">
                 <AlertCircle className="w-8 h-8" />
               </div>
-              <span className="text-sm font-black text-irish-green uppercase tracking-widest">Community Alerts</span>
+              <span className="text-sm font-black text-app-accent uppercase tracking-widest">Community Alerts</span>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Trash Day</span>
-                <span className="text-sm font-black text-white uppercase">{property?.trash_day || 'N/A'}</span>
+                <span className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Trash Day</span>
+                <span className="text-sm font-black text-app-text uppercase">{property?.trash_day || 'N/A'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Street Sweeping</span>
-                <span className="text-sm font-black text-white uppercase">{property?.street_sweeping_day || 'N/A'}</span>
+                <span className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Street Sweeping</span>
+                <span className="text-sm font-black text-app-text uppercase">{property?.street_sweeping_day || 'N/A'}</span>
               </div>
-              <button className="w-full mt-4 py-3 rounded-xl bg-irish-green text-white text-[10px] font-black uppercase tracking-widest hover:bg-irish-green-lt transition-all">
+              <button className="w-full mt-4 py-3 rounded-xl bg-app-accent text-white text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
                 Send SMS Notice to All
               </button>
             </div>
           </div>
-          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-irish-green/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-app-accent/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
         </div>
       </div>
 
       {/* Rent Roll Table */}
-      <div className="bg-zinc-900 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
-        <div className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+      <div className="bg-app-card rounded-[3rem] border border-app-border shadow-2xl overflow-hidden transition-colors duration-500">
+        <div className="p-10 border-b border-app-border flex items-center justify-between bg-app-text/[0.01]">
           <div>
-            <h2 className="text-4xl font-black text-white tracking-tighter uppercase">Active Rent Roll</h2>
-            <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">
+            <h2 className="text-4xl font-black text-app-text tracking-tighter uppercase">Active Rent Roll</h2>
+            <p className="text-app-text/40 font-mono text-xs uppercase tracking-widest mt-1">
               {isOwnerOrAccounting ? 'Owner/Accounting Control Level' : 'GM View Level'} • {data.length} Units Total
             </p>
           </div>
           <div className="flex gap-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-app-text/30" />
               <input 
                 type="text" 
                 placeholder="Search units, tenants..."
-                className="pl-12 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-irish-green/50 w-80"
+                className="pl-12 pr-6 py-4 bg-app-text/5 border border-app-border rounded-2xl text-app-text font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-app-accent/50 w-80"
               />
             </div>
           </div>
@@ -564,18 +564,18 @@ Are you absolutely sure you want to proceed?`,
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5">
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Unit</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Status</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Tenant</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Rent</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Balance</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Last Payment</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Lease End</th>
-                <th className="px-10 py-8 text-[11px] font-black text-zinc-600 uppercase tracking-[0.2em]">Actions</th>
+              <tr className="border-b border-app-border">
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Unit</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Status</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Tenant</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Rent</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Balance</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Last Payment</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Lease End</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.03]">
+            <tbody className="divide-y divide-app-border">
               {data.map((unit) => (
                 <tr 
                   key={unit.id}
@@ -588,11 +588,11 @@ Are you absolutely sure you want to proceed?`,
                   <td className="px-10 py-10">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-white border border-white/5 group-hover:border-irish-green/30 transition-all">
+                        <div className="w-16 h-16 rounded-2xl bg-app-text/5 flex items-center justify-center text-2xl font-black text-app-text border border-app-border group-hover:border-app-accent/30 transition-all">
                           {unit.unit_number}
                         </div>
                         {isUnansweredAlert(unit) && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center border-2 border-zinc-900 animate-bounce shadow-lg shadow-red-600/40">
+                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-app-accent rounded-full flex items-center justify-center border-2 border-app-card animate-bounce shadow-lg shadow-app-accent/40">
                             <AlertCircle className="w-4 h-4 text-white" />
                           </div>
                         )}
@@ -602,10 +602,10 @@ Are you absolutely sure you want to proceed?`,
                   <td className="px-10 py-10">
                     <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border ${
                       unit.status === 'Occupied' 
-                        ? 'bg-irish-green/20 text-irish-green border-irish-green/30' 
-                        : 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
+                        ? 'bg-app-accent/20 text-app-accent border-app-accent/30' 
+                        : 'bg-app-text/20 text-app-text/40 border-app-text/30'
                     }`}>
-                      <div className={`w-2 h-2 rounded-full ${unit.status === 'Occupied' ? 'bg-irish-green' : 'bg-zinc-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${unit.status === 'Occupied' ? 'bg-app-accent' : 'bg-app-text/40'}`} />
                       {unit.status}
                     </span>
                   </td>
@@ -613,32 +613,32 @@ Are you absolutely sure you want to proceed?`,
                     <div className="flex items-center gap-6">
                       {unit.tenant_name ? (
                         <>
-                          <div className="w-14 h-14 rounded-2xl bg-irish-green/20 flex items-center justify-center text-xl font-black text-irish-green border border-irish-green/20 shadow-inner">
+                          <div className="w-14 h-14 rounded-2xl bg-app-accent/20 flex items-center justify-center text-xl font-black text-app-accent border border-app-accent/20 shadow-inner">
                             {unit.tenant_name.charAt(0)}
                           </div>
-                          <span className="text-xl font-black text-white tracking-tighter">{unit.tenant_name}</span>
+                          <span className="text-xl font-black text-app-text tracking-tighter">{unit.tenant_name}</span>
                         </>
                       ) : (
-                        <span className="text-sm text-zinc-600 italic font-mono font-bold tracking-widest">VACANT</span>
+                        <span className="text-sm text-app-text/30 italic font-mono font-bold tracking-widest">VACANT</span>
                       )}
                     </div>
                   </td>
                   <td className="px-10 py-10">
-                    <span className="text-2xl font-black text-white font-mono tracking-tighter">${formatCurrency(unit.rent_amount)}</span>
+                    <span className="text-2xl font-black text-app-text font-mono tracking-tighter">${formatCurrency(unit.rent_amount)}</span>
                   </td>
                   <td className="px-10 py-10">
-                    <span className={`text-2xl font-black font-mono tracking-tighter ${(unit.balance_due ?? 0) > 0 ? 'text-red-500' : 'text-zinc-500'}`}>
+                    <span className={`text-2xl font-black font-mono tracking-tighter ${(unit.balance_due ?? 0) > 0 ? 'text-app-accent' : 'text-app-text/30'}`}>
                       ${formatCurrency(unit.balance_due)}
                     </span>
                   </td>
                   <td className="px-10 py-10">
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 text-zinc-400 font-mono font-bold">
+                      <div className="flex items-center gap-2 text-app-text/40 font-mono font-bold">
                         <Clock className="w-4 h-4" />
                         <span className="text-base">{unit.last_payment_date || 'N/A'}</span>
                       </div>
                       {unit.status === 'Occupied' && (
-                        <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${unit.last_payment_status === 'Paid' ? 'text-irish-green' : 'text-red-500'}`}>
+                        <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${unit.last_payment_status === 'Paid' ? 'text-app-accent' : 'text-app-accent'}`}>
                           {unit.last_payment_status || 'Pending'}
                         </div>
                       )}
@@ -647,7 +647,7 @@ Are you absolutely sure you want to proceed?`,
                   <td className="px-10 py-10">
                     {unit.lease_end ? (
                       <div className="flex flex-col gap-1">
-                        <div className="text-xl font-black text-white font-mono tracking-tighter">
+                        <div className="text-xl font-black text-app-text font-mono tracking-tighter">
                           {unit.lease_end}
                         </div>
                         {(() => {
@@ -656,14 +656,14 @@ Are you absolutely sure you want to proceed?`,
                           const isExpiringSoon = days >= 0 && days <= 30;
                           const isExpired = days < 0;
                           return (
-                            <div className={`text-[10px] font-black uppercase tracking-widest ${isExpiringSoon || isExpired ? 'text-red-500' : 'text-zinc-500'}`}>
+                            <div className={`text-[10px] font-black uppercase tracking-widest ${isExpiringSoon || isExpired ? 'text-app-accent' : 'text-app-text/40'}`}>
                               {isExpired ? 'Expired' : `${days} Days Remaining`}
                             </div>
                           );
                         })()}
                       </div>
                     ) : (
-                      <span className="text-sm text-zinc-600 italic font-mono font-bold tracking-widest">N/A</span>
+                      <span className="text-sm text-app-text/30 italic font-mono font-bold tracking-widest">N/A</span>
                     )}
                   </td>
                   <td className="px-10 py-10 text-right">
@@ -698,35 +698,35 @@ Are you absolutely sure you want to proceed?`,
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-6xl bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            className="w-full max-w-6xl bg-app-card border border-app-border rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
           >
             {/* Header */}
-            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="p-8 border-b border-app-border flex items-center justify-between bg-app-text/[0.02]">
               <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-irish-green/20 flex items-center justify-center text-2xl font-black text-irish-green border border-irish-green/20">
+                <div className="w-16 h-16 rounded-2xl bg-app-accent/20 flex items-center justify-center text-2xl font-black text-app-accent border border-app-accent/20">
                   #{selectedUnit.unit_number}
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-white tracking-tighter">Management Module</h2>
+                  <h2 className="text-3xl font-black text-app-text tracking-tighter">Management Module</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <p className="text-zinc-500 font-mono text-sm uppercase tracking-widest">
+                    <p className="text-app-text/40 font-mono text-sm uppercase tracking-widest">
                       {selectedUnit.tenant_name || 'VACANT'} • Silverback Intelligence Active
                     </p>
-                    <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                    <span className="text-xs font-black text-irish-orange uppercase tracking-widest">{selectedUnit.neighborhood || 'Mosswood'}</span>
+                    <span className="w-1 h-1 rounded-full bg-app-border" />
+                    <span className="text-xs font-black text-app-accent uppercase tracking-widest">{selectedUnit.neighborhood || 'Mosswood'}</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => handleGenerateReport(selectedUnit.id)}
-                  className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-sm text-zinc-300 hover:bg-white/10 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-app-text/5 border border-app-border rounded-xl font-bold text-sm text-app-text/60 hover:bg-app-text/10 transition-all"
                 >
                   <FileText className="w-4 h-4" /> Generate Report
                 </button>
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-3 bg-white/5 rounded-xl text-zinc-400 hover:text-white transition-colors"
+                  className="p-3 bg-app-text/5 rounded-xl text-app-text/40 hover:text-app-text transition-colors"
                 >
                   <Plus className="w-6 h-6 rotate-45" />
                 </button>
@@ -738,32 +738,32 @@ Are you absolutely sure you want to proceed?`,
               {/* Left Panel: Unit & Tenant Details */}
               <div 
                 style={{ width: `${leftPanelWidth}%` }}
-                className="border-r border-white/5 p-8 overflow-y-auto space-y-8 bg-zinc-950/30"
+                className="border-r border-app-border p-8 overflow-y-auto space-y-8 bg-app-bg/30"
               >
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">Monthly Rent</div>
-                    <div className="text-xl font-bold text-white">${formatCurrency(selectedUnit.rent_amount)}</div>
+                  <div className="p-5 rounded-2xl bg-app-text/5 border border-app-border space-y-1">
+                    <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest font-mono">Monthly Rent</div>
+                    <div className="text-xl font-bold text-app-text">${formatCurrency(selectedUnit.rent_amount)}</div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">Balance Due</div>
-                    <div className="text-xl font-bold text-red-500">${formatCurrency(selectedUnit.balance_due)}</div>
+                  <div className="p-5 rounded-2xl bg-app-text/5 border border-app-border space-y-1">
+                    <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest font-mono">Balance Due</div>
+                    <div className="text-xl font-bold text-app-accent">${formatCurrency(selectedUnit.balance_due)}</div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">Lease End</div>
-                    <div className="text-xl font-bold text-white">{selectedUnit.lease_end || 'N/A'}</div>
+                  <div className="p-5 rounded-2xl bg-app-text/5 border border-app-border space-y-1">
+                    <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest font-mono">Lease End</div>
+                    <div className="text-xl font-bold text-app-text">{selectedUnit.lease_end || 'N/A'}</div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">Last Payment</div>
-                    <div className="text-xl font-bold text-irish-green">{selectedUnit.last_payment_date || 'None'}</div>
+                  <div className="p-5 rounded-2xl bg-app-text/5 border border-app-border space-y-1">
+                    <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest font-mono">Last Payment</div>
+                    <div className="text-xl font-bold text-app-accent">{selectedUnit.last_payment_date || 'None'}</div>
                   </div>
                 </div>
 
                 {/* GM/Owner Controls: Vacancy & Photos */}
                 {(isOwnerOrAccounting || isGM) && (
-                  <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-6">
+                  <div className="p-6 rounded-3xl bg-app-text/5 border border-app-border space-y-6">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-black text-white uppercase tracking-widest">Unit Management</h4>
+                      <h4 className="text-sm font-black text-app-text uppercase tracking-widest">Unit Management</h4>
                       <button 
                         onClick={() => {
                           if (isEditingUnit) {
@@ -773,7 +773,7 @@ Are you absolutely sure you want to proceed?`,
                             setIsEditingUnit(true);
                           }
                         }}
-                        className="px-4 py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg"
+                        className="px-4 py-2 bg-app-accent text-white text-[10px] font-black uppercase tracking-widest rounded-lg"
                       >
                         {isEditingUnit ? 'Save Changes' : 'Edit Unit'}
                       </button>
@@ -781,12 +781,12 @@ Are you absolutely sure you want to proceed?`,
 
                     <div className="space-y-4">
                       <div>
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-2">Occupancy Status</label>
+                        <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest block mb-2">Occupancy Status</label>
                         <select
                           disabled={!isEditingUnit}
                           value={isEditingUnit ? editUnitData.status : selectedUnit.status}
                           onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
-                          className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white disabled:opacity-50"
+                          className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text disabled:opacity-50"
                         >
                           <option value="Occupied">Occupied</option>
                           <option value="Vacant">Vacant</option>
@@ -794,13 +794,13 @@ Are you absolutely sure you want to proceed?`,
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-2">Unit Photos (URLs)</label>
+                        <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest block mb-2">Unit Photos (URLs)</label>
                         <textarea
                           disabled={!isEditingUnit}
                           value={isEditingUnit ? editUnitData.photos : selectedUnit.photos || ''}
                           onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
                           placeholder="Enter comma-separated image URLs..."
-                          className="w-full bg-zinc-900 border border-white/10 rounded-xl p-4 text-sm text-white disabled:opacity-50 min-h-[80px]"
+                          className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text disabled:opacity-50 min-h-[80px]"
                         />
                       </div>
                     </div>
@@ -809,19 +809,19 @@ Are you absolutely sure you want to proceed?`,
 
                 {/* Login History */}
                 <div className="space-y-4">
-                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
+                  <h4 className="text-xs font-black text-app-text/40 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
                     <Clock className="w-4 h-4" /> Tenant Activity Log
                   </h4>
-                  <div className="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                  <div className="p-6 rounded-2xl bg-app-text/5 border border-app-border space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-zinc-300">Last Login</div>
-                      <div className="text-sm font-bold text-white">{selectedUnit.last_login_at ? new Date(selectedUnit.last_login_at).toLocaleString() : 'Never'}</div>
+                      <div className="text-sm text-app-text/60">Last Login</div>
+                      <div className="text-sm font-bold text-app-text">{selectedUnit.last_login_at ? new Date(selectedUnit.last_login_at).toLocaleString() : 'Never'}</div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-zinc-300">Login Location</div>
-                      <div className="text-sm font-mono text-zinc-400">{selectedUnit.last_login_ip || 'N/A'}</div>
+                      <div className="text-sm text-app-text/60">Login Location</div>
+                      <div className="text-sm font-mono text-app-text/40">{selectedUnit.last_login_ip || 'N/A'}</div>
                     </div>
-                    <div className="pt-2 text-[10px] text-zinc-600 uppercase tracking-widest italic">
+                    <div className="pt-2 text-[10px] text-app-text/30 uppercase tracking-widest italic">
                       * Activity logging compliant with local privacy regulations
                     </div>
                   </div>
@@ -830,32 +830,32 @@ Are you absolutely sure you want to proceed?`,
                 {/* Maintenance Requests */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
+                    <h4 className="text-xs font-black text-app-text/40 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
                       <AlertCircle className="w-4 h-4" /> Maintenance Issues
                     </h4>
-                    <button className="text-[10px] font-black text-irish-orange uppercase tracking-widest hover:underline">New Request</button>
+                    <button className="text-[10px] font-black text-app-accent uppercase tracking-widest hover:underline">New Request</button>
                   </div>
                   <div className="space-y-3">
                     {maintenance.length > 0 ? (
                       maintenance.map(req => (
-                        <div key={req.id} className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                        <div key={req.id} className="p-4 rounded-xl bg-app-text/5 border border-app-border flex items-center justify-between">
                           <div className="space-y-1">
-                            <div className="text-sm font-bold text-white">{req.description}</div>
-                            <div className="text-[10px] text-zinc-500 uppercase tracking-widest">{new Date(req.created_at).toLocaleDateString()} • {req.status}</div>
+                            <div className="text-sm font-bold text-app-text">{req.description}</div>
+                            <div className="text-[10px] text-app-text/40 uppercase tracking-widest">{new Date(req.created_at).toLocaleDateString()} • {req.status}</div>
                           </div>
                           {req.photo_url && (
-                            <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-white/10 overflow-hidden">
+                            <div className="w-10 h-10 rounded-lg bg-app-bg border border-app-border overflow-hidden">
                               <img src={req.photo_url} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </div>
                           )}
                         </div>
                       ))
                     ) : (
-                      <div className="p-8 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-3">
-                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-zinc-600">
+                      <div className="p-8 rounded-2xl border border-dashed border-app-border flex flex-col items-center justify-center text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-app-text/5 flex items-center justify-center text-app-text/30">
                           <CheckCircle2 className="w-6 h-6" />
                         </div>
-                        <div className="text-sm text-zinc-500">No active maintenance issues reported.</div>
+                        <div className="text-sm text-app-text/40">No active maintenance issues reported.</div>
                       </div>
                     )}
                     
@@ -869,14 +869,14 @@ Are you absolutely sure you want to proceed?`,
                     />
                     <div 
                       onClick={() => fileInputRef.current?.click()}
-                      className={`p-6 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.01] flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-white/[0.03] transition-colors ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
+                      className={`p-6 rounded-2xl border-2 border-dashed border-app-border bg-app-text/[0.01] flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-app-text/[0.03] transition-colors ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
                     >
                       {isUploading ? (
-                        <div className="w-6 h-6 border-2 border-zinc-600 border-t-white rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-app-text/30 border-t-app-text rounded-full animate-spin" />
                       ) : (
-                        <Plus className="w-6 h-6 text-zinc-600" />
+                        <Plus className="w-6 h-6 text-app-text/30" />
                       )}
-                      <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                      <div className="text-[10px] font-black text-app-text/40 uppercase tracking-widest">
                         {isUploading ? 'Uploading...' : 'Upload Photo / Document'}
                       </div>
                     </div>
@@ -885,33 +885,33 @@ Are you absolutely sure you want to proceed?`,
 
                 {/* Communication Log */}
                 <div className="space-y-4">
-                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
+                  <h4 className="text-xs font-black text-app-text/40 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" /> Communication History
                   </h4>
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-app-text/10 scrollbar-track-transparent">
                     {messages.length > 0 ? (
                       [...messages].reverse().map(msg => (
-                        <div key={msg.id} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                        <div key={msg.id} className="p-4 rounded-xl bg-app-text/5 border border-app-border space-y-2 hover:bg-app-text/[0.07] transition-colors">
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full ${msg.sender === 'Manager' ? 'bg-irish-green' : 'bg-blue-400'}`} />
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.sender === 'Manager' ? 'text-irish-green' : 'text-blue-400'}`}>
+                              <div className={`w-1.5 h-1.5 rounded-full ${msg.sender === 'Manager' ? 'bg-app-accent' : 'bg-blue-400'}`} />
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.sender === 'Manager' ? 'text-app-accent' : 'text-blue-400'}`}>
                                 {msg.sender}
                               </span>
                             </div>
-                            <span className="text-[10px] text-zinc-600 font-mono">
+                            <span className="text-[10px] text-app-text/30 font-mono">
                               {new Date(msg.created_at).toLocaleString()}
                             </span>
                           </div>
-                          <p className="text-sm text-zinc-300 leading-relaxed">{msg.content}</p>
+                          <p className="text-sm text-app-text/60 leading-relaxed">{msg.content}</p>
                         </div>
                       ))
                     ) : (
-                      <div className="p-8 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-3">
-                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-zinc-600">
+                      <div className="p-8 rounded-2xl border border-dashed border-app-border flex flex-col items-center justify-center text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-app-text/5 flex items-center justify-center text-app-text/30">
                           <MessageSquare className="w-6 h-6" />
                         </div>
-                        <div className="text-sm text-zinc-500">No communication history recorded.</div>
+                        <div className="text-sm text-app-text/40">No communication history recorded.</div>
                       </div>
                     )}
                   </div>
@@ -920,7 +920,7 @@ Are you absolutely sure you want to proceed?`,
 
               {/* Resize Handle */}
               <div 
-                className="w-1 bg-white/5 hover:bg-irish-green/50 cursor-col-resize transition-colors"
+                className="w-1 bg-app-border hover:bg-app-accent/50 cursor-col-resize transition-colors"
                 onMouseDown={(e) => {
                   const startX = e.pageX;
                   const startWidth = leftPanelWidth;
@@ -938,14 +938,14 @@ Are you absolutely sure you want to proceed?`,
               />
 
               {/* Right Panel: Chat / Communication */}
-              <div className="flex-1 flex flex-col bg-zinc-900">
-                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
+              <div className="flex-1 flex flex-col bg-app-card">
+                <div className="p-6 border-b border-app-border flex items-center justify-between bg-app-text/[0.01]">
+                  <h4 className="text-xs font-black text-app-text/40 uppercase tracking-[0.2em] font-mono flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" /> Communication Hub
                   </h4>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-irish-green animate-pulse" />
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Tenant Online</span>
+                    <div className="w-2 h-2 rounded-full bg-app-accent animate-pulse" />
+                    <span className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Tenant Online</span>
                   </div>
                 </div>
 
@@ -954,25 +954,25 @@ Are you absolutely sure you want to proceed?`,
                     <div key={msg.id} className={`flex flex-col ${msg.sender === 'Manager' ? 'items-end' : 'items-start'}`}>
                       <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${
                         msg.sender === 'Manager' 
-                          ? 'bg-irish-green text-white rounded-tr-none' 
-                          : 'bg-white/5 text-zinc-300 border border-white/10 rounded-tl-none'
+                          ? 'bg-app-accent text-white rounded-tr-none' 
+                          : 'bg-app-text/5 text-app-text/60 border border-app-border rounded-tl-none'
                       }`}>
                         {msg.content}
                       </div>
-                      <div className="text-[10px] text-zinc-600 mt-1 uppercase tracking-widest font-mono">
+                      <div className="text-[10px] text-app-text/30 mt-1 uppercase tracking-widest font-mono">
                         {msg.sender} • {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
                   ))}
                   {messages.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-30">
-                      <MessageSquare className="w-12 h-12" />
-                      <p className="text-sm">No message history yet.<br/>Start the conversation below.</p>
+                      <MessageSquare className="w-12 h-12 text-app-text/30" />
+                      <p className="text-sm text-app-text/40">No message history yet.<br/>Start the conversation below.</p>
                     </div>
                   )}
                 </div>
 
-                <div className="p-6 border-t border-white/5 bg-white/[0.02]">
+                <div className="p-6 border-t border-app-border bg-app-text/[0.02]">
                   <div className="flex gap-3">
                     <input 
                       type="text" 
@@ -980,20 +980,20 @@ Are you absolutely sure you want to proceed?`,
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                       placeholder="Type a message to the tenant..."
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                      className="flex-1 bg-app-text/5 border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50"
                     />
                     <button 
                       onClick={handleSendMessage}
-                      className="px-6 py-3 bg-irish-green text-white font-black rounded-xl hover:bg-irish-green-lt transition-colors shadow-lg shadow-irish-green/20"
+                      className="px-6 py-3 bg-app-accent text-white font-black rounded-xl hover:opacity-90 transition-colors shadow-lg shadow-app-accent/20"
                     >
                       SEND
                     </button>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
-                    <div className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">
+                    <div className="text-[10px] text-app-text/30 font-mono uppercase tracking-widest">
                       Press Enter to send
                     </div>
-                    <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-white transition-colors">
+                    <button className="text-[10px] font-black text-app-text/40 uppercase tracking-widest hover:text-app-text transition-colors">
                       Email Copy to Manager
                     </button>
                   </div>
@@ -1005,7 +1005,7 @@ Are you absolutely sure you want to proceed?`,
                     {/* Unit Status/Photos */}
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Unit Management</h4>
+                        <h4 className="text-[10px] font-black text-app-text/40 uppercase tracking-widest">Unit Management</h4>
                         <button 
                           onClick={() => {
                             setIsEditingUnit(!isEditingUnit);
@@ -1014,20 +1014,20 @@ Are you absolutely sure you want to proceed?`,
                               photos: selectedUnit.photos || '' 
                             });
                           }}
-                          className="text-[10px] font-black text-irish-green uppercase tracking-widest hover:text-irish-green-lt transition-colors"
+                          className="text-[10px] font-black text-app-accent uppercase tracking-widest hover:opacity-80 transition-colors"
                         >
                           {isEditingUnit ? 'Cancel' : 'Edit Unit'}
                         </button>
                       </div>
 
                       {isEditingUnit ? (
-                        <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                        <div className="space-y-4 bg-app-text/5 p-4 rounded-xl border border-app-border">
                           <div>
-                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</label>
+                            <label className="block text-[8px] font-black text-app-text/40 uppercase tracking-widest mb-1">Status</label>
                             <select 
                               value={editUnitData.status}
                               onChange={(e) => setEditUnitData({ ...editUnitData, status: e.target.value })}
-                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                              className="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-xs text-app-text font-bold focus:outline-none focus:ring-1 focus:ring-app-accent/50"
                             >
                               <option value="Occupied">Occupied</option>
                               <option value="Vacant">Vacant</option>
@@ -1035,31 +1035,31 @@ Are you absolutely sure you want to proceed?`,
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photo URL</label>
+                            <label className="block text-[8px] font-black text-app-text/40 uppercase tracking-widest mb-1">Photo URL</label>
                             <input 
                               type="text"
                               value={editUnitData.photos}
                               onChange={(e) => setEditUnitData({ ...editUnitData, photos: e.target.value })}
                               placeholder="https://..."
-                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:ring-1 focus:ring-irish-green/50"
+                              className="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-xs text-app-text font-bold focus:outline-none focus:ring-1 focus:ring-app-accent/50"
                             />
                           </div>
                           <button 
                             onClick={handleUpdateUnit}
-                            className="w-full py-2 bg-irish-green text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-irish-green-lt transition-all"
+                            className="w-full py-2 bg-app-accent text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
                           >
                             Save Changes
                           </button>
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                            <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Status</span>
-                            <span className="text-xs font-bold text-white uppercase">{selectedUnit.status}</span>
+                          <div className="p-3 rounded-lg bg-app-text/5 border border-app-border">
+                            <span className="block text-[8px] font-black text-app-text/40 uppercase tracking-widest mb-1">Status</span>
+                            <span className="text-xs font-bold text-app-text uppercase">{selectedUnit.status}</span>
                           </div>
-                          <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                            <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Photos</span>
-                            <span className="text-xs font-bold text-white uppercase">{selectedUnit.photos ? 'Available' : 'None'}</span>
+                          <div className="p-3 rounded-lg bg-app-text/5 border border-app-border">
+                            <span className="block text-[8px] font-black text-app-text/40 uppercase tracking-widest mb-1">Photos</span>
+                            <span className="text-xs font-bold text-app-text uppercase">{selectedUnit.photos ? 'Available' : 'None'}</span>
                           </div>
                         </div>
                       )}
@@ -1067,36 +1067,36 @@ Are you absolutely sure you want to proceed?`,
 
                     {/* Lease Violations */}
                     {selectedUnit.tenant_id && (
-                      <div className="pt-6 border-t border-white/5">
+                      <div className="pt-6 border-t border-app-border">
                         <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                            <ShieldAlert className="w-3 h-3 text-red-500" /> Lease Violations
+                          <h4 className="text-[10px] font-black text-app-text/40 uppercase tracking-widest flex items-center gap-2">
+                            <ShieldAlert className="w-3 h-3 text-app-accent" /> Lease Violations
                           </h4>
                           <button 
                             onClick={() => setIsLoggingViolation(!isLoggingViolation)}
-                            className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors"
+                            className="text-[10px] font-black text-app-accent uppercase tracking-widest hover:opacity-80 transition-colors"
                           >
                             {isLoggingViolation ? 'Cancel' : 'Log Violation'}
                           </button>
                         </div>
 
                         {isLoggingViolation ? (
-                          <div className="space-y-4 bg-red-500/5 p-4 rounded-xl border border-red-500/10">
+                          <div className="space-y-4 bg-app-accent/5 p-4 rounded-xl border border-app-accent/10">
                             <input 
                               type="date"
                               value={violationData.violation_date}
                               onChange={(e) => setViolationData({ ...violationData, violation_date: e.target.value })}
-                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold"
+                              className="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-xs text-app-text font-bold"
                             />
                             <textarea 
                               value={violationData.description}
                               onChange={(e) => setViolationData({ ...violationData, description: e.target.value })}
                               placeholder="Describe the violation (e.g., unauthorized guest, noise)..."
-                              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white font-bold min-h-[80px]"
+                              className="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-xs text-app-text font-bold min-h-[80px]"
                             />
                             <button 
                               onClick={handleLogViolation}
-                              className="w-full py-2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-red-500 transition-all"
+                              className="w-full py-2 bg-app-accent text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
                             >
                               Log Violation
                             </button>
@@ -1104,16 +1104,16 @@ Are you absolutely sure you want to proceed?`,
                         ) : (
                           <div className="space-y-3">
                             {violations.map(v => (
-                              <div key={v.id} className="p-3 rounded-lg bg-white/5 border border-white/5 flex justify-between items-start">
+                              <div key={v.id} className="p-3 rounded-lg bg-app-text/5 border border-app-border flex justify-between items-start">
                                 <div>
-                                  <div className="text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">{v.violation_date}</div>
-                                  <div className="text-xs text-zinc-300 leading-relaxed">{v.description}</div>
+                                  <div className="text-[8px] font-black text-app-accent uppercase tracking-widest mb-1">{v.violation_date}</div>
+                                  <div className="text-xs text-app-text/60 leading-relaxed">{v.description}</div>
                                 </div>
-                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{v.status}</span>
+                                <span className="text-[8px] font-black text-app-text/30 uppercase tracking-widest">{v.status}</span>
                               </div>
                             ))}
                             {violations.length === 0 && (
-                              <div className="text-[10px] text-zinc-600 italic">No violations logged.</div>
+                              <div className="text-[10px] text-app-text/30 italic">No violations logged.</div>
                             )}
                           </div>
                         )}
@@ -1122,22 +1122,22 @@ Are you absolutely sure you want to proceed?`,
 
                     {/* Legal Notices Tracking */}
                     {selectedUnit.tenant_id && (
-                      <div className="pt-6 border-t border-white/5">
-                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                          <Gavel className="w-3 h-3 text-irish-green" /> Notice Tracking
+                      <div className="pt-6 border-t border-app-border">
+                        <h4 className="text-[10px] font-black text-app-text/40 uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <Gavel className="w-3 h-3 text-app-accent" /> Notice Tracking
                         </h4>
                         <div className="space-y-3">
                           {notices.map(n => (
-                            <div key={n.id} className="p-3 rounded-lg bg-white/5 border border-white/5">
+                            <div key={n.id} className="p-3 rounded-lg bg-app-text/5 border border-app-border">
                               <div className="flex justify-between items-start mb-2">
-                                <div className="text-xs font-bold text-white">{n.title}</div>
+                                <div className="text-xs font-bold text-app-text">{n.title}</div>
                                 <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
-                                  n.status === 'Acknowledged' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'
+                                  n.status === 'Acknowledged' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-app-accent/20 text-app-accent'
                                 }`}>
                                   {n.status}
                                 </span>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 text-[8px] font-black text-zinc-500 uppercase tracking-widest">
+                              <div className="grid grid-cols-2 gap-2 text-[8px] font-black text-app-text/30 uppercase tracking-widest">
                                 <div>Sent: {new Date(n.sent_at).toLocaleDateString()}</div>
                                 {n.viewed_at && <div>Viewed: {new Date(n.viewed_at).toLocaleDateString()}</div>}
                                 {n.acknowledged_at && <div className="col-span-2 text-emerald-500">Ack: {new Date(n.acknowledged_at).toLocaleString()}</div>}
@@ -1146,7 +1146,7 @@ Are you absolutely sure you want to proceed?`,
                             </div>
                           ))}
                           {notices.length === 0 && (
-                            <div className="text-[10px] text-zinc-600 italic">No notices issued.</div>
+                            <div className="text-[10px] text-app-text/30 italic">No notices issued.</div>
                           )}
                         </div>
                       </div>
@@ -1355,14 +1355,14 @@ Are you absolutely sure you want to proceed?`,
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            className="w-full max-w-2xl bg-app-card border border-app-border rounded-[2.5rem] overflow-hidden shadow-2xl"
           >
-            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="p-8 border-b border-app-border flex items-center justify-between bg-app-text/[0.02]">
               <div>
-                <h3 className="text-2xl font-black text-white tracking-tighter uppercase">CHASE Bank Import Results</h3>
-                <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Fuzzy Match Engine Active</p>
+                <h3 className="text-2xl font-black text-app-text tracking-tighter uppercase">CHASE Bank Import Results</h3>
+                <p className="text-app-text/40 font-mono text-[10px] uppercase tracking-widest mt-1">Fuzzy Match Engine Active</p>
               </div>
-              <button onClick={() => setIsBankModalOpen(false)} className="text-zinc-600 hover:text-white">
+              <button onClick={() => setIsBankModalOpen(false)} className="text-app-text/30 hover:text-app-text">
                 <Plus className="w-8 h-8 rotate-45" />
               </button>
             </div>
@@ -1371,36 +1371,36 @@ Are you absolutely sure you want to proceed?`,
               {bankMatches.length > 0 ? (
                 <div className="space-y-4">
                   {bankMatches.map((match, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                    <div key={idx} className="p-4 rounded-xl bg-app-text/5 border border-app-border flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-bold text-white">Unit #{match.unit.unit_number} — {match.unit.tenant_name}</div>
-                        <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Matched via Description: {match.date}</div>
+                        <div className="text-sm font-bold text-app-text">Unit #{match.unit.unit_number} — {match.unit.tenant_name}</div>
+                        <div className="text-[10px] text-app-text/40 uppercase tracking-widest">Matched via Description: {match.date}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-black text-irish-green">${match.amount}</div>
-                        <div className="text-[10px] text-zinc-600 uppercase tracking-widest">Confidence: HIGH</div>
+                        <div className="text-sm font-black text-app-accent">${match.amount}</div>
+                        <div className="text-[10px] text-app-text/30 uppercase tracking-widest">Confidence: HIGH</div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-12 space-y-4">
-                  <AlertCircle className="w-12 h-12 text-zinc-700 mx-auto" />
-                  <p className="text-zinc-500">No matches found in the uploaded CSV.</p>
+                  <AlertCircle className="w-12 h-12 text-app-text/20 mx-auto" />
+                  <p className="text-app-text/40">No matches found in the uploaded CSV.</p>
                 </div>
               )}
             </div>
 
-            <div className="p-8 border-t border-white/5 bg-white/[0.02] flex justify-end gap-4">
+            <div className="p-8 border-t border-app-border bg-app-text/[0.02] flex justify-end gap-4">
               <button 
                 onClick={() => setIsBankModalOpen(false)}
-                className="px-6 py-3 text-zinc-400 font-bold hover:text-white transition-colors"
+                className="px-6 py-3 text-app-text/40 font-bold hover:text-app-text transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={applyBankMatches}
-                className="px-8 py-3 bg-irish-green text-white font-black rounded-xl hover:bg-irish-green-lt transition-all shadow-lg shadow-irish-green/20"
+                className="px-8 py-3 bg-app-accent text-white font-black rounded-xl hover:opacity-90 transition-all shadow-lg shadow-app-accent/20"
               >
                 Apply to Rent Roll
               </button>

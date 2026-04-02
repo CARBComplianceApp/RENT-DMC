@@ -60,6 +60,7 @@ import { MarketMaxModule } from './components/MarketMaxModule';
 import { AdminLegalLog } from './components/AdminLegalLog';
 import { VendorManagement } from './components/VendorManagement';
 import { BuildingIntelligence } from './components/BuildingIntelligence';
+import { ProductTour } from './components/ProductTour';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -71,9 +72,9 @@ const revenueData = [
 ];
 
 const distributionData = [
-  { name: 'Residential', value: 65, color: '#6366f1' },
-  { name: 'Commercial', value: 25, color: '#06b6d4' },
-  { name: 'Short-term', value: 10, color: '#8b5cf6' },
+  { name: 'Residential', value: 65, color: '#C14931' },
+  { name: 'Commercial', value: 25, color: '#991b1b' },
+  { name: 'Short-term', value: 10, color: '#450a0a' },
 ];
 
 export default function App() {
@@ -83,7 +84,7 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className={`min-h-screen font-sans selection:bg-oakland-terracotta/30 transition-colors duration-700`}>
+    <div className={`min-h-screen font-sans selection:bg-app-accent/30 transition-colors duration-700`}>
       {view === 'admin' && <ShimmerBackground />}
       
       {/* Navigation */}
@@ -92,7 +93,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="flex flex-col -space-y-1">
               <span className={`text-xl font-black tracking-tighter text-app-text`}>3875 RUBY</span>
-              <span className={`text-[8px] font-bold ${theme === 'light' ? 'text-oakland-terracotta' : 'text-irish-green'} uppercase tracking-[0.2em]`}>Oakland Soul</span>
+              <span className={`text-[8px] font-bold text-app-accent uppercase tracking-[0.2em]`}>Oakland Soul</span>
             </div>
           </div>
           
@@ -102,6 +103,7 @@ export default function App() {
                 <a href="#about" className="text-app-text/60 hover:text-app-text transition-colors">About</a>
                 <a href="#amenities" className="text-app-text/60 hover:text-app-text transition-colors">Amenities</a>
                 <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
+                <a href="#product-tour" className="text-app-text/60 hover:text-app-text transition-colors">Platform</a>
                 <a href="#gallery" className="text-app-text/60 hover:text-app-text transition-colors">Gallery</a>
               </>
             ) : (
@@ -121,7 +123,7 @@ export default function App() {
                 onClick={() => setView('hub')}
                 className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'hub' 
-                  ? 'bg-oakland-terracotta text-white shadow-lg' 
+                  ? 'bg-app-accent text-white shadow-lg' 
                   : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
@@ -131,7 +133,7 @@ export default function App() {
                 onClick={() => setView('admin')}
                 className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'admin' 
-                  ? 'bg-oakland-terracotta text-white shadow-lg' 
+                  ? 'bg-app-accent text-white shadow-lg' 
                   : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
@@ -141,7 +143,7 @@ export default function App() {
                 onClick={() => setView('tenant')}
                 className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
                   view === 'tenant' 
-                  ? 'bg-oakland-terracotta text-white shadow-lg' 
+                  ? 'bg-app-accent text-white shadow-lg' 
                   : 'text-app-text/60 hover:text-app-text'
                 }`}
               >
@@ -149,7 +151,7 @@ export default function App() {
               </button>
             </div>
 
-            <button className={`md:hidden p-2 ${view === 'hub' ? 'text-oakland-ink' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <button className={`md:hidden p-2 ${view === 'hub' ? 'text-app-text' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -163,7 +165,7 @@ export default function App() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`fixed inset-0 z-40 pt-24 px-6 ${view === 'hub' ? 'bg-oakland-paper text-oakland-ink' : 'bg-zinc-950 text-white'} md:hidden`}
+            className={`fixed inset-0 z-40 pt-24 px-6 ${view === 'hub' ? 'bg-app-bg text-app-text' : 'bg-zinc-950 text-white'} md:hidden`}
           >
             <div className="flex flex-col gap-8 text-2xl font-serif font-bold">
               {view === 'hub' ? (
@@ -203,7 +205,7 @@ export default function App() {
                   className="w-full h-full object-cover brightness-[0.85] contrast-[1.1]"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-oakland-paper"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-app-bg"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
@@ -213,18 +215,18 @@ export default function App() {
                   transition={{ duration: 1, ease: "easeOut" }}
                   className="max-w-4xl"
                 >
-                  <div className="inline-block px-4 py-2 bg-oakland-terracotta text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
+                  <div className="inline-block px-4 py-2 bg-app-accent text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
                     Est. 1924 // Oakland, CA
                   </div>
                   <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
-                    RUBY <br /> <span className="text-oakland-terracotta">SOUL.</span>
+                    RUBY <br /> <span className="text-app-accent">SOUL.</span>
                   </h1>
                   <div className="mt-12 flex flex-col md:flex-row md:items-end gap-12">
                     <div className="text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
-                      Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-oakland-terracotta underline-offset-8">progress of 100 years</span>.
+                      Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-app-accent underline-offset-8">progress of 100 years</span>.
                     </div>
                     <div className="flex flex-col gap-4">
-                      <button className="px-10 py-5 bg-oakland-terracotta text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-oakland-ink transition-all shadow-2xl hover:scale-105">
+                      <button className="px-10 py-5 bg-app-accent text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-app-text transition-all shadow-2xl hover:scale-105">
                         Explore Units
                       </button>
                       <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-md rounded-full border border-white/20">
@@ -258,14 +260,14 @@ export default function App() {
                       <item.icon className="w-6 h-6" />
                     </div>
                     <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-oakland-ink/60 text-sm leading-relaxed">{item.desc}</p>
+                    <p className="text-app-text/80 text-sm leading-relaxed">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
             </section>
 
             {/* The Vibe Section */}
-            <section id="about" className="py-32 bg-oakland-olive/5">
+            <section id="about" className="py-32 bg-app-accent/5">
               <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
                 <div className="relative">
                   <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl">
@@ -276,36 +278,36 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-oakland-terracotta rounded-[2rem] p-8 text-white flex flex-col justify-end shadow-xl hidden md:flex">
+                  <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-app-accent rounded-[2rem] p-8 text-white flex flex-col justify-end shadow-xl hidden md:flex">
                     <History className="w-10 h-10 mb-4" />
                     <div className="text-sm font-bold uppercase tracking-widest">Built 1924</div>
                     <div className="text-2xl font-serif italic">A Century of Soul.</div>
                   </div>
                 </div>
                 <div className="space-y-8">
-                  <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">The Vision</div>
+                  <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">The Vision</div>
                   <h2 className="text-5xl md:text-7xl font-serif font-black leading-tight">
-                    Historic Charm. <br /> Modern <span className="italic text-oakland-olive">Utility</span>.
+                    Historic Charm. <br /> Modern <span className="italic text-app-accent/60">Utility</span>.
                   </h2>
-                  <p className="text-xl text-oakland-ink/70 leading-relaxed font-light">
+                  <p className="text-xl text-app-text/90 leading-relaxed font-light">
                     3875 Ruby Street is a living testament to Oakland's diverse history. This 24-unit, 3-story building preserves its 1924 architectural soul while fostering a community that celebrates every culture. From secure Amazon Hubs to the vibrant Mosswood vibe, this is authentic Oakland living.
                   </p>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-8">
                     <div>
-                      <div className="text-4xl font-serif font-bold text-oakland-terracotta">24</div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40 mt-2">Boutique Units</div>
+                      <div className="text-4xl font-serif font-bold text-app-accent">24</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Boutique Units</div>
                     </div>
                     <div>
-                      <div className="text-4xl font-serif font-bold text-oakland-terracotta">3</div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40 mt-2">Stories</div>
+                      <div className="text-4xl font-serif font-bold text-app-accent">3</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Stories</div>
                     </div>
                     <div className="col-span-2 md:col-span-1">
-                      <div className="text-6xl font-serif font-black text-oakland-terracotta leading-none">100%</div>
-                      <div className="text-sm font-black uppercase tracking-[0.2em] text-oakland-ink mt-2">Oakland Owned</div>
+                      <div className="text-6xl font-serif font-black text-app-accent leading-none">100%</div>
+                      <div className="text-sm font-black uppercase tracking-[0.2em] text-app-text mt-2">Oakland Owned</div>
                     </div>
                     <div>
-                      <div className="text-4xl font-serif font-bold text-oakland-terracotta">94/100</div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40 mt-2">Walk Score</div>
+                      <div className="text-4xl font-serif font-bold text-app-accent">94/100</div>
+                      <div className="text-xs font-black uppercase tracking-widest text-app-text/60 mt-2">Walk Score</div>
                     </div>
                   </div>
                 </div>
@@ -315,8 +317,8 @@ export default function App() {
             {/* Amenities Grid */}
             <section id="amenities" className="py-32 px-6 max-w-7xl mx-auto">
               <div className="text-center mb-20 space-y-4">
-                <h2 className="text-6xl font-serif font-black tracking-tighter">Life at <span className="italic text-oakland-terracotta underline decoration-oakland-terracotta/30 underline-offset-12">Ruby</span>.</h2>
-                <p className="text-oakland-ink/50 max-w-xl mx-auto text-lg font-medium">Everything you need to thrive in the heart of the city.</p>
+                <h2 className="text-6xl font-serif font-black tracking-tighter">Life at <span className="italic text-app-accent underline decoration-app-accent/30 underline-offset-12">Ruby</span>.</h2>
+                <p className="text-app-text/70 max-w-xl mx-auto text-lg font-medium">Everything you need to thrive in the heart of the city.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -328,12 +330,12 @@ export default function App() {
                   { title: 'Hospital Proximity', desc: 'Perfect for medical professionals working at nearby centers.', icon: Hospital },
                   { title: 'Mosswood Park', desc: 'Your backyard just got bigger. Recreation, dog park, and more.', icon: TreePine },
                 ].map((item, i) => (
-                  <div key={item.title} className="p-12 rounded-[3rem] bg-app-card border-2 border-app-border hover:border-oakland-terracotta/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
-                    <div className="w-16 h-16 rounded-2xl bg-oakland-olive/10 flex items-center justify-center mb-10 group-hover:bg-oakland-terracotta/10 transition-colors">
-                      <item.icon className="w-8 h-8 text-oakland-olive group-hover:text-oakland-terracotta transition-colors" />
+                  <div key={item.title} className="p-12 rounded-[3rem] bg-app-card border-2 border-app-border hover:border-app-accent/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
+                    <div className="w-16 h-16 rounded-2xl bg-app-accent/10 flex items-center justify-center mb-10 group-hover:bg-app-accent/20 transition-colors">
+                      <item.icon className="w-8 h-8 text-app-accent group-hover:text-app-accent transition-colors" />
                     </div>
                     <h3 className="text-3xl font-serif font-bold mb-4 tracking-tight">{item.title}</h3>
-                    <p className="text-oakland-ink/60 leading-relaxed text-lg font-light">{item.desc}</p>
+                    <p className="text-app-text/70 leading-relaxed text-lg font-light">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -342,13 +344,16 @@ export default function App() {
             {/* Building Intelligence Section */}
             <BuildingIntelligence />
 
+            {/* Product Tour Section */}
+            <ProductTour />
+
             {/* Gallery Section */}
-            <section id="gallery" className="py-32 bg-oakland-ink text-oakland-paper overflow-hidden">
+            <section id="gallery" className="py-32 bg-app-text text-app-bg overflow-hidden">
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
                   <div className="space-y-4">
-                    <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">Visual Story</div>
-                    <h2 className="text-5xl md:text-7xl font-serif font-black">Ruby <span className="italic text-oakland-terracotta">Gallery</span>.</h2>
+                    <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">Visual Story</div>
+                    <h2 className="text-5xl md:text-7xl font-serif font-black">Ruby <span className="italic text-app-accent">Gallery</span>.</h2>
                   </div>
                   <p className="text-white/50 max-w-md">A collection of moments and details that define our corner of Oakland.</p>
                 </div>
@@ -361,7 +366,7 @@ export default function App() {
                       className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
+                    <div className="absolute inset-0 bg-gradient-to-t from-app-text/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
                       <div className="text-2xl font-serif italic text-white">Classic Oakland Architecture</div>
                     </div>
                   </div>
@@ -388,27 +393,27 @@ export default function App() {
             </section>
 
             {/* Neighborhood Mosaic Section */}
-            <section id="neighborhood-mosaic" className="py-32 bg-oakland-paper overflow-hidden">
+            <section id="neighborhood-mosaic" className="py-32 bg-app-bg overflow-hidden">
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
                   <div className="space-y-6 max-w-2xl">
-                    <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-[0.3em]">The Ruby Mosaic</div>
+                    <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">The Ruby Mosaic</div>
                     <h2 className="text-6xl font-serif font-black leading-tight">
-                      Where <span className="italic text-oakland-terracotta">Oakland</span> Converges.
+                      Where <span className="italic text-app-accent">Oakland</span> Converges.
                     </h2>
-                    <p className="text-xl text-oakland-ink/60 leading-relaxed font-light">
+                    <p className="text-xl text-app-text/80 leading-relaxed font-light">
                       A curated collection of life at 3875 Ruby. From the essential care of Kaiser to the high-speed pulse of MacArthur BART, everything is within your orbit.
                     </p>
                   </div>
                   <div className="flex gap-4">
                     <div className="text-right">
-                      <div className="text-4xl font-serif font-bold text-oakland-ink">94</div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">Walk Score</div>
+                      <div className="text-4xl font-serif font-bold text-app-text">94</div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-app-text/50">Walk Score</div>
                     </div>
-                    <div className="w-px h-12 bg-oakland-ink/10" />
+                    <div className="w-px h-12 bg-app-border" />
                     <div className="text-right">
-                      <div className="text-4xl font-serif font-bold text-oakland-ink">88</div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">Transit Score</div>
+                      <div className="text-4xl font-serif font-bold text-app-text">88</div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-app-text/50">Transit Score</div>
                     </div>
                   </div>
                 </div>
@@ -423,9 +428,9 @@ export default function App() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-oakland-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
+                    <div className="absolute inset-0 bg-gradient-to-t from-app-text/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
                       <div className="space-y-2">
-                        <div className="text-xs font-bold text-oakland-terracotta uppercase tracking-widest">The Anchor</div>
+                        <div className="text-xs font-bold text-app-accent uppercase tracking-widest">The Anchor</div>
                         <div className="text-3xl font-serif font-bold italic text-white">3875 Ruby Street</div>
                       </div>
                     </div>
@@ -434,12 +439,12 @@ export default function App() {
                   {/* Unit Interior - Modern Living */}
                   <div className="col-span-6 md:col-span-3 row-span-3 group relative overflow-hidden rounded-[2.5rem] shadow-xl">
                     <img 
-                      src="https://picsum.photos/seed/ruby-interior/800/1200" 
+                      src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=800&auto=format&fit=crop" 
                       alt="Modern Unit Interior" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-oakland-terracotta/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-app-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                       <div className="text-white font-serif italic text-xl">Modern Soul</div>
                     </div>
                   </div>
@@ -447,12 +452,12 @@ export default function App() {
                   {/* Kaiser Permanente - Essential Care */}
                   <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                     <img 
-                      src="https://picsum.photos/seed/oakland-hospital/800/600" 
+                      src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop" 
                       alt="Kaiser Permanente Medical Center" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink shadow-sm">
+                    <div className="absolute top-6 left-6 px-4 py-2 bg-app-bg/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text shadow-sm">
                       Medical District
                     </div>
                   </div>
@@ -460,12 +465,12 @@ export default function App() {
                   {/* MacArthur BART - Transit Pulse */}
                   <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                     <img 
-                      src="https://picsum.photos/seed/oakland-bart/800/600" 
+                      src="https://images.unsplash.com/photo-1473445733995-882ed5127a11?q=80&w=800&auto=format&fit=crop" 
                       alt="MacArthur BART Station" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute top-6 left-6 px-4 py-2 bg-oakland-terracotta/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                    <div className="absolute top-6 left-6 px-4 py-2 bg-app-accent/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                       Transit Hub
                     </div>
                   </div>
@@ -473,12 +478,12 @@ export default function App() {
                   {/* Mosswood Park - Green Space */}
                   <div className="col-span-12 md:col-span-6 row-span-2 group relative overflow-hidden rounded-[3rem] shadow-xl">
                     <img 
-                      src="https://picsum.photos/seed/mosswood-park/1200/600" 
+                      src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop" 
                       alt="Mosswood Park" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-oakland-olive/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                       <div className="text-white font-serif italic text-3xl">Mosswood Green</div>
                     </div>
                   </div>
@@ -486,12 +491,12 @@ export default function App() {
                   {/* Piedmont Avenue - Walkable Shopping */}
                   <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                     <img 
-                      src="https://picsum.photos/seed/piedmont-ave/800/600" 
+                      src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop" 
                       alt="Piedmont Avenue Shops" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-oakland-ink shadow-sm">
+                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-app-bg/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text shadow-sm">
                       Piedmont Ave
                     </div>
                   </div>
@@ -499,12 +504,12 @@ export default function App() {
                   {/* Temescal District - Food & Culture */}
                   <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
                     <img 
-                      src="https://picsum.photos/seed/temescal-oakland/800/600" 
+                      src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop" 
                       alt="Temescal District" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-oakland-olive/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-emerald-500/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                       Temescal Vibe
                     </div>
                   </div>
@@ -512,46 +517,45 @@ export default function App() {
               </div>
             </section>
 
-            {/* Footer */}
-            <footer className="py-24 px-6 border-t border-oakland-ink/5 bg-oakland-paper">
+            <footer className="py-24 px-6 border-t border-app-border bg-app-bg">
               <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
                 <div className="col-span-2 space-y-8">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-8 bg-oakland-terracotta" />
-                    <span className="text-3xl font-serif font-black tracking-tighter">3875 RUBY</span>
+                    <div className="w-2 h-8 bg-app-accent" />
+                    <span className="text-3xl font-black tracking-tighter text-app-text uppercase">3875 RUBY</span>
                   </div>
-                  <p className="text-oakland-ink/50 max-w-sm leading-relaxed">
+                  <p className="text-app-text/80 max-w-sm leading-relaxed font-medium">
                     A boutique residential community in the heart of Oakland. Managed with soul, powered by intelligence.
                   </p>
                 </div>
                 <div className="space-y-6">
-                  <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40">Navigation</div>
-                  <ul className="space-y-4 text-sm font-medium">
-                    <li><a href="#" className="hover:text-oakland-terracotta transition-colors">Available Units</a></li>
-                    <li><a href="#" className="hover:text-oakland-terracotta transition-colors">Tenant Portal</a></li>
-                    <li><a href="#" className="hover:text-oakland-terracotta transition-colors">Maintenance Request</a></li>
+                  <div className="text-xs font-black uppercase tracking-widest text-app-text/50">Navigation</div>
+                  <ul className="space-y-4 text-sm font-bold">
+                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Available Units</a></li>
+                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Tenant Portal</a></li>
+                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Maintenance Request</a></li>
                   </ul>
                 </div>
                 <div className="space-y-6">
-                  <div className="text-xs font-bold uppercase tracking-widest text-oakland-ink/40">Contact</div>
-                  <ul className="space-y-4 text-sm font-medium">
-                    <li>hello@3875ruby.com</li>
-                    <li>(510) 555-0123</li>
-                    <li>Oakland, CA 94609</li>
+                  <div className="text-xs font-black uppercase tracking-widest text-app-text/50">Contact</div>
+                  <ul className="space-y-4 text-sm font-bold">
+                    <li className="text-app-text/70">hello@3875ruby.com</li>
+                    <li className="text-app-text/70">(510) 555-0123</li>
+                    <li className="text-app-text/70">Oakland, CA 94609</li>
                   </ul>
                 </div>
               </div>
-              <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-oakland-ink/5 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-[0.5em] font-mono">
-                  © 2026 RENT DMC TECHNOLOGIES. OAKLAND SOUL.
+              <div className="max-w-7xl mx-auto mt-24 pt-12 border-t border-app-border flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="text-[11px] font-bold text-app-text/60 uppercase tracking-[0.3em] font-mono text-center md:text-left">
+                  © 2026 RENT DMC TECHNOLOGIES. <span className="text-app-accent">OAKLAND SOUL.</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-[8px] font-black text-oakland-terracotta uppercase tracking-widest">Powered by</div>
-                  <div className="text-xl font-black tracking-tighter text-oakland-ink">RENT DMC</div>
+                <div className="flex items-center gap-6">
+                  <div className="text-[10px] font-black text-app-accent uppercase tracking-widest">Powered by</div>
+                  <div className="text-2xl font-black tracking-tighter text-app-text uppercase">RENT DMC</div>
                 </div>
-                <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-oakland-ink/30">
-                  <a href="#">Privacy</a>
-                  <a href="#">Terms</a>
+                <div className="flex gap-10 text-[11px] font-bold uppercase tracking-widest text-app-text/60">
+                  <a href="#" className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1">Privacy</a>
+                  <a href="#" className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1">Terms</a>
                 </div>
               </div>
             </footer>
@@ -562,14 +566,14 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="min-h-screen bg-oakland-paper pt-32 pb-20 px-6"
+            className="min-h-screen bg-app-bg pt-32 pb-20 px-6"
           >
             <div className="max-w-7xl mx-auto">
               {/* Portal Header */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                 <div>
-                  <h2 className="text-4xl font-serif font-black text-oakland-ink">Tenant & Admin Portal</h2>
-                  <p className="text-oakland-ink/50 mt-2">Secure management for 3875 Ruby Street.</p>
+                  <h2 className="text-4xl font-serif font-black text-app-text">Tenant & Admin Portal</h2>
+                  <p className="text-app-text/50 mt-2">Secure management for 3875 Ruby Street.</p>
                 </div>
                 <div className="flex gap-4">
                   <button 
@@ -578,11 +582,11 @@ export default function App() {
                       navigator.clipboard.writeText(url);
                       alert('Link copied! Ready to share with your team.');
                     }}
-                    className="flex items-center gap-2 px-6 py-3 bg-app-card border border-app-border rounded-full font-bold text-sm hover:bg-oakland-ink hover:text-white transition-all shadow-sm"
+                    className="flex items-center gap-2 px-6 py-3 bg-app-card border border-app-border rounded-full font-bold text-sm hover:bg-app-text hover:text-app-bg transition-all shadow-sm"
                   >
                     <Share2 className="w-4 h-4" /> Share Hub
                   </button>
-                  <button className="px-6 py-3 bg-oakland-terracotta text-white rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-md">
+                  <button className="px-6 py-3 bg-app-accent text-white rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-md">
                     Download Report
                   </button>
                 </div>
@@ -595,45 +599,45 @@ export default function App() {
                   { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50/50' },
                   { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50/50' },
                 ].map((stat) => (
-                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-oakland-terracotta/20 transition-all group`}>
+                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group`}>
                     <div className="flex justify-between items-start mb-6">
                       <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
                         <stat.icon className={`w-8 h-8 ${stat.color}`} />
                       </div>
                       <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">{stat.trend}</span>
                     </div>
-                    <div className="text-xs font-bold text-oakland-ink/40 uppercase tracking-[0.2em]">{stat.label}</div>
-                    <div className="text-5xl font-serif font-black mt-2 text-oakland-ink">{stat.value}</div>
+                    <div className="text-xs font-bold text-app-text/40 uppercase tracking-[0.2em]">{stat.label}</div>
+                    <div className="text-5xl font-serif font-black mt-2 text-app-text">{stat.value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Quick Guide / What's New */}
-              <div className="mb-12 p-8 rounded-[2.5rem] bg-oakland-ink text-white shadow-2xl flex flex-col md:flex-row gap-8 items-center">
+              <div className="mb-12 p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl flex flex-col md:flex-row gap-8 items-center">
                 <div className="flex-grow space-y-4">
                   <h3 className="text-2xl font-serif font-bold italic">Operational Intelligence Hub</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 text-sm text-white/60">
-                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                    <div className="flex items-center gap-3 text-sm text-app-bg/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-app-accent" />
                       <span>Monitor real-time revenue & occupancy trends</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-white/60">
-                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                    <div className="flex items-center gap-3 text-sm text-app-bg/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-app-accent" />
                       <span>Track AI-powered security & sublease alerts</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-white/60">
-                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                    <div className="flex items-center gap-3 text-sm text-app-bg/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-app-accent" />
                       <span>Manage maintenance & community schedules</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-white/60">
-                      <div className="w-1.5 h-1.5 rounded-full bg-oakland-terracotta" />
+                    <div className="flex items-center gap-3 text-sm text-app-bg/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-app-accent" />
                       <span>Access CEO Briefing & Legal Notice tools</span>
                     </div>
                   </div>
                 </div>
-                <div className="w-px h-16 bg-white/10 hidden md:block" />
+                <div className="w-px h-16 bg-app-bg/10 hidden md:block" />
                 <div className="text-center md:text-left">
-                  <div className="text-[10px] font-bold text-oakland-terracotta uppercase tracking-[0.3em] mb-1">System Status</div>
+                  <div className="text-[10px] font-bold text-app-accent uppercase tracking-[0.3em] mb-1">System Status</div>
                   <div className="text-xl font-serif font-bold italic">All Systems Nominal</div>
                 </div>
               </div>
@@ -642,10 +646,10 @@ export default function App() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
                   <div className="flex justify-between items-center mb-10">
-                    <h3 className="text-2xl font-serif font-bold">Revenue Intelligence</h3>
+                    <h3 className="text-2xl font-serif font-bold text-app-text">Revenue Intelligence</h3>
                     <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-oakland-terracotta"></div>
-                      <div className="w-3 h-3 rounded-full bg-oakland-olive"></div>
+                      <div className="w-3 h-3 rounded-full bg-app-accent"></div>
+                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
                     </div>
                   </div>
                   <div className="h-[300px]">
@@ -678,15 +682,15 @@ export default function App() {
                       { user: 'System', action: 'New Lease Generated: 3C', time: '1 day ago', icon: FileText, color: 'bg-blue-50 text-blue-600' },
                       { user: 'Unit 1A', action: 'Package Delivered to Hub', time: '1 day ago', icon: Package, color: 'bg-purple-50 text-purple-600' },
                     ].map((activity, i) => (
-                      <div key={i} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-oakland-ink/5 transition-colors cursor-pointer group">
+                      <div key={i} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-app-text/5 transition-colors cursor-pointer group">
                         <div className={`w-12 h-12 rounded-xl ${activity.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                           <activity.icon className="w-5 h-5" />
                         </div>
                         <div className="flex-grow">
-                          <div className="font-bold text-oakland-ink">{activity.user}</div>
-                          <div className="text-sm text-oakland-ink/50">{activity.action}</div>
+                          <div className="font-bold text-app-text">{activity.user}</div>
+                          <div className="text-sm text-app-text/50">{activity.action}</div>
                         </div>
-                        <div className="text-xs font-bold text-oakland-ink/30 uppercase tracking-widest">{activity.time}</div>
+                        <div className="text-xs font-bold text-app-text/30 uppercase tracking-widest">{activity.time}</div>
                       </div>
                     ))}
                   </div>
@@ -694,76 +698,76 @@ export default function App() {
               </div>
 
               {/* Portal Navigation Tabs */}
-              <div className="flex gap-8 border-b border-oakland-ink/5 mb-12 overflow-x-auto pb-px">
+              <div className="flex gap-8 border-b border-app-text/5 mb-12 overflow-x-auto pb-px">
                 <button 
                   onClick={() => setAdminTab('portfolio')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'portfolio' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'portfolio' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Portfolio
-                  {adminTab === 'portfolio' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'portfolio' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('rent-roll')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'rent-roll' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'rent-roll' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Rent Roll
-                  {adminTab === 'rent-roll' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'rent-roll' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('maintenance')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'maintenance' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'maintenance' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Maintenance
-                  {adminTab === 'maintenance' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'maintenance' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('marketing')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketing' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketing' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Marketing
-                  {adminTab === 'marketing' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'marketing' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('community')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'community' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'community' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Community
-                  {adminTab === 'community' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'community' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('ceo')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'ceo' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'ceo' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   CEO Briefing
-                  {adminTab === 'ceo' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'ceo' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('sfplus')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'sfplus' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'sfplus' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   SF Plus
-                  {adminTab === 'sfplus' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'sfplus' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('marketmax')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketmax' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketmax' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Market Max
-                  {adminTab === 'marketmax' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'marketmax' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('legal-log')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'legal-log' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'legal-log' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Legal Log
-                  {adminTab === 'legal-log' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'legal-log' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('vendors')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'vendors' ? 'text-oakland-terracotta' : 'text-oakland-ink/40 hover:text-oakland-ink'}`}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'vendors' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   Vendors
-                  {adminTab === 'vendors' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-oakland-terracotta" />}
+                  {adminTab === 'vendors' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
               </div>
 
@@ -775,8 +779,8 @@ export default function App() {
               ) : adminTab === 'rent-roll' ? (
                 <section id="rent-roll" className="py-12">
                   <div className="mb-12 space-y-4">
-                    <h2 className="text-4xl font-bold text-oakland-ink font-serif">Your <span className="italic">Intelligent</span> Rent Roll.</h2>
-                    <p className="text-oakland-ink/50 max-w-xl font-medium">Real-time management of your property portfolio with integrated financial tracking.</p>
+                    <h2 className="text-4xl font-bold text-app-text font-serif">Your <span className="italic">Intelligent</span> Rent Roll.</h2>
+                    <p className="text-app-text/50 max-w-xl font-medium">Real-time management of your property portfolio with integrated financial tracking.</p>
                   </div>
                   <RentRollDashboard />
                 </section>
@@ -831,12 +835,12 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="min-h-screen bg-oakland-paper pt-32 pb-20 px-6"
+            className="min-h-screen bg-app-bg pt-32 pb-20 px-6"
           >
             <div className="max-w-7xl mx-auto">
               <div className="mb-12">
-                <h2 className="text-4xl font-serif font-black text-oakland-ink">Ruby <span className="italic">Resident</span> Portal</h2>
-                <p className="text-oakland-ink/50 mt-2">Welcome home, Jordan. Your community at your fingertips.</p>
+                <h2 className="text-4xl font-serif font-black text-app-text">Ruby <span className="italic">Resident</span> Portal</h2>
+                <p className="text-app-text/50 mt-2">Welcome home, Jordan. Your community at your fingertips.</p>
               </div>
               <TenantPortal />
             </div>

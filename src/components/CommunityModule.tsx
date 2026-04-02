@@ -52,9 +52,9 @@ export const CommunityModule = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div className="space-y-8">
-        <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+        <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-text/5 shadow-sm">
           <div className="flex items-center gap-3 mb-8">
-            <div className="p-3 bg-oakland-terracotta/10 text-oakland-terracotta rounded-2xl">
+            <div className="p-3 bg-app-accent/10 text-app-accent rounded-2xl">
               <Megaphone className="w-6 h-6" />
             </div>
             <h3 className="text-2xl font-serif font-bold">Post <span className="italic">Resident</span> Update</h3>
@@ -62,23 +62,23 @@ export const CommunityModule = () => {
 
           <form onSubmit={handlePostUpdate} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40 ml-4">Update Title</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Update Title</label>
               <input 
                 type="text"
                 required
                 value={newUpdate.title}
                 onChange={(e) => setNewUpdate({ ...newUpdate, title: e.target.value })}
-                className="w-full px-6 py-4 bg-oakland-ink/5 border border-transparent rounded-2xl focus:bg-white focus:border-oakland-terracotta/20 focus:outline-none transition-all"
+                className="w-full px-6 py-4 bg-app-text/5 border border-transparent rounded-2xl focus:bg-app-bg focus:border-app-accent/20 focus:outline-none transition-all"
                 placeholder="e.g., Roof Maintenance Next Week"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40 ml-4">Content</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Content</label>
               <textarea 
                 required
                 value={newUpdate.content}
                 onChange={(e) => setNewUpdate({ ...newUpdate, content: e.target.value })}
-                className="w-full px-6 py-4 bg-oakland-ink/5 border border-transparent rounded-2xl focus:bg-white focus:border-oakland-terracotta/20 focus:outline-none transition-all min-h-[120px]"
+                className="w-full px-6 py-4 bg-app-text/5 border border-transparent rounded-2xl focus:bg-app-bg focus:border-app-accent/20 focus:outline-none transition-all min-h-[120px]"
                 placeholder="Describe the update for residents..."
               />
             </div>
@@ -94,7 +94,7 @@ export const CommunityModule = () => {
             <button 
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-5 bg-oakland-ink text-white rounded-2xl font-bold text-sm uppercase tracking-[0.2em] hover:bg-oakland-terracotta transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full py-5 bg-app-text text-app-bg rounded-2xl font-bold text-sm uppercase tracking-[0.2em] hover:bg-app-accent hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isSubmitting ? 'Posting...' : (
                 <>
@@ -105,7 +105,7 @@ export const CommunityModule = () => {
           </form>
         </div>
 
-        <div className="p-10 rounded-[2.5rem] bg-oakland-ink text-white shadow-xl">
+        <div className="p-10 rounded-[2.5rem] bg-app-text text-app-bg shadow-xl">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-2xl font-serif font-bold">Community Schedule</h3>
             <div className="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-white/60">
@@ -117,7 +117,7 @@ export const CommunityModule = () => {
             <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                  <Trash2 className="w-6 h-6 text-oakland-terracotta" />
+                  <Trash2 className="w-6 h-6 text-app-accent" />
                 </div>
                 <div>
                   <div className="font-bold">Trash Day</div>
@@ -148,7 +148,7 @@ export const CommunityModule = () => {
       </div>
 
       <div className="space-y-8">
-        <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+        <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-text/5 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
@@ -161,7 +161,7 @@ export const CommunityModule = () => {
             </div>
           </div>
 
-          <div className="aspect-video rounded-[2rem] bg-oakland-ink overflow-hidden relative group mb-8">
+          <div className="aspect-video rounded-[2rem] bg-app-text overflow-hidden relative group mb-8">
             <img 
               src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1200&auto=format&fit=crop" 
               alt="Security Feed" 
@@ -175,32 +175,32 @@ export const CommunityModule = () => {
           </div>
 
           <div className="space-y-6">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-oakland-ink/40 ml-4">Recent Security Events</h4>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Recent Security Events</h4>
             <div className="space-y-4">
               {securityEvents.map((event) => (
-                <div key={event.id} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-oakland-ink/5 transition-colors group cursor-pointer">
+                <div key={event.id} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-app-text/5 transition-colors group cursor-pointer">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     event.type === 'Recognition' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'
                   }`}>
                     {event.type === 'Recognition' ? <Camera className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                   </div>
                   <div className="flex-grow">
-                    <div className="font-bold text-sm text-oakland-ink">{event.type}</div>
-                    <div className="text-xs text-oakland-ink/50">{event.description}</div>
+                    <div className="font-bold text-sm text-app-text">{event.type}</div>
+                    <div className="text-xs text-app-text/50">{event.description}</div>
                   </div>
-                  <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest">
+                  <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">
                     {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               ))}
             </div>
-            <button className="w-full py-4 border border-oakland-ink/10 rounded-2xl text-xs font-bold uppercase tracking-widest text-oakland-ink/40 hover:text-oakland-ink hover:border-oakland-ink/20 transition-all">
+            <button className="w-full py-4 border border-app-text/10 rounded-2xl text-xs font-bold uppercase tracking-widest text-app-text/40 hover:text-app-text hover:border-app-text/20 transition-all">
               View Full Security Log
             </button>
           </div>
         </div>
 
-        <div className="p-10 rounded-[2.5rem] bg-white border border-oakland-ink/5 shadow-sm">
+        <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-text/5 shadow-sm">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
               <History className="w-6 h-6" />
@@ -209,13 +209,13 @@ export const CommunityModule = () => {
           </div>
           <div className="space-y-6">
             {updates.map((update) => (
-              <div key={update.id} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-oakland-ink/10">
-                <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-oakland-terracotta" />
-                <div className="text-[10px] font-bold text-oakland-ink/30 uppercase tracking-widest mb-1">
+              <div key={update.id} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-app-text/10">
+                <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-app-accent" />
+                <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">
                   {new Date(update.update_date).toLocaleDateString()}
                 </div>
-                <div className="font-bold text-oakland-ink">{update.title}</div>
-                <p className="text-xs text-oakland-ink/50 mt-1 line-clamp-2">{update.content}</p>
+                <div className="font-bold text-app-text">{update.title}</div>
+                <p className="text-xs text-app-text/50 mt-1 line-clamp-2">{update.content}</p>
               </div>
             ))}
           </div>

@@ -36,12 +36,12 @@ interface MaintenanceRequest {
 const STATUS_CONFIG: Record<string, { color: string, bg: string, icon: any }> = {
   'Pending Review': { color: 'text-blue-500', bg: 'bg-blue-500/10', icon: Eye },
   'Awaiting Approval': { color: 'text-orange-500', bg: 'bg-orange-500/10', icon: Shield },
-  'Escalated to Owner': { color: 'text-red-500', bg: 'bg-red-500/10', icon: AlertCircle },
+  'Escalated to Owner': { color: 'text-app-accent', bg: 'bg-app-accent/10', icon: AlertCircle },
   'Approved': { color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
   'In Progress': { color: 'text-purple-500', bg: 'bg-purple-500/10', icon: Hammer },
   'Pending Verification': { color: 'text-amber-500', bg: 'bg-amber-500/10', icon: Clock },
-  'Completed': { color: 'text-irish-green', bg: 'bg-irish-green/10', icon: CheckCircle2 },
-  'Rejected': { color: 'text-red-500', bg: 'bg-red-500/10', icon: XCircle },
+  'Completed': { color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
+  'Rejected': { color: 'text-app-accent', bg: 'bg-app-accent/10', icon: XCircle },
 };
 
 export const MaintenanceModule: React.FC = () => {
@@ -151,7 +151,7 @@ export const MaintenanceModule: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-irish-green/20 border-t-irish-green rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-app-accent/20 border-t-app-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -160,17 +160,17 @@ export const MaintenanceModule: React.FC = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-serif font-black text-white tracking-tight">Maintenance Pipeline</h2>
-          <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">GM Workflow Interface • Silverback Engine</p>
+          <h2 className="text-3xl font-black text-app-text tracking-tight uppercase">Maintenance Pipeline</h2>
+          <p className="text-app-text/40 font-mono text-xs uppercase tracking-widest mt-1">GM Workflow Interface • Silverback Engine</p>
         </div>
         <div className="flex gap-4">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-2 bg-irish-green text-white font-black rounded-xl hover:bg-irish-green-lt transition-colors shadow-lg shadow-irish-green/20 flex items-center gap-2"
+            className="px-6 py-2 bg-app-accent text-white font-black rounded-xl hover:opacity-90 transition-all shadow-lg shadow-app-accent/20 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> NEW REQUEST
           </button>
-          <div className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs font-bold text-zinc-400 flex items-center">
+          <div className="px-4 py-2 rounded-xl bg-app-card border border-app-border text-xs font-bold text-app-text/60 flex items-center">
             {requests.filter(r => r.status !== 'Completed').length} Active Requests
           </div>
         </div>
@@ -190,8 +190,8 @@ export const MaintenanceModule: React.FC = () => {
                 onClick={() => setSelectedRequest(req)}
                 className={`p-6 rounded-2xl border transition-all cursor-pointer group ${
                   selectedRequest?.id === req.id 
-                    ? 'bg-zinc-800 border-irish-green shadow-lg shadow-irish-green/10' 
-                    : 'bg-zinc-900 border-white/5 hover:border-white/20'
+                    ? 'bg-app-card border-app-accent shadow-lg shadow-app-accent/10' 
+                    : 'bg-app-card border-app-border hover:border-app-text/20'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -201,13 +201,13 @@ export const MaintenanceModule: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-3 mb-1">
-                        <span className="text-lg font-black text-white font-mono tracking-tighter">UNIT #{req.unit_number}</span>
+                        <span className="text-lg font-black text-app-text font-mono tracking-tighter">UNIT #{req.unit_number}</span>
                         <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${config.bg} ${config.color}`}>
                           {req.status}
                         </span>
                       </div>
-                      <p className="text-zinc-400 text-sm line-clamp-1">{req.description}</p>
-                      <div className="flex items-center gap-4 mt-3 text-[10px] text-zinc-600 font-mono uppercase tracking-widest">
+                      <p className="text-app-text/60 text-sm line-clamp-1">{req.description}</p>
+                      <div className="flex items-center gap-4 mt-3 text-[10px] text-app-text/30 font-mono uppercase tracking-widest">
                         <span>{new Date(req.created_at).toLocaleDateString()}</span>
                         {req.assigned_to && (
                           <span className="flex items-center gap-1">
@@ -217,7 +217,7 @@ export const MaintenanceModule: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <ChevronRight className={`w-5 h-5 text-zinc-700 group-hover:text-zinc-400 transition-colors ${selectedRequest?.id === req.id ? 'rotate-90 text-irish-green' : ''}`} />
+                  <ChevronRight className={`w-5 h-5 text-app-text/20 group-hover:text-app-text/40 transition-colors ${selectedRequest?.id === req.id ? 'rotate-90 text-app-accent' : ''}`} />
                 </div>
               </motion.div>
             );
@@ -233,35 +233,35 @@ export const MaintenanceModule: React.FC = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="sticky top-8 p-8 rounded-[2.5rem] bg-zinc-900 border border-white/10 shadow-2xl space-y-8"
+                className="sticky top-8 p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-2xl space-y-8"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-black text-white tracking-tighter">Request Details</h3>
-                  <button onClick={() => setSelectedRequest(null)} className="text-zinc-600 hover:text-white">
+                  <h3 className="text-2xl font-black text-app-text tracking-tighter uppercase">Request Details</h3>
+                  <button onClick={() => setSelectedRequest(null)} className="text-app-text/30 hover:text-app-text">
                     <XCircle className="w-6 h-6" />
                   </button>
                 </div>
 
                 {selectedRequest.photo_url && (
-                  <div className="aspect-video rounded-2xl overflow-hidden border border-white/10">
+                  <div className="aspect-video rounded-2xl overflow-hidden border border-app-border">
                     <img src={selectedRequest.photo_url} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 )}
 
                 <div className="space-y-6">
                   <div>
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Issue Description</label>
-                    <p className="text-zinc-300 leading-relaxed">{selectedRequest.description}</p>
+                    <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">Issue Description</label>
+                    <p className="text-app-text/80 leading-relaxed">{selectedRequest.description}</p>
                   </div>
 
-                  <div className="h-px bg-white/5" />
+                  <div className="h-px bg-app-border" />
 
                   {/* Workflow Actions */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Workflow Management</label>
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">Workflow Management</label>
                       {selectedRequest.is_emergency && (
-                        <span className="flex items-center gap-1 text-[10px] font-black text-red-500 uppercase tracking-widest animate-pulse">
+                        <span className="flex items-center gap-1 text-[10px] font-black text-app-accent uppercase tracking-widest animate-pulse">
                           <AlertCircle className="w-3 h-3" /> Emergency
                         </span>
                       )}
@@ -273,7 +273,13 @@ export const MaintenanceModule: React.FC = () => {
                           const next = getNextStep(selectedRequest!);
                           if (next) handleUpdateStatus(selectedRequest!.id, { status: next.next });
                         }}
-                        className={`w-full py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${getNextStep(selectedRequest)?.color}`}
+                        className={`w-full py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${
+                          getNextStep(selectedRequest)?.next === 'Escalated to Owner' ? 'bg-app-accent' : 
+                          getNextStep(selectedRequest)?.next === 'Approved' ? 'bg-emerald-500' :
+                          getNextStep(selectedRequest)?.next === 'In Progress' ? 'bg-purple-500' :
+                          getNextStep(selectedRequest)?.next === 'Pending Verification' ? 'bg-amber-500' :
+                          'bg-emerald-500'
+                        }`}
                       >
                         {getNextStep(selectedRequest)?.label}
                         <ArrowRight className="w-5 h-5" />
@@ -283,7 +289,7 @@ export const MaintenanceModule: React.FC = () => {
                     {selectedRequest.status === 'Pending Review' && (
                       <button
                         onClick={() => handleUpdateStatus(selectedRequest!.id, { status: 'Rejected' })}
-                        className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-red-500 font-black hover:bg-red-500/10 transition-all"
+                        className="w-full py-4 rounded-2xl bg-app-text/5 border border-app-border text-app-accent font-black hover:bg-app-accent/10 transition-all"
                       >
                         Reject Request
                       </button>
@@ -294,14 +300,14 @@ export const MaintenanceModule: React.FC = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Estimated Cost</label>
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">Estimated Cost</label>
                         <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-app-text/40 font-bold">$</span>
                           <input
                             type="number"
                             value={selectedRequest.cost || 0}
                             onChange={(e) => handleUpdateStatus(selectedRequest!.id, { cost: parseFloat(e.target.value) })}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                            className="w-full bg-app-bg border border-app-border rounded-xl pl-8 pr-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50"
                           />
                         </div>
                       </div>
@@ -310,8 +316,8 @@ export const MaintenanceModule: React.FC = () => {
                           onClick={() => handleUpdateStatus(selectedRequest!.id, { is_emergency: !selectedRequest!.is_emergency })}
                           className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                             selectedRequest.is_emergency 
-                              ? 'bg-red-500/20 text-red-500 border-red-500/30' 
-                              : 'bg-white/5 text-zinc-500 border-white/10'
+                              ? 'bg-app-accent/20 text-app-accent border-app-accent/30' 
+                              : 'bg-app-text/5 text-app-text/40 border-app-border'
                           }`}
                         >
                           {selectedRequest.is_emergency ? 'Emergency Active' : 'Mark Emergency'}
@@ -320,12 +326,12 @@ export const MaintenanceModule: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">GM Internal Notes (Mezfin)</label>
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">GM Internal Notes (Mezfin)</label>
                       <textarea
                         value={selectedRequest.gm_notes || ''}
                         onChange={(e) => handleUpdateStatus(selectedRequest!.id, { gm_notes: e.target.value })}
                         placeholder="Add internal notes for management..."
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[100px]"
+                        className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[100px]"
                       />
                     </div>
 
@@ -336,20 +342,20 @@ export const MaintenanceModule: React.FC = () => {
                           value={selectedRequest.approval_notes || ''}
                           onChange={(e) => handleUpdateStatus(selectedRequest!.id, { approval_notes: e.target.value })}
                           placeholder="Owner feedback on cost/emergency..."
-                          className="w-full bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 min-h-[100px]"
+                          className="w-full bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-orange-500/50 min-h-[100px]"
                         />
                       </div>
                     )}
 
                     {(selectedRequest.status === 'Approved' || selectedRequest.status === 'In Progress') && (
                       <div>
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Assign Contractor / Staff</label>
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">Assign Contractor / Staff</label>
                         <input
                           type="text"
                           value={selectedRequest.assigned_to || ''}
                           onChange={(e) => handleUpdateStatus(selectedRequest!.id, { assigned_to: e.target.value })}
                           placeholder="Enter name of person taking care of it..."
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                          className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                         />
                       </div>
                     )}
@@ -357,9 +363,9 @@ export const MaintenanceModule: React.FC = () => {
                 </div>
               </motion.div>
             ) : (
-              <div className="h-[600px] rounded-[2.5rem] border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center p-12 space-y-4 opacity-30">
-                <Wrench className="w-16 h-16" />
-                <p className="text-lg font-medium">Select a request from the pipeline<br/>to manage the workflow.</p>
+              <div className="h-[600px] rounded-[2.5rem] border-2 border-dashed border-app-border flex flex-col items-center justify-center text-center p-12 space-y-4 opacity-30">
+                <Wrench className="w-16 h-16 text-app-text" />
+                <p className="text-lg font-medium text-app-text">Select a request from the pipeline<br/>to manage the workflow.</p>
               </div>
             )}
           </AnimatePresence>
@@ -374,14 +380,14 @@ export const MaintenanceModule: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+              className="w-full max-w-2xl bg-app-card border border-app-border rounded-[2.5rem] overflow-hidden shadow-2xl"
             >
-              <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <div className="p-8 border-b border-app-border flex items-center justify-between bg-app-text/[0.02]">
                 <div>
-                  <h3 className="text-2xl font-black text-white tracking-tighter">New Maintenance Request</h3>
-                  <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Manual Entry • Internal Workflow</p>
+                  <h3 className="text-2xl font-black text-app-text tracking-tighter uppercase">New Maintenance Request</h3>
+                  <p className="text-app-text/40 font-mono text-[10px] uppercase tracking-widest mt-1">Manual Entry • Internal Workflow</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="text-zinc-600 hover:text-white">
+                <button onClick={() => setIsModalOpen(false)} className="text-app-text/30 hover:text-app-text">
                   <XCircle className="w-8 h-8" />
                 </button>
               </div>
@@ -389,67 +395,67 @@ export const MaintenanceModule: React.FC = () => {
               <form onSubmit={handleCreateRequest} className="p-8 space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Unit Number</label>
+                    <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">Unit Number</label>
                     <select
                       required
                       value={newRequest.unit_id}
                       onChange={(e) => setNewRequest({ ...newRequest, unit_id: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                      className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50"
                     >
-                      <option value="" className="bg-zinc-900">Select Unit...</option>
+                      <option value="" className="bg-app-card">Select Unit...</option>
                       {units.map(u => (
-                        <option key={u.id} value={u.id} className="bg-zinc-900">Unit #{u.unit_number}</option>
+                        <option key={u.id} value={u.id} className="bg-app-card">Unit #{u.unit_number}</option>
                       ))}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Assigned To</label>
+                    <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">Assigned To</label>
                     <input
                       type="text"
                       value={newRequest.assigned_to}
                       onChange={(e) => setNewRequest({ ...newRequest, assigned_to: e.target.value })}
                       placeholder="Contractor or Staff Name..."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                      className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Description</label>
+                  <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">Description</label>
                   <textarea
                     required
                     value={newRequest.description}
                     onChange={(e) => setNewRequest({ ...newRequest, description: e.target.value })}
                     placeholder="Describe the issue in detail..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[100px]"
+                    className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[100px]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">GM Internal Notes</label>
+                  <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">GM Internal Notes</label>
                   <textarea
                     value={newRequest.gm_notes}
                     onChange={(e) => setNewRequest({ ...newRequest, gm_notes: e.target.value })}
                     placeholder="Internal notes for management..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50 min-h-[80px]"
+                    className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[80px]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Photo URL (Optional)</label>
+                  <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block">Photo URL (Optional)</label>
                   <input
                     type="text"
                     value={newRequest.photo_url}
                     onChange={(e) => setNewRequest({ ...newRequest, photo_url: e.target.value })}
                     placeholder="https://example.com/photo.jpg"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-irish-green/50"
+                    className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50"
                   />
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="w-full py-4 bg-irish-green text-white font-black rounded-2xl hover:bg-irish-green-lt transition-all shadow-lg shadow-irish-green/20 active:scale-[0.98]"
+                    className="w-full py-4 bg-app-accent text-white font-black rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-app-accent/20 active:scale-[0.98]"
                   >
                     CREATE MAINTENANCE REQUEST
                   </button>
