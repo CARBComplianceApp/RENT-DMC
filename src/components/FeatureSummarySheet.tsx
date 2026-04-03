@@ -17,8 +17,8 @@ export const FeatureSummarySheet: React.FC = () => {
     {
       title: "Silverback Intelligence",
       icon: Zap,
-      color: "text-irish-green",
-      bg: "bg-irish-green/10",
+      color: "text-ruby",
+      bg: "bg-ruby/10",
       features: [
         "Automated Rent Collection & Ledger Sync",
         "Predictive Vacancy & Yield Optimization",
@@ -28,8 +28,8 @@ export const FeatureSummarySheet: React.FC = () => {
     {
       title: "Intelligent Rent Roll",
       icon: Database,
-      color: "text-irish-orange",
-      bg: "bg-irish-orange/10",
+      color: "text-ruby-light",
+      bg: "bg-ruby-light/10",
       features: [
         "Real-time Portfolio Financial Tracking",
         "Secure Tenant Activity & IP Logging",
@@ -39,8 +39,8 @@ export const FeatureSummarySheet: React.FC = () => {
     {
       title: "Management Module",
       icon: Layout,
-      color: "text-blue-400",
-      bg: "bg-blue-400/10",
+      color: "text-ruby",
+      bg: "bg-ruby/10",
       features: [
         "Dual-Panel Resizable Management View",
         "Integrated Maintenance Request Tracker",
@@ -50,8 +50,8 @@ export const FeatureSummarySheet: React.FC = () => {
     {
       title: "Communication Hub",
       icon: MessageSquare,
-      color: "text-purple-400",
-      bg: "bg-purple-400/10",
+      color: "text-ruby-light",
+      bg: "bg-ruby-light/10",
       features: [
         "Direct Real-time Tenant Messaging",
         "Live 'Tenant Online' Presence Status",
@@ -61,8 +61,8 @@ export const FeatureSummarySheet: React.FC = () => {
     {
       title: "AI Property Visualizer",
       icon: ImageIcon,
-      color: "text-emerald-400",
-      bg: "bg-emerald-400/10",
+      color: "text-ruby",
+      bg: "bg-ruby/10",
       features: [
         "Nano Banana 2 Powered Image Generation",
         "4K Render Engine for Marketing Visuals",
@@ -83,16 +83,16 @@ export const FeatureSummarySheet: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-12 font-sans selection:bg-irish-green/30">
+    <div className="min-h-screen bg-[#050505] text-white p-12 font-sans selection:bg-ruby/30">
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-20 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-irish-green/10 border border-irish-green/20 text-irish-green text-[10px] font-black uppercase tracking-[0.3em]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ruby/10 border border-ruby/20 text-ruby text-[10px] font-black uppercase tracking-[0.3em]">
             Executive Briefing
           </div>
           <h1 className="text-7xl font-black tracking-tighter leading-none">
-            RENT DMC <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-irish-green to-irish-orange">FEATURE SHEET</span>
+            SILVERBACKAI <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ruby to-ruby-light">FEATURE SHEET</span>
           </h1>
         </div>
         <div className="text-right">
@@ -136,12 +136,12 @@ export const FeatureSummarySheet: React.FC = () => {
       </div>
 
       {/* Footer / Call to Action */}
-      <div className="max-w-6xl mx-auto mt-20 p-12 rounded-[3rem] bg-gradient-to-br from-irish-green/20 to-irish-orange/20 border border-white/10 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="max-w-6xl mx-auto mt-20 p-12 rounded-[3rem] bg-gradient-to-br from-ruby/20 to-ruby-light/20 border border-white/10 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="space-y-2">
           <h4 className="text-2xl font-bold tracking-tight">Ready to deploy the empire?</h4>
           <p className="text-zinc-400">The Silverback engine is primed for your portfolio.</p>
         </div>
-        <button className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-zinc-200 transition-all flex items-center gap-3 shadow-xl shadow-white/5 active:scale-95">
+        <button className="px-10 py-5 bg-ruby text-white font-black rounded-2xl hover:bg-ruby-light transition-all flex items-center gap-3 shadow-xl shadow-ruby/20 active:scale-95">
           INITIALIZE SYSTEM
           <ArrowRight className="w-5 h-5" />
         </button>
@@ -149,8 +149,8 @@ export const FeatureSummarySheet: React.FC = () => {
 
       {/* Glossy Overlay Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-irish-green/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-irish-orange/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-ruby/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-ruby-light/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
     </div>
   );

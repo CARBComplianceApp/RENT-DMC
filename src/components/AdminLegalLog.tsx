@@ -14,8 +14,22 @@ import {
   User,
   Hash,
   Calendar,
-  Info
+  Info,
+  Camera,
+  X
 } from 'lucide-react';
+
+interface SecurityCamera {
+  id: number;
+  property_id: number;
+  property_name: string;
+  location: string;
+  model: string;
+  installation_date: string;
+  status: string;
+  last_update: string;
+  notes?: string;
+}
 
 interface LegalForm {
   id: number;
@@ -80,40 +94,47 @@ interface LegalLibraryDoc {
 }
 
 export const AdminLegalLog: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'forms' | 'laws' | 'violations' | 'notices' | 'library'>('notices');
+  const [activeTab, setActiveTab] = useState<'forms' | 'laws' | 'violations' | 'notices' | 'library' | 'cameras'>('notices');
   const [forms, setForms] = useState<LegalForm[]>([]);
   const [laws, setLaws] = useState<Law[]>([]);
   const [violations, setViolations] = useState<Violation[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [library, setLibrary] = useState<LegalLibraryDoc[]>([]);
+  const [cameras, setCameras] = useState<SecurityCamera[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [selectedAuditNotice, setSelectedAuditNotice] = useState<Notice | null>(null);
   const [newNotice, setNewNotice] = useState({ tenant_id: '', title: '', content: '' });
+  const [newCamera, setNewCamera] = useState({ property_id: '', location: '', model: '', installation_date: '', status: 'Operational', notes: '' });
 
   useEffect(() => {
     fetchData();
     fetchTenants();
+    fetchProperties();
   }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [formsRes, lawsRes, violationsRes, noticesRes, libraryRes] = await Promise.all([
+      const [formsRes, lawsRes, violationsRes, noticesRes, libraryRes, camerasRes] = await Promise.all([
         fetch('/api/legal-forms'),
         fetch('/api/laws-regulations'),
         fetch('/api/lease-violations'),
         fetch('/api/tenant-notices'),
-        fetch('/api/legal-library-2026')
+        fetch('/api/legal-library-2026'),
+        fetch('/api/security-cameras')
       ]);
 
-      const [formsData, lawsData, violationsData, noticesData, libraryData] = await Promise.all([
+      const [formsData, lawsData, violationsData, noticesData, libraryData, camerasData] = await Promise.all([
         formsRes.json(),
         lawsRes.json(),
         violationsRes.json(),
         noticesRes.json(),
-        libraryRes.json()
+        libraryRes.json(),
+        camerasRes.json()
       ]);
 
       setForms(formsData);
@@ -121,10 +142,21 @@ export const AdminLegalLog: React.FC = () => {
       setViolations(violationsData);
       setNotices(noticesData);
       setLibrary(libraryData);
+      setCameras(camerasData);
     } catch (error) {
       console.error('Error fetching legal data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProperties = async () => {
+    try {
+      const res = await fetch('/api/properties');
+      const data = await res.json();
+      setProperties(data);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
     }
   };
 
@@ -142,6 +174,35 @@ export const AdminLegalLog: React.FC = () => {
       setTenants(activeTenants);
     } catch (error) {
       console.error('Error fetching tenants:', error);
+    }
+  };
+
+  const handleAddCamera = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/security-cameras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCamera)
+      });
+      setIsCameraModalOpen(false);
+      setNewCamera({ property_id: '', location: '', model: '', installation_date: '', status: 'Operational', notes: '' });
+      fetchData();
+    } catch (error) {
+      console.error('Error adding camera:', error);
+    }
+  };
+
+  const updateCameraStatus = async (id: number, status: string) => {
+    try {
+      await fetch(`/api/security-cameras/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error updating camera status:', error);
     }
   };
 
@@ -164,6 +225,7 @@ export const AdminLegalLog: React.FC = () => {
   const tabs = [
     { id: 'notices', label: 'Tenant Notices', icon: ShieldCheck },
     { id: 'violations', label: 'Lease Violations', icon: AlertTriangle },
+    { id: 'cameras', label: 'Security Cameras', icon: Camera },
     { id: 'library', label: 'Legal Library 2026', icon: FileText },
     { id: 'forms', label: 'Legal Forms', icon: FileText },
     { id: 'laws', label: 'Laws & Regs', icon: Scale },
@@ -178,16 +240,124 @@ export const AdminLegalLog: React.FC = () => {
         </div>
         <div className="flex gap-4">
           <button 
-            onClick={() => setIsNoticeModalOpen(true)}
+            onClick={() => {
+              if (activeTab === 'cameras') setIsCameraModalOpen(true);
+              else setIsNoticeModalOpen(true);
+            }}
             className="flex items-center gap-2 px-6 py-3 bg-app-card border border-app-text/10 rounded-full font-bold text-sm hover:bg-app-text hover:text-app-bg transition-all shadow-sm"
           >
-            <ShieldCheck className="w-4 h-4" /> Send Notice
+            {activeTab === 'cameras' ? <Camera className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+            {activeTab === 'cameras' ? 'Add Camera' : 'Send Notice'}
           </button>
           <button className="px-6 py-3 bg-app-accent text-white rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-md">
             Export Audit Log
           </button>
         </div>
       </div>
+
+      {/* Camera Modal */}
+      <AnimatePresence>
+        {isCameraModalOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCameraModalOpen(false)}
+              className="absolute inset-0 bg-[#050505]/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-app-card rounded-[3rem] border border-app-border shadow-2xl overflow-hidden"
+            >
+              <div className="p-12">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <h2 className="text-4xl font-black text-app-text uppercase tracking-tighter">Add Security Camera</h2>
+                    <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Register new hardware at 3875 Ruby</p>
+                  </div>
+                  <button onClick={() => setIsCameraModalOpen(false)} className="p-4 hover:bg-app-text/5 rounded-full transition-colors">
+                    <X className="w-6 h-6 text-app-text/40" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddCamera} className="space-y-8">
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Property</label>
+                      <select 
+                        required
+                        value={newCamera.property_id}
+                        onChange={(e) => setNewCamera({ ...newCamera, property_id: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      >
+                        <option value="">Select Property</option>
+                        {properties.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Location</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="e.g., Main Entrance, Garage"
+                        value={newCamera.location}
+                        onChange={(e) => setNewCamera({ ...newCamera, location: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Model</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="e.g., Ring Pro 2, Nest Cam"
+                        value={newCamera.model}
+                        onChange={(e) => setNewCamera({ ...newCamera, model: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Installation Date</label>
+                      <input 
+                        required
+                        type="date"
+                        value={newCamera.installation_date}
+                        onChange={(e) => setNewCamera({ ...newCamera, installation_date: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Initial Notes</label>
+                    <textarea 
+                      rows={3}
+                      value={newCamera.notes}
+                      onChange={(e) => setNewCamera({ ...newCamera, notes: e.target.value })}
+                      className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold resize-none"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full py-6 bg-ruby text-white rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-ruby/20"
+                  >
+                    Register Hardware
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Send Notice Modal */}
       <AnimatePresence>
@@ -365,6 +535,65 @@ export const AdminLegalLog: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'cameras' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-app-text/5 border-b border-app-text/5">
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Property</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Location / Model</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Status</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40">Last Update</th>
+                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-app-text/40 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-app-text/5">
+                  {cameras.map((camera) => (
+                    <tr key={camera.id} className="hover:bg-app-text/[0.02] transition-colors group">
+                      <td className="px-8 py-6">
+                        <div className="font-bold text-app-text">{camera.property_name}</div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="font-bold text-app-text">{camera.location}</div>
+                        <div className="text-xs text-app-text/40">{camera.model}</div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <select 
+                          value={camera.status}
+                          onChange={(e) => updateCameraStatus(camera.id, e.target.value)}
+                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border-none focus:ring-2 focus:ring-ruby/20 ${
+                            camera.status === 'Operational' ? 'bg-ruby/10 text-ruby' :
+                            camera.status === 'Offline' ? 'bg-app-accent/10 text-app-accent' :
+                            'bg-orange-100 text-orange-600'
+                          }`}
+                        >
+                          <option value="Operational">Operational</option>
+                          <option value="Maintenance Required">Maintenance</option>
+                          <option value="Offline">Offline</option>
+                        </select>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="text-xs text-app-text font-medium">{new Date(camera.last_update).toLocaleString()}</div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <button className="p-3 bg-app-text/5 text-app-text/40 rounded-xl hover:text-app-text transition-colors">
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {cameras.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-12 text-center text-app-text/40 italic font-medium">
+                        No security cameras registered.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           {activeTab === 'notices' && (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -382,7 +611,7 @@ export const AdminLegalLog: React.FC = () => {
                     <tr key={notice.id} className="hover:bg-app-text/[0.02] transition-colors group">
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
+                          <div className="w-10 h-10 rounded-full bg-ruby/10 flex items-center justify-center text-ruby font-bold text-xs">
                             {notice.unit_number}
                           </div>
                           <div>
@@ -398,8 +627,8 @@ export const AdminLegalLog: React.FC = () => {
                       <td className="px-8 py-6">
                         <div className="flex flex-col gap-2">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit ${
-                            notice.status === 'Acknowledged' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                            notice.status === 'Viewed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                            notice.status === 'Acknowledged' ? 'bg-ruby/10 text-ruby border border-ruby/20' :
+                            notice.status === 'Viewed' ? 'bg-ruby/5 text-ruby/60 border border-ruby/10' :
                             'bg-orange-50 text-orange-600 border border-orange-100'
                           }`}>
                             {notice.status === 'Acknowledged' && <CheckCircle2 className="w-3 h-3" />}
@@ -408,7 +637,7 @@ export const AdminLegalLog: React.FC = () => {
                             {notice.status}
                           </span>
                           {notice.acknowledged_at && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-tighter rounded w-fit">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-ruby text-white text-[8px] font-black uppercase tracking-tighter rounded w-fit">
                               <ShieldCheck className="w-2 h-2" /> Verified Defense
                             </span>
                           )}
@@ -417,11 +646,11 @@ export const AdminLegalLog: React.FC = () => {
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center gap-1">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                            <div className="w-2 h-2 rounded-full bg-ruby shadow-[0_0_8px_rgba(155,17,30,0.5)]" />
                             <div className="w-0.5 h-4 bg-app-text/10" />
                             <div className={`w-2 h-2 rounded-full ${notice.viewed_at ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-app-text/10'}`} />
                             <div className="w-0.5 h-4 bg-app-text/10" />
-                            <div className={`w-2 h-2 rounded-full ${notice.acknowledged_at ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-app-text/10'}`} />
+                            <div className={`w-2 h-2 rounded-full ${notice.acknowledged_at ? 'bg-ruby shadow-[0_0_8px_rgba(155,17,30,0.5)]' : 'bg-app-text/10'}`} />
                           </div>
                           <div className="space-y-3">
                             <div className="text-[10px] leading-none">
@@ -541,7 +770,7 @@ export const AdminLegalLog: React.FC = () => {
             <div className="p-8 space-y-6">
               {laws.map((law) => (
                 <div key={law.id} className="p-8 rounded-[2rem] border border-app-text/5 bg-app-card shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-8 items-start">
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-500">
+                  <div className="p-4 rounded-2xl bg-ruby/10 text-ruby">
                     <Scale className="w-8 h-8" />
                   </div>
                   <div className="flex-grow space-y-3">
@@ -612,7 +841,7 @@ export const AdminLegalLog: React.FC = () => {
 
                   {/* Sent Step */}
                   <div className="relative">
-                    <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-emerald-500 border-4 border-app-card shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                    <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-ruby border-4 border-app-card shadow-[0_0_10px_rgba(155,17,30,0.5)]" />
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-black uppercase tracking-widest text-app-text">Notice Issued</span>
@@ -626,17 +855,17 @@ export const AdminLegalLog: React.FC = () => {
 
                   {/* Viewed Step */}
                   <div className="relative">
-                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.viewed_at ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-app-text/10'}`} />
+                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.viewed_at ? 'bg-ruby shadow-[0_0_10px_rgba(155,17,30,0.5)]' : 'bg-app-text/10'}`} />
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className={`text-xs font-black uppercase tracking-widest ${selectedAuditNotice.viewed_at ? 'text-app-text' : 'text-app-text/20'}`}>Tenant Viewed</span>
                         <span className="text-[10px] font-mono text-app-text/40">{selectedAuditNotice.viewed_at ? new Date(selectedAuditNotice.viewed_at).toLocaleString() : 'Pending'}</span>
                       </div>
                       {selectedAuditNotice.viewed_at ? (
-                        <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10 flex justify-between items-center">
+                        <div className="p-4 bg-ruby/5 rounded-2xl border border-ruby/10 flex justify-between items-center">
                           <div className="flex items-center gap-3">
-                            <Eye className="w-4 h-4 text-blue-500" />
-                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Read Receipt Confirmed</span>
+                            <Eye className="w-4 h-4 text-ruby" />
+                            <span className="text-[10px] font-bold text-ruby uppercase tracking-widest">Read Receipt Confirmed</span>
                           </div>
                           <span className="font-mono text-[10px] text-app-text/40 bg-white/50 px-2 py-0.5 rounded">IP: {selectedAuditNotice.viewed_ip}</span>
                         </div>
@@ -648,17 +877,17 @@ export const AdminLegalLog: React.FC = () => {
 
                   {/* Acknowledged Step */}
                   <div className="relative">
-                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.acknowledged_at ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-app-text/10'}`} />
+                    <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-app-card ${selectedAuditNotice.acknowledged_at ? 'bg-ruby shadow-[0_0_10px_rgba(155,17,30,0.5)]' : 'bg-app-text/10'}`} />
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className={`text-xs font-black uppercase tracking-widest ${selectedAuditNotice.acknowledged_at ? 'text-app-text' : 'text-app-text/20'}`}>Digital Acknowledgment</span>
                         <span className="text-[10px] font-mono text-app-text/40">{selectedAuditNotice.acknowledged_at ? new Date(selectedAuditNotice.acknowledged_at).toLocaleString() : 'Pending'}</span>
                       </div>
                       {selectedAuditNotice.acknowledged_at ? (
-                        <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex justify-between items-center">
+                        <div className="p-4 bg-ruby/5 rounded-2xl border border-ruby/10 flex justify-between items-center">
                           <div className="flex items-center gap-3">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Legally Binding Signature</span>
+                            <CheckCircle2 className="w-4 h-4 text-ruby" />
+                            <span className="text-[10px] font-bold text-ruby uppercase tracking-widest">Legally Binding Signature</span>
                           </div>
                           <span className="font-mono text-[10px] text-app-text/40 bg-white/50 px-2 py-0.5 rounded">IP: {selectedAuditNotice.acknowledged_ip}</span>
                         </div>
@@ -672,7 +901,7 @@ export const AdminLegalLog: React.FC = () => {
                 {selectedAuditNotice.acknowledged_at && (
                   <div className="p-6 bg-app-text text-app-bg rounded-3xl flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <ShieldCheck className="w-8 h-8 text-emerald-400" />
+                      <ShieldCheck className="w-8 h-8 text-ruby" />
                       <div>
                         <div className="text-sm font-black uppercase tracking-tighter">Defense-Ready Document</div>
                         <div className="text-[10px] font-bold text-app-bg/50 uppercase tracking-widest">Verified Chain of Custody Complete</div>
@@ -692,10 +921,10 @@ export const AdminLegalLog: React.FC = () => {
       {/* Audit Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Total Notices', value: notices.length, icon: ShieldCheck, color: 'text-blue-600' },
+          { label: 'Total Notices', value: notices.length, icon: ShieldCheck, color: 'text-ruby' },
           { label: 'Active Violations', value: violations.filter(v => v.status !== 'Resolved').length, icon: AlertTriangle, color: 'text-orange-600' },
-          { label: 'Ack Rate', value: `${Math.round((notices.filter(n => n.status === 'Acknowledged').length / (notices.length || 1)) * 100)}%`, icon: CheckCircle2, color: 'text-emerald-600' },
-          { label: 'Last Audit', value: 'Today', icon: Clock, color: 'text-purple-600' },
+          { label: 'Ack Rate', value: `${Math.round((notices.filter(n => n.status === 'Acknowledged').length / (notices.length || 1)) * 100)}%`, icon: CheckCircle2, color: 'text-ruby' },
+          { label: 'Last Audit', value: 'Today', icon: Clock, color: 'text-ruby' },
         ].map((stat) => (
           <div key={stat.label} className="p-6 rounded-3xl bg-app-card border border-app-text/5 shadow-sm flex items-center gap-4">
             <div className={`p-3 rounded-2xl bg-app-text/5 ${stat.color}`}>
@@ -708,6 +937,110 @@ export const AdminLegalLog: React.FC = () => {
           </div>
         ))}
       </div>
+      {/* Camera Modal */}
+      <AnimatePresence>
+        {isCameraModalOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCameraModalOpen(false)}
+              className="absolute inset-0 bg-[#050505]/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-app-card rounded-[3rem] border border-app-border shadow-2xl overflow-hidden"
+            >
+              <div className="p-12">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <h2 className="text-4xl font-black text-app-text uppercase tracking-tighter">Add Security Camera</h2>
+                    <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Register new hardware at 3875 Ruby</p>
+                  </div>
+                  <button onClick={() => setIsCameraModalOpen(false)} className="p-4 hover:bg-app-text/5 rounded-full transition-colors">
+                    <X className="w-6 h-6 text-app-text/40" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddCamera} className="space-y-8">
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Property</label>
+                      <select 
+                        required
+                        value={newCamera.property_id}
+                        onChange={(e) => setNewCamera({ ...newCamera, property_id: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      >
+                        <option value="">Select Property</option>
+                        {properties.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Location</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="e.g., Main Entrance, Garage"
+                        value={newCamera.location}
+                        onChange={(e) => setNewCamera({ ...newCamera, location: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Model</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="e.g., Ring Pro 2, Nest Cam"
+                        value={newCamera.model}
+                        onChange={(e) => setNewCamera({ ...newCamera, model: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Installation Date</label>
+                      <input 
+                        required
+                        type="date"
+                        value={newCamera.installation_date}
+                        onChange={(e) => setNewCamera({ ...newCamera, installation_date: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Initial Notes</label>
+                    <textarea 
+                      rows={3}
+                      value={newCamera.notes}
+                      onChange={(e) => setNewCamera({ ...newCamera, notes: e.target.value })}
+                      className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold resize-none"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full py-6 bg-ruby text-white rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-ruby/20"
+                  >
+                    Register Hardware
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };

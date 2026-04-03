@@ -34,13 +34,13 @@ interface MaintenanceRequest {
 }
 
 const STATUS_CONFIG: Record<string, { color: string, bg: string, icon: any }> = {
-  'Pending Review': { color: 'text-blue-500', bg: 'bg-blue-500/10', icon: Eye },
-  'Awaiting Approval': { color: 'text-orange-500', bg: 'bg-orange-500/10', icon: Shield },
+  'Pending Review': { color: 'text-ruby', bg: 'bg-ruby/10', icon: Eye },
+  'Awaiting Approval': { color: 'text-ruby-light', bg: 'bg-ruby-light/10', icon: Shield },
   'Escalated to Owner': { color: 'text-app-accent', bg: 'bg-app-accent/10', icon: AlertCircle },
-  'Approved': { color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
+  'Approved': { color: 'text-ruby', bg: 'bg-ruby/10', icon: CheckCircle2 },
   'In Progress': { color: 'text-purple-500', bg: 'bg-purple-500/10', icon: Hammer },
   'Pending Verification': { color: 'text-amber-500', bg: 'bg-amber-500/10', icon: Clock },
-  'Completed': { color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
+  'Completed': { color: 'text-ruby', bg: 'bg-ruby/10', icon: CheckCircle2 },
   'Rejected': { color: 'text-app-accent', bg: 'bg-app-accent/10', icon: XCircle },
 };
 
@@ -130,10 +130,10 @@ export const MaintenanceModule: React.FC = () => {
         if (needsOwner) {
           return { label: 'Escalate to Owner', next: 'Escalated to Owner', color: 'bg-red-500' };
         }
-        return { label: 'Approve & Assign', next: 'Approved', color: 'bg-emerald-500' };
+        return { label: 'Approve & Assign', next: 'Approved', color: 'bg-ruby' };
       
       case 'Escalated to Owner':
-        return { label: 'Owner Approve', next: 'Approved', color: 'bg-emerald-500' };
+        return { label: 'Owner Approve', next: 'Approved', color: 'bg-ruby' };
 
       case 'Approved': 
         return { label: 'Start Work', next: 'In Progress', color: 'bg-purple-500' };
@@ -142,7 +142,7 @@ export const MaintenanceModule: React.FC = () => {
         return { label: 'Complete Work', next: 'Pending Verification', color: 'bg-amber-500' };
       
       case 'Pending Verification': 
-        return { label: 'Verify & Close', next: 'Completed', color: 'bg-irish-green' };
+        return { label: 'Verify & Close', next: 'Completed', color: 'bg-ruby' };
       
       default: return null;
     }
@@ -275,10 +275,10 @@ export const MaintenanceModule: React.FC = () => {
                         }}
                         className={`w-full py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${
                           getNextStep(selectedRequest)?.next === 'Escalated to Owner' ? 'bg-app-accent' : 
-                          getNextStep(selectedRequest)?.next === 'Approved' ? 'bg-emerald-500' :
+                          getNextStep(selectedRequest)?.next === 'Approved' ? 'bg-ruby' :
                           getNextStep(selectedRequest)?.next === 'In Progress' ? 'bg-purple-500' :
                           getNextStep(selectedRequest)?.next === 'Pending Verification' ? 'bg-amber-500' :
-                          'bg-emerald-500'
+                          'bg-ruby'
                         }`}
                       >
                         {getNextStep(selectedRequest)?.label}

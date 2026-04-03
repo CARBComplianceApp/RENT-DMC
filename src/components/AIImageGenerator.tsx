@@ -79,20 +79,20 @@ export const AIPropertyVisualizer: React.FC = () => {
     <section className="py-24 px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-irish-orange/10 border border-irish-orange/20 text-irish-orange text-xs font-medium uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ruby/10 border border-ruby/20 text-ruby text-xs font-medium uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
             Flash 2.0 Powered
           </div>
           <h2 className="text-5xl font-bold tracking-tight text-white leading-tight font-serif">
-            Visualize Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-irish-green to-irish-orange">Property's Potential</span>
+            Visualize Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-ruby to-ruby-light">Property's Potential</span>
           </h2>
           <p className="text-lg text-zinc-400 leading-relaxed">
             Use our integrated AI to generate high-fidelity marketing visuals for your listings. 
-            Describe the vision, and RENT DMC handles the aesthetics.
+            Describe the vision, and SILVERBACKAI handles the aesthetics.
           </p>
           
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-irish-green to-irish-orange rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-1000"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-ruby to-ruby-light rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-1000"></div>
             <div className="relative flex flex-col p-2 bg-zinc-900 border border-zinc-800 rounded-2xl">
               {sourceImage && (
                 <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
@@ -128,7 +128,7 @@ export const AIPropertyVisualizer: React.FC = () => {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-3 text-zinc-500 hover:text-irish-green hover:bg-zinc-800 rounded-xl transition-all"
+                  className="p-3 text-zinc-500 hover:text-ruby hover:bg-zinc-800 rounded-xl transition-all"
                   title="Upload reference photo"
                 >
                   <Upload className="w-5 h-5" />
@@ -136,7 +136,7 @@ export const AIPropertyVisualizer: React.FC = () => {
                 <button
                   onClick={generateImage}
                   disabled={isGenerating || (!prompt.trim() && !sourceImage)}
-                  className="flex items-center gap-2 px-6 py-3 bg-irish-orange hover:bg-irish-orange-lt disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-semibold rounded-xl transition-all active:scale-95"
+                  className="flex items-center gap-2 px-6 py-3 bg-ruby hover:bg-ruby-light disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-semibold rounded-xl transition-all active:scale-95"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -162,7 +162,7 @@ export const AIPropertyVisualizer: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900/50 backdrop-blur-sm z-10"
               >
-                <div className="w-12 h-12 border-4 border-irish-green/20 border-t-irish-green rounded-full animate-spin" />
+                <div className="w-12 h-12 border-4 border-ruby/20 border-t-ruby rounded-full animate-spin" />
                 <p className="text-zinc-400 font-medium animate-pulse">Crafting your vision...</p>
               </motion.div>
             ) : generatedImage ? (

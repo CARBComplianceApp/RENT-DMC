@@ -244,6 +244,18 @@ db.exec(`
     insurance_expiry_date DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS security_cameras (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    property_id INTEGER,
+    location TEXT NOT NULL,
+    model TEXT NOT NULL,
+    installation_date DATE NOT NULL,
+    status TEXT DEFAULT 'Operational', -- 'Operational', 'Maintenance Required', 'Offline'
+    last_update DATETIME DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    FOREIGN KEY (property_id) REFERENCES properties(id)
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -857,6 +869,38 @@ async function startServer() {
   app.get("/api/vendors", (req, res) => {
     const vendors = db.prepare("SELECT * FROM vendors ORDER BY name ASC").all();
     res.json(vendors);
+  });
+
+  // Security Cameras Endpoints
+  app.get("/api/security-cameras", (req, res) => {
+    const cameras = db.prepare(`
+      SELECT sc.*, p.name as property_name 
+      FROM security_cameras sc
+      JOIN properties p ON sc.property_id = p.id
+      ORDER BY sc.last_update DESC
+    `).all();
+    res.json(cameras);
+  });
+
+  app.post("/api/security-cameras", (req, res) => {
+    const { property_id, location, model, installation_date, status, notes } = req.body;
+    const result = db.prepare(`
+      INSERT INTO security_cameras (property_id, location, model, installation_date, status, notes)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(property_id, location, model, installation_date, status || 'Operational', notes);
+    res.json({ id: result.lastInsertRowid });
+  });
+
+  app.patch("/api/security-cameras/:id", (req, res) => {
+    const { status, notes } = req.body;
+    db.prepare(`
+      UPDATE security_cameras 
+      SET status = COALESCE(?, status),
+          notes = COALESCE(?, notes),
+          last_update = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(status, notes, req.params.id);
+    res.json({ status: "ok" });
   });
 
   app.get("/api/me", (req, res) => {

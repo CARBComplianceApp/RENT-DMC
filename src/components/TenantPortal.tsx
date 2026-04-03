@@ -426,7 +426,7 @@ export const TenantPortal = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[
-                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-emerald-500/10 text-emerald-500' },
+                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
                         { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
                         { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
                       ].map((link) => (
@@ -535,7 +535,7 @@ export const TenantPortal = () => {
                     <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">{new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
                   </div>
                   <div className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 ${
-                    rentStatus?.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
+                    rentStatus?.status === 'Paid' ? 'bg-ruby/10 text-ruby' : 'bg-ruby-light/10 text-ruby-light'
                   }`}>
                     {rentStatus?.status === 'Paid' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />} 
                     {rentStatus?.status || 'Loading...'}
@@ -574,7 +574,7 @@ export const TenantPortal = () => {
                       className="p-4 rounded-2xl bg-app-text/[0.02] border border-app-text/5 hover:border-app-accent/20 transition-all cursor-pointer flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-xl ${notice.status === 'Acknowledged' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-app-accent/10 text-app-accent'}`}>
+                        <div className={`p-2 rounded-xl ${notice.status === 'Acknowledged' ? 'bg-ruby/10 text-ruby' : 'bg-app-accent/10 text-app-accent'}`}>
                           <FileWarning className="w-4 h-4" />
                         </div>
                         <div>
@@ -696,7 +696,7 @@ export const TenantPortal = () => {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-center text-[10px] font-bold text-emerald-500 uppercase tracking-widest"
+                      className="text-center text-[10px] font-bold text-ruby uppercase tracking-widest"
                     >
                       Report Sent Securely
                     </motion.div>
@@ -744,7 +744,7 @@ export const TenantPortal = () => {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-center text-sm font-bold text-emerald-500 uppercase tracking-widest"
+                      className="text-center text-sm font-bold text-ruby uppercase tracking-widest"
                     >
                       Request Logged Successfully
                     </motion.div>
@@ -764,7 +764,7 @@ export const TenantPortal = () => {
                       <div key={req.id} className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-border flex items-center justify-between gap-6">
                         <div className="flex items-center gap-6">
                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                            req.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
+                            req.status === 'Completed' ? 'bg-ruby/10 text-ruby' : 'bg-ruby-light/10 text-ruby-light'
                           }`}>
                             {req.status === 'Completed' ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                           </div>
@@ -840,8 +840,8 @@ export const TenantPortal = () => {
                     <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">Recognition Cameras</h3>
                     <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">Enhanced security & deterrence system active.</p>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Live System
+                  <div className="flex items-center gap-2 px-4 py-2 bg-ruby/10 text-ruby rounded-full text-[10px] font-bold uppercase tracking-widest">
+                    <div className="w-2 h-2 bg-ruby rounded-full animate-pulse" /> Live System
                   </div>
                 </div>
 
@@ -1002,7 +1002,7 @@ export const TenantPortal = () => {
               <div className="space-y-10">
                 <div className="flex items-center justify-between p-6 rounded-3xl bg-app-text/[0.02] border border-app-text/5">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+                    <div className="p-3 bg-ruby/10 text-ruby rounded-2xl">
                       <Smartphone className="w-6 h-6" />
                     </div>
                     <div>

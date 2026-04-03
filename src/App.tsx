@@ -707,11 +707,11 @@ export default function App() {
               </div>
               <div className="max-w-7xl mx-auto mt-24 pt-12 border-t border-app-border flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="text-[11px] font-bold text-app-text/60 uppercase tracking-[0.3em] font-mono text-center md:text-left">
-                  © 2026 RENT DMC TECHNOLOGIES. <span className="text-app-accent">OAKLAND SOUL.</span>
+                  © 2026 SILVERBACKAI.AGENCY. <span className="text-app-accent">OAKLAND SOUL.</span>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-[10px] font-black text-app-accent uppercase tracking-widest">Powered by</div>
-                  <div className="text-2xl font-black tracking-tighter text-app-text uppercase">RENT DMC</div>
+                  <div className="text-2xl font-black tracking-tighter text-app-text uppercase">SILVERBACKAI.AGENCY</div>
                 </div>
                 <div className="flex gap-10 text-[11px] font-bold uppercase tracking-widest text-app-text/60">
                   <a href="#" className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1">Privacy</a>
@@ -1007,6 +1007,18 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <footer className="py-12 border-t border-app-text/5 bg-app-card/30">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-ruby flex items-center justify-center text-white font-black text-xs">SB</div>
+            <span className="text-sm font-black text-app-text uppercase tracking-widest">Silverbackai.agency</span>
+          </div>
+          <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em]">
+            © 2026 Silverbackai.agency • All Rights Reserved • Software Provider
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -27,14 +27,14 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   const colors = {
     danger: 'bg-red-500/10 text-red-500 border-red-500/20',
-    warning: 'bg-irish-orange/10 text-irish-orange border-irish-orange/20',
-    info: 'bg-irish-green/10 text-irish-green border-irish-green/20'
+    warning: 'bg-ruby/10 text-ruby border-ruby/20',
+    info: 'bg-ruby/10 text-ruby border-ruby/20'
   };
 
   const btnColors = {
     danger: 'bg-red-600 hover:bg-red-500',
-    warning: 'bg-irish-orange hover:bg-irish-orange-lt',
-    info: 'bg-irish-green hover:bg-irish-green-lt'
+    warning: 'bg-ruby hover:bg-ruby-light',
+    info: 'bg-ruby hover:bg-ruby-light'
   };
 
   return (

@@ -64,7 +64,7 @@ export function MarketMaxModule() {
                   <span className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Projected</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-ruby"></div>
                   <span className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Actual</span>
                 </div>
               </div>
@@ -90,7 +90,7 @@ export function MarketMaxModule() {
               <div className="space-y-6">
                 <div className="flex justify-between items-end">
                   <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Target Occupancy</div>
-                  <div className="text-3xl font-serif font-bold text-emerald-500">{occupancySlider}%</div>
+                  <div className="text-3xl font-serif font-bold text-ruby">{occupancySlider}%</div>
                 </div>
                 <input 
                   type="range" 
@@ -99,7 +99,7 @@ export function MarketMaxModule() {
                   step="1"
                   value={occupancySlider}
                   onChange={(e) => setOccupancySlider(parseInt(e.target.value))}
-                  className="w-full h-2 bg-app-text/5 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                  className="w-full h-2 bg-app-text/5 rounded-lg appearance-none cursor-pointer accent-ruby"
                 />
               </div>
             </div>
@@ -111,8 +111,8 @@ export function MarketMaxModule() {
               </div>
               <div className="h-16 w-px bg-white/10 hidden md:block"></div>
               <div className="space-y-2">
-                <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Cashflow Surplus</div>
-                <div className="text-4xl font-serif font-bold italic text-emerald-500">+${(occupancySlider * 450).toLocaleString()}</div>
+                <div className="text-[10px] font-bold text-ruby uppercase tracking-widest">Cashflow Surplus</div>
+                <div className="text-4xl font-serif font-bold italic text-ruby">+${(occupancySlider * 450).toLocaleString()}</div>
               </div>
             </div>
           </div>
@@ -133,7 +133,7 @@ export function MarketMaxModule() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">Banked Rents</div>
-                    <div className="text-2xl font-serif font-bold text-emerald-500">${(p.banked_rents / 1000).toFixed(0)}K</div>
+                    <div className="text-2xl font-serif font-bold text-ruby">${(p.banked_rents / 1000).toFixed(0)}K</div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest">Projected ROI</div>
@@ -161,7 +161,7 @@ export function MarketMaxModule() {
             
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 bg-app-card rounded-2xl border border-app-text/5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-ruby/10 text-ruby flex items-center justify-center">
                   <ArrowUpRight className="w-5 h-5" />
                 </div>
                 <div className="flex-grow">

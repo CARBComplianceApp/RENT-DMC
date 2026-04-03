@@ -12,7 +12,8 @@ import {
   BarChart3,
   Wrench,
   X,
-  ArrowRight
+  ArrowRight,
+  Printer
 } from 'lucide-react';
 
 interface Slide {
@@ -26,63 +27,63 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    title: "The Ecosystem",
-    subtitle: "A Unified Vision for 3875 Ruby",
+    title: "The Homepage",
+    subtitle: "A Cinematic Entry Point",
     content: [
-      "Homepage: A cinematic entry point for owners, tenants, and prospects.",
-      "Stakeholder Alignment: Features tailored for every role in the portfolio.",
-      "Brand Identity: Consistent 'Ruby' aesthetic across all touchpoints."
+      "Dynamic Hero: High-definition visuals of 3875 Ruby with real-time weather overlays.",
+      "Stakeholder Hub: Instant routing for Owners, Tenants, and Prospective Residents.",
+      "Portfolio Pulse: A live ticker showing community updates and property milestones."
+    ],
+    icon: Zap,
+    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200",
+    color: "#9B111E"
+  },
+  {
+    title: "Resident Portal",
+    subtitle: "The Digital Home Experience",
+    content: [
+      "Mailbox Hub: A 'Stadium View' interface for managing deliveries and communications.",
+      "Lease Lifecycle: Visual progress bars for renewals, updates, and digital signatures.",
+      "Community Board: Private social layer for unit-to-unit engagement and events."
     ],
     icon: Users,
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200",
+    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200",
     color: "#9B111E"
   },
   {
-    title: "Tenant Portal",
-    subtitle: "The 'Stadium Hub' Experience",
+    title: "Owner Suite",
+    subtitle: "Executive Command & Control",
     content: [
-      "Immersive UI: Giants stadium theme behind home plate for the Mailbox Hub.",
-      "Self-Service: Maintenance reporting, rent payments, and lease updates.",
-      "Customization: Tenants can personalize their digital unit identity."
-    ],
-    icon: MessageSquare,
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200",
-    color: "#9B111E"
-  },
-  {
-    title: "Owner Features",
-    subtitle: "Real-Time Portfolio Intelligence",
-    content: [
-      "CEO Briefing: High-level metrics on ROI, occupancy, and liquidity.",
-      "AI Lease Generator: Legally vetted templates generated in seconds.",
-      "Market Max: Neighborhood data driving strategic rent adjustments."
+      "CEO Briefing: One-tap access to ROI, liquidity, and asset health metrics.",
+      "Legal Log: Chain-of-custody tracking for every notice and violation.",
+      "Market Intelligence: Real-time neighborhood data driving rent optimization."
     ],
     icon: BarChart3,
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
     color: "#9B111E"
   },
   {
-    title: "Rent Roll Precision",
-    subtitle: "Automated Collection & Reporting",
+    title: "Tenant Features",
+    subtitle: "Empowering the Modern Resident",
     content: [
-      "Dynamic Rent Roll: Real-time status of every unit in the portfolio.",
-      "SF Plus: Direct bank sync for automated transaction matching.",
-      "Late Fee Automation: Instant $50 application for overdue accounts."
+      "Maintenance 2.0: Photo-first reporting with real-time vendor tracking.",
+      "Flexible Payments: Split-rent options and automated credit building.",
+      "Smart Access: Digital keys and guest permission management."
+    ],
+    icon: Wrench,
+    image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?q=80&w=1200",
+    color: "#9B111E"
+  },
+  {
+    title: "The Rent Roll",
+    subtitle: "Precision Financial Management",
+    content: [
+      "Dynamic Ledger: Real-time status of every unit with automated reconciliation.",
+      "SF Plus Integration: Direct bank sync for zero-effort transaction matching.",
+      "Future-Proofing: Predictive analytics for vacancy risk and capital improvements."
     ],
     icon: CreditCard,
     image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200",
-    color: "#9B111E"
-  },
-  {
-    title: "Legal Defense",
-    subtitle: "Chain of Custody Tracking",
-    content: [
-      "Audit Trail: Every notice tracked with IP and Timestamp verification.",
-      "Compliance Shield: Automated updates for 2026 Oakland Rent Laws.",
-      "Verified Defense: Legally binding digital signatures and read receipts."
-    ],
-    icon: ShieldCheck,
-    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200",
     color: "#9B111E"
   }
 ];
@@ -93,17 +94,49 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
   const next = () => currentSlide < slides.length - 1 && setCurrentSlide(currentSlide + 1);
   const prev = () => currentSlide > 0 && setCurrentSlide(currentSlide - 1);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const slide = slides[currentSlide];
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#0B1A2D] flex flex-col">
-      <div className="absolute top-8 right-8 z-10">
+    <div className="fixed inset-0 z-[200] bg-[#0B1A2D] flex flex-col print:bg-white print:relative print:inset-auto print:z-0 print:flex-none">
+      {/* Print-only Styles */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: landscape; margin: 1cm; }
+          body { background: white !important; color: black !important; }
+          .no-print { display: none !important; }
+          .print-slide { 
+            page-break-after: always; 
+            display: flex !important; 
+            flex-direction: column;
+            height: 100vh;
+            padding: 2cm;
+            border: 1px solid #eee;
+          }
+          .print-slide:last-child { page-break-after: auto; }
+        }
+      `}} />
+
+      {/* Screen View Controls */}
+      <div className="absolute top-8 right-8 z-10 flex gap-4 no-print">
+        <button 
+          onClick={handlePrint}
+          className="p-4 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white flex items-center gap-2"
+          title="Print Presentation"
+        >
+          <Printer className="w-6 h-6" />
+          <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Print Deck</span>
+        </button>
         <button onClick={onClose} className="p-4 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white">
           <X className="w-6 h-6" />
         </button>
       </div>
 
-      <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
+      {/* Main Presentation View (Screen Only) */}
+      <div className="flex-grow flex flex-col lg:flex-row overflow-hidden no-print">
         {/* Visual Side */}
         <div className="w-full lg:w-1/2 relative h-64 lg:h-full overflow-hidden">
           <AnimatePresence mode="wait">
@@ -188,8 +221,8 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <div className="p-8 lg:p-12 border-t border-white/5 flex justify-between items-center bg-[#0B1A2D]">
+      {/* Navigation Bar (Screen Only) */}
+      <div className="p-8 lg:p-12 border-t border-white/5 flex justify-between items-center bg-[#0B1A2D] no-print">
         <div className="flex gap-4">
           <button 
             onClick={prev} 
@@ -225,6 +258,49 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
         </div>
+      </div>
+
+      {/* Print Layout (Hidden on Screen) */}
+      <div className="hidden print:block">
+        {slides.map((s, idx) => (
+          <div key={idx} className="print-slide">
+            <div className="flex justify-between items-start mb-12">
+              <div>
+                <div className="text-[10px] font-bold text-[#9B111E] uppercase tracking-[0.4em] mb-4">Vision Deck // Slide {idx + 1}</div>
+                <h1 className="text-4xl font-black uppercase tracking-tighter text-black">{s.title}</h1>
+                <p className="text-xl italic text-gray-500 font-serif mt-2">{s.subtitle}</p>
+              </div>
+              <div className="w-12 h-12 bg-[#9B111E] rounded-xl flex items-center justify-center">
+                <s.icon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-12 flex-grow">
+              <div className="space-y-6">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Key Points</h3>
+                {s.content.map((item, i) => (
+                  <div key={i} className="flex items-start gap-4">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#9B111E] shrink-0" />
+                    <p className="text-gray-700 leading-relaxed">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-l border-gray-100 pl-12 flex flex-col">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Notes</h3>
+                <div className="flex-grow border-b border-dashed border-gray-200 mb-4" />
+                <div className="flex-grow border-b border-dashed border-gray-200 mb-4" />
+                <div className="flex-grow border-b border-dashed border-gray-200 mb-4" />
+                <div className="flex-grow border-b border-dashed border-gray-200 mb-4" />
+                <div className="flex-grow border-b border-dashed border-gray-200 mb-4" />
+              </div>
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <div>3875 Ruby Street // Asset Management Suite</div>
+              <div>Silverbackai.agency</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

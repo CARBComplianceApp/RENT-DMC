@@ -61,10 +61,10 @@ export const MarketingModule: React.FC = () => {
 
   const getColor = (type: string) => {
     switch (type) {
-      case 'transit': return 'text-blue-400 bg-blue-400/10';
-      case 'hospital': return 'text-red-400 bg-red-400/10';
-      case 'park': return 'text-emerald-400 bg-emerald-400/10';
-      case 'highway': return 'text-orange-400 bg-orange-400/10';
+      case 'transit': return 'text-ruby bg-ruby/10';
+      case 'hospital': return 'text-ruby-light bg-ruby-light/10';
+      case 'park': return 'text-ruby bg-ruby/10';
+      case 'highway': return 'text-ruby-light bg-ruby-light/10';
       default: return 'text-zinc-400 bg-zinc-400/10';
     }
   };
@@ -76,7 +76,7 @@ export const MarketingModule: React.FC = () => {
           <h2 className="text-3xl font-serif font-black text-white tracking-tight">Location Intelligence</h2>
           <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">Marketing Proximity Data • Silverback Grounding</p>
         </div>
-        <div className="px-4 py-2 rounded-xl bg-irish-orange/10 border border-irish-orange/20 text-[10px] font-black text-irish-orange uppercase tracking-widest flex items-center gap-2">
+        <div className="px-4 py-2 rounded-xl bg-ruby/10 border border-ruby/20 text-[10px] font-black text-ruby uppercase tracking-widest flex items-center gap-2">
           <Info className="w-3 h-3" /> Live Maps Data
         </div>
       </div>
@@ -110,7 +110,7 @@ export const MarketingModule: React.FC = () => {
         </div>
       )}
 
-      <div className="p-8 rounded-[2.5rem] bg-irish-green/5 border border-irish-green/10 flex flex-col md:flex-row items-center gap-8">
+      <div className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/10 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1 space-y-4">
           <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Marketing Advantage</h3>
           <p className="text-zinc-400 leading-relaxed">
@@ -125,7 +125,7 @@ export const MarketingModule: React.FC = () => {
         </div>
         <div className="w-full md:w-64 aspect-square rounded-3xl bg-zinc-800 border border-white/10 flex items-center justify-center overflow-hidden">
           <div className="text-center p-6">
-            <MapPin className="w-12 h-12 text-irish-green mx-auto mb-4" />
+            <MapPin className="w-12 h-12 text-ruby mx-auto mb-4" />
             <p className="text-xs font-black text-white uppercase tracking-widest">Interactive Map View</p>
             <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest">Coming Soon</p>
           </div>

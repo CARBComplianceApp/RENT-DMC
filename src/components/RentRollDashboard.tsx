@@ -894,8 +894,8 @@ Are you absolutely sure you want to proceed?`,
                         <div key={msg.id} className="p-4 rounded-xl bg-app-text/5 border border-app-border space-y-2 hover:bg-app-text/[0.07] transition-colors">
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full ${msg.sender === 'Manager' ? 'bg-app-accent' : 'bg-blue-400'}`} />
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.sender === 'Manager' ? 'text-app-accent' : 'text-blue-400'}`}>
+                              <div className={`w-1.5 h-1.5 rounded-full ${msg.sender === 'Manager' ? 'bg-app-accent' : 'bg-ruby-light'}`} />
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.sender === 'Manager' ? 'text-app-accent' : 'text-ruby-light'}`}>
                                 {msg.sender}
                               </span>
                             </div>
@@ -1132,7 +1132,7 @@ Are you absolutely sure you want to proceed?`,
                               <div className="flex justify-between items-start mb-2">
                                 <div className="text-xs font-bold text-app-text">{n.title}</div>
                                 <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
-                                  n.status === 'Acknowledged' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-app-accent/20 text-app-accent'
+                                  n.status === 'Acknowledged' ? 'bg-ruby/20 text-ruby' : 'bg-app-accent/20 text-app-accent'
                                 }`}>
                                   {n.status}
                                 </span>
@@ -1245,7 +1245,7 @@ Are you absolutely sure you want to proceed?`,
                             <td className="py-2 font-bold">{n.title}</td>
                             <td className="py-2">{new Date(n.sent_at).toLocaleDateString()}</td>
                             <td className="py-2">{n.viewed_at ? new Date(n.viewed_at).toLocaleDateString() : 'N/A'}</td>
-                            <td className="py-2 font-bold text-emerald-600">{n.acknowledged_at ? new Date(n.acknowledged_at).toLocaleString() : 'PENDING'}</td>
+                            <td className="py-2 font-bold text-ruby">{n.acknowledged_at ? new Date(n.acknowledged_at).toLocaleString() : 'PENDING'}</td>
                             <td className="py-2 text-right font-mono text-[10px]">{n.acknowledged_ip || n.viewed_ip || 'N/A'}</td>
                           </tr>
                         ))}

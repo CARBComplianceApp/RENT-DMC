@@ -19,7 +19,7 @@ const hotspots = [
     icon: ShieldCheck,
     top: '65%',
     left: '48%',
-    color: 'bg-blue-500'
+    color: 'bg-ruby'
   },
   {
     id: 'fiber',
@@ -28,7 +28,7 @@ const hotspots = [
     icon: Zap,
     top: '15%',
     left: '70%',
-    color: 'bg-emerald-500'
+    color: 'bg-ruby'
   },
   {
     id: 'hvac',
