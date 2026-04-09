@@ -367,23 +367,23 @@ export const TenantPortal = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative min-h-[800px] rounded-[4rem] overflow-hidden shadow-2xl bg-[#0B1A2D] group"
+            className="relative min-h-[800px] rounded-[4rem] overflow-hidden shadow-2xl bg-[#2A1810] group"
           >
-            {/* Background: Oracle Park / SF Bay Vibe */}
+            {/* Background: Baseball Field Dirt / Warm Tone */}
             <div className="absolute inset-0 z-0">
               <img 
-                src="https://images.unsplash.com/photo-1541467522944-75d65e5952a3?q=80&w=2000&auto=format&fit=crop" 
-                alt="SF Bay View" 
-                className="w-full h-full object-cover opacity-30 grayscale brightness-[0.6]"
+                src="https://images.unsplash.com/photo-1558365849-6ebd8b0454b2?q=80&w=2000&auto=format&fit=crop" 
+                alt="Field Dirt" 
+                className="w-full h-full object-cover opacity-20 mix-blend-overlay"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1A2D] via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F0A] via-[#2A1810]/80 to-[#2A1810]/40"></div>
             </div>
 
             {/* Stadium Architecture Elements */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               {/* The "Field" */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] bg-ruby-dark/20 rounded-[100%] blur-3xl transform -rotate-2"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] bg-[#3D2314]/40 rounded-[100%] blur-3xl transform -rotate-2"></div>
               {/* Stadium Arches */}
               <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/40 to-transparent flex justify-around px-20">
                 {[...Array(8)].map((_, i) => (
@@ -461,10 +461,29 @@ export const TenantPortal = () => {
                 ))}
               </div>
 
-              {/* SF Bay / Field Hint */}
-              <div className="mt-20 flex flex-col items-center gap-4 opacity-40">
-                <div className="w-1 h-20 bg-gradient-to-b from-white/20 to-transparent"></div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-white">Field & SF Bay View</div>
+              {/* Contact & Map Info */}
+              <div className="mt-20 w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
+                    <Smartphone className="w-5 h-5 text-app-accent" />
+                  </div>
+                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Management</div>
+                  <div className="text-sm font-black text-white">(510) 555-0199</div>
+                </div>
+                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
+                    <Mail className="w-5 h-5 text-app-accent" />
+                  </div>
+                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Email Us</div>
+                  <div className="text-sm font-black text-white">hello@3875ruby.com</div>
+                </div>
+                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
+                    <MapPin className="w-5 h-5 text-app-accent" />
+                  </div>
+                  <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Location</div>
+                  <div className="text-sm font-black text-white">3875 Ruby St, Oakland</div>
+                </div>
               </div>
 
               {/* Quick Links Overlay when a mailbox is selected */}

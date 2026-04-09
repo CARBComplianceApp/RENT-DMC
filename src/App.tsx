@@ -260,12 +260,27 @@ export default function App() {
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.5, delay: 0.2 }}
-                    className="hidden lg:block"
+                    className="hidden lg:block relative h-[600px] w-full rounded-[3rem] overflow-hidden shadow-2xl border border-white/10"
                   >
-                    <NeighborhoodRadiusMap />
+                    <img 
+                      src="https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1?q=80&w=1000&auto=format&fit=crop" 
+                      alt="Historic Oakland Building" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1A2D] via-transparent to-transparent opacity-80"></div>
+                    <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+                      <div>
+                        <div className="text-[10px] font-bold text-app-accent uppercase tracking-widest mb-2">The Ruby Building</div>
+                        <div className="text-2xl font-serif italic text-white">Historic Charm. Modern Living.</div>
+                      </div>
+                      <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                        <Camera className="w-5 h-5 text-white" />
+                      </div>
+                    </div>
                   </motion.div>
                 </div>
               </div>
