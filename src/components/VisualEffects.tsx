@@ -26,7 +26,7 @@ export const ShimmerEffect: React.FC<{ children: React.ReactNode; className?: st
 
 export const ShimmerBackground: React.FC = () => {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#050505]">
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#1A1616]">
       <motion.div
         className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full opacity-20 blur-[120px]"
         animate={{
@@ -36,7 +36,7 @@ export const ShimmerBackground: React.FC = () => {
           y: [0, 30, 0],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        style={{ background: 'radial-gradient(circle, #4f46e5, transparent)' }}
+        style={{ background: 'radial-gradient(circle, #A64B4B, transparent)' }}
       />
       <motion.div
         className="absolute top-[40%] -right-[10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[120px]"
@@ -47,7 +47,7 @@ export const ShimmerBackground: React.FC = () => {
           y: [0, 60, 0],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        style={{ background: 'radial-gradient(circle, #06b6d4, transparent)' }}
+        style={{ background: 'radial-gradient(circle, #D18E8E, transparent)' }}
       />
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
     </div>

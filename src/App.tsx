@@ -59,11 +59,12 @@ import { useTheme } from './components/ThemeContext';
 import { CEOBriefingPortal } from './components/CEOBriefingPortal';
 import { SFPlusModule } from './components/SFPlusModule';
 import { MarketMaxModule } from './components/MarketMaxModule';
-import { AdminLegalLog } from './components/AdminLegalLog';
+import { TenantConcernsModule } from './components/TenantConcernsModule';
 import { VendorManagement } from './components/VendorManagement';
 import { BuildingIntelligence } from './components/BuildingIntelligence';
 import { ProductTour } from './components/ProductTour';
 import { OwnerPresentation } from './components/OwnerPresentation';
+import { NeighborhoodRadiusMap } from './components/NeighborhoodRadiusMap';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -75,15 +76,16 @@ const revenueData = [
 ];
 
 const distributionData = [
-  { name: 'Residential', value: 65, color: '#C14931' },
-  { name: 'Commercial', value: 25, color: '#991b1b' },
-  { name: 'Short-term', value: 10, color: '#450a0a' },
+  { name: 'Residential', value: 65, color: '#A64B4B' },
+  { name: 'Commercial', value: 25, color: '#7A3333' },
+  { name: 'Short-term', value: 10, color: '#D18E8E' },
 ];
 
 export default function App() {
   const { theme } = useTheme();
   const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'legal-log' | 'vendors'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'vendors' | 'concerns'>('portfolio');
+  const [rentRollUnlocked, setRentRollUnlocked] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOwnerVision, setShowOwnerVision] = useState(false);
 
@@ -100,9 +102,9 @@ export default function App() {
       <nav className={`fixed top-0 w-full z-50 border-b border-app-border bg-app-bg/80 backdrop-blur-xl transition-all duration-500`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex flex-col -space-y-1">
-              <span className={`text-xl font-black tracking-tighter text-app-text`}>3875 RUBY</span>
-              <span className={`text-[8px] font-bold text-app-accent uppercase tracking-[0.2em]`}>Oakland Soul</span>
+            <div className="flex items-center gap-1 font-black tracking-tighter text-2xl">
+              <span className="text-white">RENT-</span>
+              <span className="text-app-accent">RUBY</span>
             </div>
           </div>
           
@@ -112,7 +114,6 @@ export default function App() {
                 <a href="#about" className="text-app-text/60 hover:text-app-text transition-colors">About</a>
                 <a href="#amenities" className="text-app-text/60 hover:text-app-text transition-colors">Amenities</a>
                 <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
-                <a href="#product-tour" className="text-app-text/60 hover:text-app-text transition-colors">Platform</a>
                 <a href="#gallery" className="text-app-text/60 hover:text-app-text transition-colors">Gallery</a>
               </>
             ) : (
@@ -215,6 +216,9 @@ export default function App() {
           >
             {/* Hero Section */}
             <section className="relative h-[90vh] flex items-center overflow-hidden bg-[#0B1A2D]">
+              {/* Grass-like organic background hint */}
+              <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom,_#061a12_0%,_transparent_70%)] opacity-40"></div>
+              
               <div className="absolute inset-0 z-0 opacity-20">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-app-accent/20 via-transparent to-transparent"></div>
                 <div className="grid grid-cols-8 h-full w-full">
@@ -231,59 +235,86 @@ export default function App() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 1, ease: "easeOut" }}
                   >
-                    <div className="inline-block px-4 py-2 bg-app-accent text-white text-[10px] font-bold uppercase tracking-[0.4em] mb-8 rounded-full shadow-xl">
-                      Est. 1924 // Oakland, CA
+                    <div className="inline-block px-6 py-2 bg-app-accent text-white text-[10px] font-bold uppercase tracking-[0.2em] mb-8 rounded-sm">
+                      EST. 1924 // OAKLAND, CA
                     </div>
-                    <h1 className="text-7xl md:text-[10rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
-                      RUBY <br /> <span className="text-app-accent">SOUL.</span>
+                    <h1 className="text-7xl md:text-[11rem] font-sans font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl uppercase">
+                      LIVE <br /> <span className="text-app-accent">RUBY.</span>
                     </h1>
-                    <div className="mt-12 text-2xl md:text-4xl font-serif italic text-white max-w-xl leading-tight">
-                      Where 1920s Craftsmanship <br /> meets the <span className="underline decoration-app-accent underline-offset-8">progress of 100 years</span>.
+                    <div className="mt-12 text-2xl md:text-6xl font-serif italic text-white max-w-2xl leading-tight">
+                      The Ultimate <span className="text-app-accent">Oakland</span> Lifestyle.
+                    </div>
+                    <div className="mt-8 flex items-center gap-2">
+                      <span className="text-xl font-sans font-bold text-blue-400 uppercase tracking-tight">POSITIVE VIBES LIVE HERE</span>
+                      <span className="text-xl font-sans font-bold text-white/40 uppercase tracking-tight">STORY.</span>
                     </div>
                     <div className="mt-12 flex flex-col sm:flex-row gap-6">
-                      <button className="px-10 py-5 bg-app-accent text-white font-black text-sm uppercase tracking-widest rounded-full hover:bg-white hover:text-app-text transition-all shadow-2xl hover:scale-105">
-                        Explore Units
+                      <button className="px-12 py-5 bg-app-accent text-white font-black text-sm uppercase tracking-widest rounded-full hover:opacity-90 transition-all shadow-lg">
+                        Claim Your Unit
                       </button>
-                      <div className="flex items-center gap-4 px-6 py-3 bg-white/5 backdrop-blur-md rounded-full border border-white/10">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">2 Units Available Now</span>
+                      <div className="flex items-center gap-4 px-8 py-5 bg-white/5 backdrop-blur-md rounded-full border border-white/10">
+                        <div className="w-2 h-2 bg-ruby rounded-full animate-pulse" />
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Only 2 Units Left</span>
                       </div>
                     </div>
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="space-y-8"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1.5, delay: 0.2 }}
+                    className="hidden lg:block"
                   >
-                    <div className="text-xs font-bold text-app-accent uppercase tracking-[0.4em] mb-4">Neighborhood Landmarks</div>
-                    <div className="grid grid-cols-1 gap-4">
-                      {[
-                        { name: 'Mosswood Park', dist: '0.1 miles', desc: 'Historic green space & recreation' },
-                        { name: 'MacArthur BART', dist: '0.4 miles', desc: '10-minute walk to transit heart' },
-                        { name: 'Kaiser Permanente', dist: '0.3 miles', desc: 'Premier medical district access' },
-                        { name: 'Piedmont Avenue', dist: '0.6 miles', desc: 'Boutique dining & shopping' },
-                        { name: 'Alta Bates Summit', dist: '0.5 miles', desc: 'Leading healthcare center' }
-                      ].map((item, i) => (
-                        <motion.div 
-                          key={item.name}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + (i * 0.1) }}
-                          className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-app-accent/40 transition-all group flex items-center justify-between"
-                        >
-                          <div>
-                            <h4 className="text-xl font-bold text-white uppercase tracking-tight">{item.name}</h4>
-                            <p className="text-xs text-white/40 uppercase tracking-widest mt-1">{item.desc}</p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-app-accent font-serif italic text-lg">{item.dist}</div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                    <NeighborhoodRadiusMap />
                   </motion.div>
+                </div>
+              </div>
+            </section>
+
+            {/* Neighborhood Landmarks Section */}
+            <section id="neighborhood" className="py-24 bg-[#0B1A2D] relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                  <div>
+                    <div className="text-[10px] font-bold text-app-accent uppercase tracking-[0.2em] mb-4">NEIGHBORHOOD LANDMARKS</div>
+                    <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Everything Within <span className="italic text-app-accent">Reach</span>.</h2>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white/40 text-xs font-bold uppercase tracking-widest max-w-xs">
+                      Located in the heart of Oakland's medical and transit district.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    { name: 'Mosswood Park', dist: '0.1 miles', desc: 'Historic green space & recreation', icon: TreePine },
+                    { name: 'MacArthur BART', dist: '0.4 miles', desc: '10-minute walk to transit heart', icon: Train },
+                    { name: 'Kaiser Permanente', dist: '0.3 miles', desc: 'Premier medical district access', icon: Hospital },
+                    { name: 'Piedmont Avenue', dist: '0.6 miles', desc: 'Boutique dining & shopping', icon: Coffee },
+                    { name: 'Alta Bates Summit', dist: '0.5 miles', desc: 'Leading healthcare center', icon: Hospital },
+                    { name: 'Temescal District', dist: '0.8 miles', desc: 'Oakland\'s trendiest food scene', icon: MapPin }
+                  ].map((item, i) => (
+                    <motion.div 
+                      key={item.name}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:border-app-accent/40 transition-all group flex flex-col justify-between h-64"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="p-3 bg-app-accent/10 rounded-2xl text-app-accent group-hover:bg-app-accent group-hover:text-white transition-all">
+                          <item.icon className="w-6 h-6" />
+                        </div>
+                        <div className="text-app-accent font-serif italic text-2xl">{item.dist}</div>
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-bold text-white uppercase tracking-tighter">{item.name}</h4>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1 font-bold">{item.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -292,9 +323,9 @@ export default function App() {
             <section className="py-24 px-6 max-w-7xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                  { title: 'Transit Heart', desc: 'A 10-minute stroll to MacArthur BART connects you to the entire Bay Area.', icon: Train, color: 'bg-blue-50 text-blue-600' },
-                  { title: 'Secure Living', desc: '24/7 Amazon Hub lockers ensure your packages are as safe as your home.', icon: Package, color: 'bg-orange-50 text-orange-600' },
-                  { title: 'Mosswood Vibe', desc: 'Acres of historic green space and recreation right at your doorstep.', icon: TreePine, color: 'bg-emerald-50 text-emerald-600' },
+                  { title: 'Transit Heart', desc: 'A 10-minute stroll to MacArthur BART connects you to the entire Bay Area.', icon: Train, color: 'bg-ruby/10 text-ruby' },
+                  { title: 'Secure Living', desc: '24/7 Amazon Hub lockers ensure your packages are as safe as your home.', icon: Package, color: 'bg-ruby-light/10 text-ruby-light' },
+                  { title: 'Mosswood Vibe', desc: 'Acres of historic green space and recreation right at your doorstep.', icon: TreePine, color: 'bg-ruby/10 text-ruby' },
                   { title: 'Medical Hub', desc: 'Steps from Kaiser and Alta Bates—the city\'s premier medical district.', icon: Hospital, color: 'bg-red-50 text-red-600' },
                 ].map((item, i) => (
                   <motion.div
@@ -643,7 +674,7 @@ export default function App() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-ruby/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                       <div className="text-white font-serif italic text-3xl">Mosswood Green</div>
                     </div>
                   </div>
@@ -669,7 +700,7 @@ export default function App() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-emerald-500/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-ruby/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                       Temescal Vibe
                     </div>
                   </div>
@@ -736,6 +767,21 @@ export default function App() {
                   <p className="text-app-text/50 mt-2">Secure management for 3875 Ruby Street.</p>
                 </div>
                 <div className="flex gap-4">
+                  <div className="flex flex-col items-end mr-4 border-r border-app-border pr-6">
+                    <div className="text-[10px] font-bold text-app-accent uppercase tracking-widest">Emergency 24/7</div>
+                    <div className="text-lg font-black text-app-text">(510) 555-9111</div>
+                  </div>
+                  <button 
+                    onDoubleClick={() => {
+                      setRentRollUnlocked(true);
+                      setAdminTab('rent-roll');
+                    }}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all shadow-sm ${
+                      rentRollUnlocked ? 'bg-ruby text-white' : 'bg-app-card border border-app-border text-app-text/40'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4" /> {rentRollUnlocked ? 'Executive Rent Roll' : 'Double Click for Rent Roll'}
+                  </button>
                   <button 
                     onClick={() => {
                       const url = window.location.href;
@@ -746,25 +792,22 @@ export default function App() {
                   >
                     <Share2 className="w-4 h-4" /> Share Hub
                   </button>
-                  <button className="px-6 py-3 bg-app-accent text-white rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-md">
-                    Download Report
-                  </button>
                 </div>
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {[
-                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50/50' },
-                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50/50' },
-                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50/50' },
+                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-ruby', bg: 'bg-ruby/5' },
+                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5' },
+                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-ruby-light', bg: 'bg-ruby-light/5' },
                 ].map((stat) => (
                   <div key={stat.label} className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group`}>
                     <div className="flex justify-between items-start mb-6">
                       <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
                         <stat.icon className={`w-8 h-8 ${stat.color}`} />
                       </div>
-                      <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">{stat.trend}</span>
+                      <span className="text-xs font-bold text-ruby bg-ruby/5 px-3 py-1 rounded-full border border-ruby/10">{stat.trend}</span>
                     </div>
                     <div className="text-xs font-bold text-app-text/40 uppercase tracking-[0.2em]">{stat.label}</div>
                     <div className="text-5xl font-serif font-black mt-2 text-app-text">{stat.value}</div>
@@ -809,7 +852,7 @@ export default function App() {
                     <h3 className="text-2xl font-serif font-bold text-app-text">Revenue Intelligence</h3>
                     <div className="flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-app-accent"></div>
-                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-ruby"></div>
                     </div>
                   </div>
                   <div className="h-[300px]">
@@ -837,9 +880,9 @@ export default function App() {
                   <h3 className="text-2xl font-serif font-bold mb-8">Recent Activity</h3>
                   <div className="space-y-6">
                     {[
-                      { user: 'Unit 4B', action: 'Rent Payment Received', time: '2 hours ago', icon: DollarSign, color: 'bg-emerald-50 text-emerald-600' },
-                      { user: 'Unit 2A', action: 'Maintenance Request: Sink', time: '5 hours ago', icon: Activity, color: 'bg-orange-50 text-orange-600' },
-                      { user: 'System', action: 'New Lease Generated: 3C', time: '1 day ago', icon: FileText, color: 'bg-blue-50 text-blue-600' },
+                      { user: 'Unit 4B', action: 'Rent Payment Received', time: '2 hours ago', icon: DollarSign, color: 'bg-ruby/10 text-ruby' },
+                      { user: 'Unit 2A', action: 'Maintenance Request: Sink', time: '5 hours ago', icon: Activity, color: 'bg-ruby-light/10 text-ruby-light' },
+                      { user: 'System', action: 'New Lease Generated: 3C', time: '1 day ago', icon: FileText, color: 'bg-ruby/10 text-ruby' },
                       { user: 'Unit 1A', action: 'Package Delivered to Hub', time: '1 day ago', icon: Package, color: 'bg-purple-50 text-purple-600' },
                     ].map((activity, i) => (
                       <div key={i} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-app-text/5 transition-colors cursor-pointer group">
@@ -867,8 +910,14 @@ export default function App() {
                   {adminTab === 'portfolio' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
-                  onClick={() => setAdminTab('rent-roll')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'rent-roll' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
+                  onClick={() => {
+                    if (rentRollUnlocked) {
+                      setAdminTab('rent-roll');
+                    } else {
+                      alert('Double click the "Double Click for Rent Roll" button in the header to access this sensitive data.');
+                    }
+                  }}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'rent-roll' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'} ${!rentRollUnlocked ? 'opacity-30 cursor-not-allowed' : ''}`}
                 >
                   Rent Roll
                   {adminTab === 'rent-roll' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
@@ -916,11 +965,11 @@ export default function App() {
                   {adminTab === 'marketmax' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
-                  onClick={() => setAdminTab('legal-log')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'legal-log' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
+                  onClick={() => setAdminTab('concerns')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'concerns' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
-                  Legal Log
-                  {adminTab === 'legal-log' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
+                  Tenant Concerns
+                  {adminTab === 'concerns' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('vendors')}
@@ -968,9 +1017,9 @@ export default function App() {
                 <section id="marketmax" className="py-12">
                   <MarketMaxModule />
                 </section>
-              ) : adminTab === 'legal-log' ? (
-                <section id="legal-log" className="py-12">
-                  <AdminLegalLog />
+              ) : adminTab === 'concerns' ? (
+                <section id="concerns" className="py-12">
+                  <TenantConcernsModule />
                 </section>
               ) : (
                 <section id="vendors" className="py-12">

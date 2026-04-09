@@ -18,6 +18,7 @@ import {
   Camera,
   X
 } from 'lucide-react';
+import { auth } from '../firebase';
 
 interface SecurityCamera {
   id: number;
@@ -109,6 +110,21 @@ export const AdminLegalLog: React.FC = () => {
   const [selectedAuditNotice, setSelectedAuditNotice] = useState<Notice | null>(null);
   const [newNotice, setNewNotice] = useState({ tenant_id: '', title: '', content: '' });
   const [newCamera, setNewCamera] = useState({ property_id: '', location: '', model: '', installation_date: '', status: 'Operational', notes: '' });
+
+  const logLibraryAccess = async (docId: number) => {
+    try {
+      await fetch('/api/legal-library-usage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          document_id: docId,
+          user_email: auth.currentUser?.email || 'Anonymous'
+        })
+      });
+    } catch (err) {
+      console.error("Failed to log library access:", err);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -520,12 +536,16 @@ export const AdminLegalLog: React.FC = () => {
                           href={doc.external_link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => logLibraryAccess(doc.id)}
                           className="flex-grow flex items-center justify-center gap-2 py-3 bg-app-text text-app-bg text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-app-accent hover:text-white transition-colors"
                         >
                           View Official <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
-                      <button className="p-3 bg-app-text/5 text-app-text/40 rounded-xl hover:text-app-text transition-colors">
+                      <button 
+                        onClick={() => logLibraryAccess(doc.id)}
+                        className="p-3 bg-app-text/5 text-app-text/40 rounded-xl hover:text-app-text transition-colors"
+                      >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
@@ -564,7 +584,7 @@ export const AdminLegalLog: React.FC = () => {
                           className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border-none focus:ring-2 focus:ring-ruby/20 ${
                             camera.status === 'Operational' ? 'bg-ruby/10 text-ruby' :
                             camera.status === 'Offline' ? 'bg-app-accent/10 text-app-accent' :
-                            'bg-orange-100 text-orange-600'
+                            'bg-ruby-light/10 text-ruby-light'
                           }`}
                         >
                           <option value="Operational">Operational</option>
@@ -629,7 +649,7 @@ export const AdminLegalLog: React.FC = () => {
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit ${
                             notice.status === 'Acknowledged' ? 'bg-ruby/10 text-ruby border border-ruby/20' :
                             notice.status === 'Viewed' ? 'bg-ruby/5 text-ruby/60 border border-ruby/10' :
-                            'bg-orange-50 text-orange-600 border border-orange-100'
+                            'bg-ruby-light/10 text-ruby-light border border-ruby-light/20'
                           }`}>
                             {notice.status === 'Acknowledged' && <CheckCircle2 className="w-3 h-3" />}
                             {notice.status === 'Viewed' && <Eye className="w-3 h-3" />}
@@ -646,11 +666,11 @@ export const AdminLegalLog: React.FC = () => {
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center gap-1">
-                            <div className="w-2 h-2 rounded-full bg-ruby shadow-[0_0_8px_rgba(155,17,30,0.5)]" />
+                            <div className="w-2 h-2 rounded-full bg-ruby shadow-[0_0_8px_rgba(166,75,75,0.5)]" />
                             <div className="w-0.5 h-4 bg-app-text/10" />
-                            <div className={`w-2 h-2 rounded-full ${notice.viewed_at ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-app-text/10'}`} />
+                            <div className={`w-2 h-2 rounded-full ${notice.viewed_at ? 'bg-ruby shadow-[0_0_8px_rgba(166,75,75,0.5)]' : 'bg-app-text/10'}`} />
                             <div className="w-0.5 h-4 bg-app-text/10" />
-                            <div className={`w-2 h-2 rounded-full ${notice.acknowledged_at ? 'bg-ruby shadow-[0_0_8px_rgba(155,17,30,0.5)]' : 'bg-app-text/10'}`} />
+                            <div className={`w-2 h-2 rounded-full ${notice.acknowledged_at ? 'bg-ruby shadow-[0_0_8px_rgba(166,75,75,0.5)]' : 'bg-app-text/10'}`} />
                           </div>
                           <div className="space-y-3">
                             <div className="text-[10px] leading-none">

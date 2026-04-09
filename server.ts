@@ -111,6 +111,17 @@ db.exec(`
     FOREIGN KEY (unit_id) REFERENCES units(id)
   );
 
+  CREATE TABLE IF NOT EXISTS tenant_concerns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    unit_id INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'Pending',
+    gm_notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (unit_id) REFERENCES units(id)
+  );
+
   CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     unit_id INTEGER,
@@ -202,17 +213,6 @@ db.exec(`
     status TEXT DEFAULT 'Logged', -- 'Logged', 'Notice Sent', 'Resolved'
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES tenants(id)
-  );
-
-  CREATE TABLE IF NOT EXISTS legal_library_2026 (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    category TEXT NOT NULL, -- 'Disclosure', 'Notice', 'Checklist', 'Lease'
-    pdf_url TEXT,
-    external_link TEXT,
-    is_mandatory INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS lease_updates (
@@ -396,6 +396,7 @@ if (propertyCount.count === 0) {
   insertLegalForm.run("Residential Lease Agreement", "Lease", "THIS RESIDENTIAL LEASE AGREEMENT is made and entered into...");
   insertLegalForm.run("Notice of Entry", "Notice", "PLEASE TAKE NOTICE that the Owner/Manager of the premises...");
   insertLegalForm.run("Sublease Policy & Law Reminder", "Notice", "REMINDER: Subleasing is strictly prohibited without written consent from management. California law requires...");
+  insertLegalForm.run("Travel Nurse Lease Addendum", "Addendum", "ADDENDUM FOR HEALTHCARE PROFESSIONALS: This addendum modifies the lease for Unit ${unit_number}. Tenant is recognized as a traveling healthcare professional. 30-day cancellation notice is permitted with proof of contract termination. Unit is provided fully furnished as per inventory...");
 
   // Seed Laws & Regulations
   const insertLaw = db.prepare("INSERT INTO laws_regulations (title, jurisdiction, summary, link, last_updated) VALUES (?, ?, ?, ?, ?)");
@@ -430,24 +431,12 @@ if (propertyCount.count === 0) {
   const insertViolation = db.prepare("INSERT INTO lease_violations (tenant_id, violation_type, description, violation_date, status) VALUES (?, ?, ?, ?, ?)");
   insertViolation.run(1, "Unauthorized Occupant", "Unauthorized Guest Pattern Detected", "2026-03-24", "Logged");
 
-  // Seed Legal Library 2026
-  const insertLibrary = db.prepare("INSERT INTO legal_library_2026 (title, description, category, pdf_url, external_link, is_mandatory) VALUES (?, ?, ?, ?, ?, ?)");
-  insertLibrary.run("Oakland RAP Notice 2026", "Mandatory notice regarding the Rent Adjustment Program for all Oakland tenants.", "Notice", "/pdfs/oakland_rap_2026.pdf", "https://www.oaklandca.gov/topics/rent-adjustment-program", 1);
-  insertLibrary.run("Lead-Based Paint Disclosure", "Required for all properties built before 1978.", "Disclosure", "/pdfs/lead_paint_disclosure.pdf", "https://www.epa.gov/lead/real-estate-disclosures-about-potential-lead-hazards", 1);
-  insertLibrary.run("Mold Disclosure Addendum", "California mandatory disclosure regarding mold awareness and prevention.", "Disclosure", "/pdfs/mold_disclosure.pdf", "https://www.cdph.ca.gov/Programs/CCDPC/DEODC/EHLB/IAQ/Pages/Mold.aspx", 1);
-  insertLibrary.run("Bed Bug Information Sheet", "Mandatory information sheet for all new and renewing tenants.", "Disclosure", "/pdfs/bed_bug_info.pdf", "https://www.dca.ca.gov/publications/landlordtenant/index.shtml", 1);
-  insertLibrary.run("Subletting & Guest Policy 2026", "Detailed policy on subletting and long-term guests. Subletting without written consent is a material breach of lease.", "Policy", "/pdfs/sublet_policy_2026.pdf", null, 1);
-  insertLibrary.run("2026 Standard Lease Agreement", "Updated lease agreement reflecting 2026 California and Oakland laws, including strict sublet prohibitions.", "Lease", "/pdfs/lease_2026.pdf", null, 1);
-  insertLibrary.run("3-Day Notice to Pay or Quit", "Standard legal notice for rent non-payment, provided for tenant awareness.", "Notice", "/pdfs/3_day_notice_template.pdf", null, 0);
-  insertLibrary.run("Notice of Right to Inspection", "Information on the landlord's right to enter for repairs and inspections per CC 1954.", "Notice", "/pdfs/right_to_inspection.pdf", null, 0);
-  insertLibrary.run("Move-In/Move-Out Checklist", "Comprehensive checklist for documenting unit condition.", "Checklist", "/pdfs/checklist.pdf", null, 0);
-
   // Seed Lease Update Steps
   const insertStep = db.prepare("INSERT INTO lease_update_steps (title, content, order_index) VALUES (?, ?, ?)");
-  insertStep.run("Welcome to 2026", "Welcome to your annual lease update. We've added several new features this year, including enhanced AI security cameras and a new legal defense log for your protection.", 1);
-  insertStep.run("Legal Rights Update", "California and Oakland laws have updated for 2026. We've included the latest Rent Adjustment Program (RAP) notices and updated disclosures in your library. Note that the 2026 allowable rent increase is 2.1%.", 2);
+  insertStep.run("Welcome to 2026", "Welcome to your annual lease update. We've added several new features this year, including enhanced AI security cameras for your protection.", 1);
+  insertStep.run("Legal Rights Update", "California and Oakland laws have updated for 2026. We've included the latest Rent Adjustment Program (RAP) notices and updated disclosures. Note that the 2026 allowable rent increase is 2.1%.", 2);
   insertStep.run("Strict Sublet Policy", "Unauthorized subletting is a material breach of your lease and a 'Just Cause' for eviction under Oakland law. All occupants must be listed on the lease, and any subletting requires prior written consent from management.", 3);
-  insertStep.run("Document Review", "Please review the mandatory disclosures in your legal library, including the Lead-Based Paint, Mold Disclosure, and the updated Subletting Policy.", 4);
+  insertStep.run("Document Review", "Please review the mandatory disclosures, including the Lead-Based Paint, Mold Disclosure, and the updated Subletting Policy.", 4);
   insertStep.run("Building Features", "Your building now features smart trash monitoring and automated street sweeping alerts via SMS. Make sure your notification settings are up to date.", 5);
   insertStep.run("Security & AI Intelligence", "Learn about our new AI-powered security system. Recognition cameras are now active in common areas to enhance safety and deter unauthorized activity.", 6);
   insertStep.run("Walkthrough Confirmation", "Please confirm that you have reviewed the building's safety features, including fire exit locations and the new recognition camera system.", 7);
@@ -534,6 +523,41 @@ async function startServer() {
       db.prepare("UPDATE units SET needs_reply = 0 WHERE id = ?").run(unit_id);
     }
     
+    res.json({ status: "ok" });
+  });
+
+  app.get("/api/concerns", (req, res) => {
+    const concerns = db.prepare(`
+      SELECT c.*, u.unit_number 
+      FROM tenant_concerns c
+      JOIN units u ON c.unit_id = u.id
+      ORDER BY c.created_at DESC
+    `).all();
+    res.json(concerns);
+  });
+
+  app.post("/api/concerns", (req, res) => {
+    const { unit_id, type, message } = req.body;
+    db.prepare(`
+      INSERT INTO tenant_concerns (unit_id, type, message) 
+      VALUES (?, ?, ?)
+    `).run(unit_id, type, message);
+    
+    // Concern counts as tenant activity needing reply
+    db.prepare("UPDATE units SET needs_reply = 1, last_tenant_activity_at = CURRENT_TIMESTAMP WHERE id = ?").run(unit_id);
+    
+    res.json({ status: "ok" });
+  });
+
+  app.patch("/api/concerns/:id", (req, res) => {
+    const { id } = req.params;
+    const { status, gm_notes } = req.body;
+    db.prepare(`
+      UPDATE tenant_concerns 
+      SET status = COALESCE(?, status), 
+          gm_notes = COALESCE(?, gm_notes)
+      WHERE id = ?
+    `).run(status, gm_notes, id);
     res.json({ status: "ok" });
   });
 
@@ -806,12 +830,6 @@ async function startServer() {
       JOIN properties p ON ip.property_id = p.id
     `).all();
     res.json(projections);
-  });
-
-  // Legal Library 2026
-  app.get("/api/legal-library-2026", (req, res) => {
-    const library = db.prepare("SELECT * FROM legal_library_2026 ORDER BY category, title").all();
-    res.json(library);
   });
 
   app.get("/api/tenant-rent/:tenantId", (req, res) => {

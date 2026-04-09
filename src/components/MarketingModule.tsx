@@ -95,7 +95,7 @@ export const MarketingModule: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="p-6 rounded-[2rem] bg-zinc-900 border border-white/5 hover:border-white/10 transition-all group"
+              className="p-6 rounded-[2rem] bg-app-card border border-app-border hover:border-ruby/20 transition-all group shadow-sm"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className={`p-3 rounded-2xl ${getColor(loc.type)}`}>
@@ -113,9 +113,9 @@ export const MarketingModule: React.FC = () => {
       <div className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/10 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1 space-y-4">
           <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Marketing Advantage</h3>
-          <p className="text-zinc-400 leading-relaxed">
-            3875 Ruby St is strategically located in the heart of North Oakland's Mosswood neighborhood. 
-            With a Walk Score of 92, tenants enjoy immediate access to world-class medical facilities, 
+          <p className="text-app-text/60 leading-relaxed">
+            3875 Ruby St is strategically located for the modern healthcare professional. 
+            With a Walk Score of 92, residents enjoy immediate proximity to Kaiser and Sutter medical centers, 
             rapid transit to SF and Berkeley, and the vibrant dining scene of Piedmont Avenue.
           </p>
           <div className="flex gap-4">
@@ -123,11 +123,11 @@ export const MarketingModule: React.FC = () => {
             <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-zinc-400 uppercase tracking-widest">88 Bike Score</span>
           </div>
         </div>
-        <div className="w-full md:w-64 aspect-square rounded-3xl bg-zinc-800 border border-white/10 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-64 aspect-square rounded-3xl bg-app-card border border-app-border flex items-center justify-center overflow-hidden shadow-sm">
           <div className="text-center p-6">
             <MapPin className="w-12 h-12 text-ruby mx-auto mb-4" />
-            <p className="text-xs font-black text-white uppercase tracking-widest">Interactive Map View</p>
-            <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest">Coming Soon</p>
+            <p className="text-xs font-black text-app-text uppercase tracking-widest">Interactive Map View</p>
+            <p className="text-[10px] text-app-text/30 mt-2 uppercase tracking-widest">Coming Soon</p>
           </div>
         </div>
       </div>

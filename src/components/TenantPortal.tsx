@@ -10,6 +10,7 @@ import {
   Wind, 
   Clock, 
   CheckCircle2, 
+  MessageSquare,
   AlertCircle, 
   Info,
   Send,
@@ -25,13 +26,17 @@ import {
   Wrench,
   LayoutGrid,
   MapPin,
+  Hospital,
+  Sparkles,
+  Package,
+  Zap,
   X
 } from 'lucide-react';
 
 import { LeaseUpdateWalkthrough } from './LeaseUpdateWalkthrough';
-import { db, auth } from '../firebase';
+import { db, auth, googleProvider } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection } from 'firebase/firestore';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 
 interface UserSettings {
   preferred_notification_time: string;
@@ -81,7 +86,8 @@ interface LeaseUpdate {
 }
 
 export const TenantPortal = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'maintenance' | 'mailbox'>('mailbox');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'maintenance' | 'mailbox' | 'support' | 'info-nook'>('mailbox');
+  const [privacyMode, setPrivacyMode] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     preferred_notification_time: '09:00',
     sms_enabled: true,
@@ -99,6 +105,9 @@ export const TenantPortal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reportText, setReportText] = useState('');
   const [showReportSuccess, setShowReportSuccess] = useState(false);
+  const [concernType, setConcernType] = useState('concern');
+  const [concernMessage, setConcernMessage] = useState('');
+  const [showConcernSuccess, setShowConcernSuccess] = useState(false);
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
   const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
@@ -122,16 +131,6 @@ export const TenantPortal = () => {
 
   useEffect(() => {
     // Auth and Firebase Sync
-    const initFirebase = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (err) {
-        console.error("Auth failed:", err);
-      }
-    };
-
-    initFirebase();
-
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         // Sync public customizations
@@ -143,6 +142,16 @@ export const TenantPortal = () => {
           setMailboxCustomizations(customs);
         });
 
+        return () => unsubCustom();
+      } else {
+        // Still sync public customizations even if not logged in
+        const unsubCustom = onSnapshot(collection(db, 'mailboxCustomizations'), (snapshot) => {
+          const customs: Record<string, { color: string }> = {};
+          snapshot.forEach(doc => {
+            customs[doc.id] = doc.data() as { color: string };
+          });
+          setMailboxCustomizations(customs);
+        });
         return () => unsubCustom();
       }
     });
@@ -225,21 +234,43 @@ export const TenantPortal = () => {
     }
   };
 
+  const handleLogin = async () => {
+    setIsSubmitting(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err) {
+      console.error("Login failed:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
   const handleUpdateMailboxColor = async (unit: string, color: string) => {
     if (unit !== currentUserUnit) return; // Secure: only tenant can update their own
+
+    if (!auth.currentUser) {
+      alert("Please sign in to save your customizations.");
+      return;
+    }
 
     try {
       // Update public customization
       await setDoc(doc(db, 'mailboxCustomizations', unit), { unit, color });
       
-      // Update private settings (if user is logged in with UID)
-      if (auth.currentUser) {
-        await setDoc(doc(db, 'userSettings', auth.currentUser.uid), {
-          uid: auth.currentUser.uid,
-          unit,
-          mailboxColor: color
-        }, { merge: true });
-      }
+      // Update private settings
+      await setDoc(doc(db, 'userSettings', auth.currentUser.uid), {
+        uid: auth.currentUser.uid,
+        unit,
+        mailboxColor: color
+      }, { merge: true });
     } catch (err) {
       console.error("Failed to save mailbox color:", err);
     }
@@ -267,6 +298,29 @@ export const TenantPortal = () => {
     }
   };
 
+  const handleSubmitConcern = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/concerns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unit_id: 1, // Mock
+          type: concernType,
+          message: concernMessage
+        })
+      });
+      setShowConcernSuccess(true);
+      setConcernMessage('');
+      setTimeout(() => setShowConcernSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error submitting concern:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Portal Navigation */}
@@ -274,6 +328,8 @@ export const TenantPortal = () => {
         {[
           { id: 'mailbox', label: 'Mailbox Hub', icon: Mail },
           { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+          { id: 'info-nook', label: 'Info Nook', icon: Info },
+          { id: 'support', label: 'Support Hub', icon: MessageSquare },
           { id: 'maintenance', label: 'Maintenance', icon: Wrench },
           { id: 'security', label: 'Security', icon: ShieldCheck },
           { id: 'refer', label: 'Refer a Friend', icon: Users },
@@ -327,7 +383,7 @@ export const TenantPortal = () => {
             {/* Stadium Architecture Elements */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               {/* The "Field" */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] bg-emerald-900/20 rounded-[100%] blur-3xl transform -rotate-2"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] bg-ruby-dark/20 rounded-[100%] blur-3xl transform -rotate-2"></div>
               {/* Stadium Arches */}
               <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/40 to-transparent flex justify-around px-20">
                 {[...Array(8)].map((_, i) => (
@@ -340,9 +396,18 @@ export const TenantPortal = () => {
             <div className="relative z-10 h-full flex flex-col items-center justify-start pt-20 p-12">
               <div className="text-center mb-16">
                 <h2 className="text-6xl font-black text-white tracking-tighter uppercase">
-                  Ruby <span className="italic text-[#FD5A1E]">Stadium Hub</span>.
+                  Ruby <span className="italic text-ruby">Stadium Hub</span>.
                 </h2>
-                <p className="text-white/40 text-xs font-bold uppercase tracking-[0.4em] mt-4">3 Rows Behind Home Plate • Looking Out at the Bay</p>
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <p className="text-white/40 text-xs font-bold uppercase tracking-[0.4em]">3 Rows Behind Home Plate • Looking Out at the Bay</p>
+                  <button 
+                    onClick={() => setPrivacyMode(!privacyMode)}
+                    className={`flex items-center gap-2 px-3 py-1 rounded-full border transition-all ${privacyMode ? 'bg-ruby text-white border-ruby' : 'bg-white/5 text-white/40 border-white/10 hover:text-white'}`}
+                  >
+                    <ShieldCheck className="w-3 h-3" />
+                    <span className="text-[8px] font-black uppercase tracking-widest">{privacyMode ? 'Privacy Active' : 'Solidify Privacy'}</span>
+                  </button>
+                </div>
               </div>
 
               <div className="relative w-full max-w-5xl flex flex-col gap-12 items-center">
@@ -365,11 +430,16 @@ export const TenantPortal = () => {
                           transition={{ delay: (rowIdx * 6 + idx) * 0.03 }}
                           onClick={() => setSelectedMailbox(unit)}
                           style={{ 
-                            backgroundColor: custom.color,
-                            borderColor: isCurrentUser ? '#FD5A1E' : 'rgba(255,255,255,0.1)'
+                            backgroundColor: (privacyMode && !isCurrentUser) ? '#1A1A1A' : custom.color,
+                            borderColor: isCurrentUser ? '#A64B4B' : 'rgba(255,255,255,0.1)'
                           }}
-                          className={`w-20 h-24 rounded-t-2xl rounded-b-lg border-2 flex flex-col items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_40px_rgba(253,90,30,0.4)] group relative shadow-2xl ${isCurrentUser ? 'ring-4 ring-[#FD5A1E]/30' : ''}`}
+                          className={`w-20 h-24 rounded-t-2xl rounded-b-lg border-2 flex flex-col items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_40px_rgba(166,75,75,0.4)] group relative shadow-2xl ${isCurrentUser ? 'ring-4 ring-ruby/30' : ''}`}
                         >
+                          {(privacyMode && !isCurrentUser) && (
+                            <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] rounded-t-2xl rounded-b-lg flex items-center justify-center">
+                              <ShieldCheck className="w-4 h-4 text-white/20" />
+                            </div>
+                          )}
                           <div className="text-[8px] font-black text-white/40 mb-1">UNIT</div>
                           <div className="text-2xl font-black text-white tracking-tighter">{unit}</div>
                           
@@ -377,10 +447,10 @@ export const TenantPortal = () => {
                           <div className="absolute bottom-2 left-2 right-2 h-1 bg-white/10 rounded-full"></div>
                           
                           {/* Flag visual */}
-                          <div className="absolute -right-1 top-4 w-1.5 h-8 bg-[#FD5A1E] rounded-full origin-bottom transition-transform group-hover:rotate-45" />
+                          <div className="absolute -right-1 top-4 w-1.5 h-8 bg-ruby rounded-full origin-bottom transition-transform group-hover:rotate-45" />
                           
                           {isCurrentUser && (
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#FD5A1E] text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
+                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-ruby text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
                               HOME PLATE
                             </div>
                           )}
@@ -451,25 +521,44 @@ export const TenantPortal = () => {
                       <div className="mt-10 pt-10 border-t border-white/10">
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-[#FD5A1E]" />
-                            <div className="text-xs font-bold text-white/60 uppercase tracking-widest">Customize Your Seat Color</div>
+                            <Zap className="w-4 h-4 text-[#FD5A1E]" />
+                            <div className="text-xs font-bold text-white/60 uppercase tracking-widest">
+                              {auth.currentUser ? 'Paint Your Mailbox' : 'Sign in to Paint'}
+                            </div>
                           </div>
-                          <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Syncing with Cloud</div>
+                          {auth.currentUser ? (
+                            <button 
+                              onClick={handleLogout}
+                              className="text-[8px] font-bold text-white/20 uppercase tracking-widest hover:text-white/40 transition-colors"
+                            >
+                              Sign Out ({auth.currentUser.email})
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={handleLogin}
+                              disabled={isSubmitting}
+                              className="px-4 py-1 bg-app-accent text-white text-[8px] font-bold uppercase tracking-widest rounded-full hover:opacity-90 transition-all"
+                            >
+                              {isSubmitting ? 'Signing in...' : 'Sign in with Google'}
+                            </button>
+                          )}
                         </div>
-                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-3xl">
-                          <div className="flex gap-3">
-                            {curatedColors.map(color => (
-                              <button
-                                key={color.value}
-                                onClick={() => handleUpdateMailboxColor(selectedMailbox, color.value)}
-                                style={{ backgroundColor: color.value }}
-                                title={color.name}
-                                className={`w-10 h-10 rounded-full border-4 transition-all hover:scale-110 ${mailboxCustomizations[selectedMailbox]?.color === color.value ? 'border-white shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'border-transparent'}`}
-                              />
-                            ))}
+                        {auth.currentUser && (
+                          <div className="flex justify-between items-center bg-white/5 p-4 rounded-3xl">
+                            <div className="flex gap-3">
+                              {curatedColors.map(color => (
+                                <button
+                                  key={color.value}
+                                  onClick={() => handleUpdateMailboxColor(selectedMailbox, color.value)}
+                                  style={{ backgroundColor: color.value }}
+                                  title={color.name}
+                                  className={`w-10 h-10 rounded-full border-4 transition-all hover:scale-110 ${mailboxCustomizations[selectedMailbox]?.color === color.value ? 'border-white shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'border-transparent'}`}
+                                />
+                              ))}
+                            </div>
+                            <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter italic">Giants Edition</div>
                           </div>
-                          <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter italic">Giants Edition</div>
-                        </div>
+                        )}
                       </div>
                     )}
                   </motion.div>
@@ -479,6 +568,104 @@ export const TenantPortal = () => {
           </motion.div>
         )}
 
+        {activeTab === 'support' && (
+          <motion.div
+            key="support"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-4xl mx-auto space-y-8"
+          >
+            <div className="p-12 rounded-[3rem] bg-app-card border border-app-border shadow-xl">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                <div>
+                  <h3 className="text-4xl font-black text-app-text uppercase tracking-tighter">Support <span className="italic text-app-accent">Hub</span>.</h3>
+                  <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Direct line to GM Mezfin & Management.</p>
+                </div>
+                <div className="p-6 rounded-3xl bg-ruby/5 border border-ruby/10 text-right">
+                  <div className="text-[10px] font-black text-ruby uppercase tracking-widest mb-1">Emergency 24/7</div>
+                  <div className="text-2xl font-black text-app-text">(510) 555-9111</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="p-8 rounded-[2rem] bg-app-bg border border-app-border space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-app-accent/10 flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-app-accent" />
+                    </div>
+                    <h4 className="text-xl font-bold uppercase tracking-tight">AI Concierge</h4>
+                    <p className="text-sm text-app-text/60 leading-relaxed">
+                      Our AI agent can answer questions about building policies, local amenities, and lease terms instantly.
+                    </p>
+                    <button className="w-full py-3 bg-app-text text-app-bg rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
+                      Chat with Ruby AI
+                    </button>
+                  </div>
+
+                  <div className="p-8 rounded-[2rem] bg-app-bg border border-app-border space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-ruby/10 flex items-center justify-center">
+                      <Mail className="w-6 h-6 text-ruby" />
+                    </div>
+                    <h4 className="text-xl font-bold uppercase tracking-tight">Direct Email</h4>
+                    <p className="text-sm text-app-text/60 leading-relaxed">
+                      Prefer email? Send your concerns directly to our management team.
+                    </p>
+                    <a href="mailto:mezfin@3875ruby.com" className="block w-full py-3 border border-ruby/20 text-ruby text-center rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
+                      mezfin@3875ruby.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl space-y-8">
+                  <h4 className="text-2xl font-bold uppercase tracking-tight">Submit a Concern</h4>
+                  <form onSubmit={handleSubmitConcern} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-bg/40 ml-4">Issue Type</label>
+                      <select 
+                        value={concernType}
+                        onChange={(e) => setConcernType(e.target.value)}
+                        className="w-full px-6 py-4 bg-app-bg/5 border border-app-bg/10 rounded-2xl focus:outline-none focus:border-app-accent/40 transition-all text-sm"
+                      >
+                        <option value="concern">General Concern</option>
+                        <option value="question">Question</option>
+                        <option value="suggestion">Suggestion</option>
+                        <option value="complaint">Complaint</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-bg/40 ml-4">Message</label>
+                      <textarea 
+                        required
+                        value={concernMessage}
+                        onChange={(e) => setConcernMessage(e.target.value)}
+                        placeholder="What's on your mind? Mezfin will review this personally."
+                        className="w-full px-6 py-4 bg-app-bg/5 border border-app-bg/10 rounded-2xl focus:outline-none focus:border-app-accent/40 transition-all text-sm min-h-[200px] resize-none"
+                      />
+                    </div>
+                    <button 
+                      type="submit"
+                      disabled={isSubmitting || !concernMessage.trim()}
+                      className="w-full py-5 bg-app-accent text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg uppercase tracking-widest disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send to Management'}
+                    </button>
+                    {showConcernSuccess && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center space-y-1"
+                      >
+                        <div className="text-xs font-bold text-app-accent uppercase tracking-widest">Concern Logged Successfully</div>
+                        <div className="text-[8px] text-app-bg/40 font-mono uppercase tracking-widest">Timestamped: {new Date().toLocaleString()} // Secure</div>
+                      </motion.div>
+                    )}
+                  </form>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
         {activeTab === 'dashboard' && (
           <motion.div
             key="dashboard"
@@ -555,8 +742,11 @@ export const TenantPortal = () => {
                   <button className="p-4 rounded-2xl bg-app-text/5 hover:bg-app-text/10 transition-colors flex items-center justify-center gap-2 font-bold text-sm uppercase tracking-widest">
                     <CreditCard className="w-4 h-4" /> View Ledger
                   </button>
-                  <button className="p-4 rounded-2xl bg-app-accent text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-md uppercase tracking-widest">
-                    <Plus className="w-4 h-4" /> {rentStatus?.status === 'Paid' ? 'Pre-pay Next' : 'Pay Now'}
+                  <button 
+                    onClick={() => window.open(`https://pay.silverbackai.agency/ruby-${currentUserUnit}`, '_blank')}
+                    className="p-4 rounded-2xl bg-app-accent text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-md uppercase tracking-widest"
+                  >
+                    <CreditCard className="w-4 h-4" /> {rentStatus?.status === 'Paid' ? 'Stripe Pre-pay' : 'Pay via Stripe'}
                   </button>
                 </div>
               </div>
@@ -613,6 +803,41 @@ export const TenantPortal = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Healthcare Professional Suite */}
+              <div className="p-10 rounded-[2.5rem] bg-ruby/5 border border-ruby/10 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Hospital className="w-32 h-32 text-ruby" />
+                </div>
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ruby/10 border border-ruby/20 text-ruby text-[10px] font-black uppercase tracking-widest mb-6">
+                    <Sparkles className="w-3 h-3" /> Healthcare Professional Suite
+                  </div>
+                  <h3 className="text-3xl font-black text-app-text uppercase tracking-tighter leading-none mb-4">
+                    Tailored for <span className="italic text-ruby">Night Shift</span> & Beyond.
+                  </h3>
+                  <p className="text-sm text-app-text/60 leading-relaxed mb-8 max-w-md">
+                    We understand the demands of healthcare. Our specialized suite ensures your home is a sanctuary, no matter your schedule.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-white/50 border border-ruby/5 space-y-2">
+                      <div className="flex items-center gap-2 text-ruby">
+                        <Wind className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Quiet Hours</span>
+                      </div>
+                      <p className="text-[10px] text-app-text/50">Request extended quiet hours for day-time sleeping.</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/50 border border-ruby/5 space-y-2">
+                      <div className="flex items-center gap-2 text-ruby">
+                        <Package className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Secure Delivery</span>
+                      </div>
+                      <p className="text-[10px] text-app-text/50">Priority package handling for high-value deliveries.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Community Schedule */}
@@ -636,7 +861,7 @@ export const TenantPortal = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-app-text/5 flex items-center justify-center">
-                      <Wind className="w-6 h-6 text-blue-500" />
+                      <Wind className="w-6 h-6 text-ruby" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Street Sweeping</div>
@@ -696,12 +921,136 @@ export const TenantPortal = () => {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-center text-[10px] font-bold text-ruby uppercase tracking-widest"
+                      className="text-center space-y-1"
                     >
-                      Report Sent Securely
+                      <div className="text-[10px] font-bold text-ruby uppercase tracking-widest">Report Sent Securely</div>
+                      <div className="text-[8px] text-app-text/30 font-mono uppercase tracking-widest">Safety Logged: {new Date().toLocaleString()}</div>
                     </motion.div>
                   )}
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'info-nook' && (
+          <motion.div
+            key="info-nook"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            <div className="lg:col-span-2 space-y-8">
+              <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 bg-app-accent/10 rounded-2xl">
+                    <Info className="w-6 h-6 text-app-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">The Info Nook</h3>
+                    <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">Essential forms, guides, and building knowledge.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Move-Out Checklist */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-ruby/10 text-ruby rounded-xl">
+                        <FileWarning className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-bold text-ruby uppercase tracking-widest px-3 py-1 bg-ruby/5 rounded-full">Required</span>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Move-Out Checklist</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Ensure a smooth transition and full security deposit return by following our 2026 move-out protocols.
+                    </p>
+                    <button className="w-full py-4 bg-app-text text-app-bg rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-all flex items-center justify-center gap-2">
+                      <Package className="w-4 h-4" /> Download Checklist
+                    </button>
+                  </div>
+
+                  {/* Building Rules */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-app-accent/10 text-app-accent rounded-xl">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Building Rules 2026</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Updated rules regarding quiet hours, guest policies, and AI security camera protocols.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      View Digital Handbook
+                    </button>
+                  </div>
+
+                  {/* Parking & Transit */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                        <MapPin className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Parking & Transit Map</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Map of assigned parking stalls, EV charging stations, and MacArthur BART walking paths.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      Open Interactive Map
+                    </button>
+                  </div>
+
+                  {/* Trash & Recycling */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-green-500/10 text-green-500 rounded-xl">
+                        <Trash2 className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Trash & Recycling</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Schedule for pickup and guide for our new AI-monitored smart sorting bins.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      Pickup Schedule
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl">
+                <h4 className="text-xl font-bold uppercase tracking-tight mb-4">Quick Forms</h4>
+                <div className="space-y-4">
+                  {[
+                    'Sublet Request Form',
+                    'Pet Registration',
+                    'Key Replacement',
+                    'Notice of Intent to Vacate'
+                  ].map((form) => (
+                    <button 
+                      key={form}
+                      className="w-full p-4 rounded-xl bg-app-bg/5 border border-app-bg/10 flex items-center justify-between hover:bg-app-bg/10 transition-all group"
+                    >
+                      <span className="text-xs font-bold uppercase tracking-widest">{form}</span>
+                      <ChevronRight className="w-4 h-4 text-app-accent group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <ShieldCheck className="w-5 h-5 text-ruby" />
+                  <h4 className="font-bold text-ruby text-xs uppercase tracking-widest">Privacy & Safety</h4>
+                </div>
+                <p className="text-[10px] text-app-text/60 leading-relaxed italic">
+                  All correspondence is timestamped and logged for safety. Your privacy is solidified through our secure stadium hub.
+                </p>
               </div>
             </div>
           </motion.div>
@@ -803,7 +1152,7 @@ export const TenantPortal = () => {
                   </div>
                   <div className="flex gap-4">
                     <div className="w-10 h-10 rounded-xl bg-app-text/5 flex items-center justify-center shrink-0">
-                      <Clock className="w-5 h-5 text-blue-500" />
+                      <Clock className="w-5 h-5 text-ruby" />
                     </div>
                     <div>
                       <div className="font-bold text-sm uppercase tracking-tight">Standard Repairs</div>
@@ -868,7 +1217,7 @@ export const TenantPortal = () => {
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-border">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
+                      <div className="p-2 bg-ruby/10 text-ruby rounded-xl">
                         <ShieldCheck className="w-5 h-5" />
                       </div>
                       <h4 className="font-bold text-app-text uppercase tracking-tight">AI Recognition</h4>
@@ -897,8 +1246,8 @@ export const TenantPortal = () => {
                   {securityEvents.map((event) => (
                     <div key={event.id} className="flex gap-4">
                       <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                        event.type === 'Recognition' ? 'bg-blue-500' : 
-                        event.type === 'Deterrence' ? 'bg-amber-500' : 'bg-app-accent'
+                        event.type === 'Recognition' ? 'bg-ruby' : 
+                        event.type === 'Deterrence' ? 'bg-ruby-light' : 'bg-app-accent'
                       }`} />
                       <div>
                         <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">

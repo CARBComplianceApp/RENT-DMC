@@ -83,12 +83,12 @@ export const CommunityModule = () => {
               />
             </div>
             
-            <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-              <div className="flex items-center gap-3 text-emerald-700">
+            <div className="flex items-center justify-between p-4 bg-ruby/5 rounded-2xl border border-ruby/10">
+              <div className="flex items-center gap-3 text-ruby">
                 <Clock className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-widest">Scheduled Delivery</span>
               </div>
-              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Resident Preferred Times</span>
+              <span className="text-[10px] font-bold text-ruby/60 uppercase tracking-widest">Resident Preferred Times</span>
             </div>
 
             <button 
@@ -132,7 +132,7 @@ export const CommunityModule = () => {
             <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                  <Wind className="w-6 h-6 text-blue-400" />
+                  <Wind className="w-6 h-6 text-ruby-light" />
                 </div>
                 <div>
                   <div className="font-bold">Street Sweeping</div>
@@ -151,13 +151,13 @@ export const CommunityModule = () => {
         <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-text/5 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+              <div className="p-3 bg-ruby/10 text-ruby rounded-2xl">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-serif font-bold">Security <span className="italic">Intelligence</span></h3>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Live Feed
+            <div className="flex items-center gap-2 px-3 py-1 bg-ruby/10 text-ruby rounded-full text-[10px] font-bold uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 bg-ruby rounded-full animate-pulse" /> Live Feed
             </div>
           </div>
 
@@ -180,7 +180,7 @@ export const CommunityModule = () => {
               {securityEvents.map((event) => (
                 <div key={event.id} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-app-text/5 transition-colors group cursor-pointer">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    event.type === 'Recognition' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'
+                    event.type === 'Recognition' ? 'bg-ruby/10 text-ruby' : 'bg-ruby-light/10 text-ruby-light'
                   }`}>
                     {event.type === 'Recognition' ? <Camera className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                   </div>
@@ -202,7 +202,7 @@ export const CommunityModule = () => {
 
         <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-text/5 shadow-sm">
           <div className="flex items-center gap-3 mb-8">
-            <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
+            <div className="p-3 bg-ruby/10 text-ruby rounded-2xl">
               <History className="w-6 h-6" />
             </div>
             <h3 className="text-2xl font-serif font-bold">Past <span className="italic">Updates</span></h3>

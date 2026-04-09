@@ -40,9 +40,10 @@ export function CEOBriefingPortal() {
   
   // AI Lease Generator State
   const [showGenerator, setShowGenerator] = useState(false);
-  const [rentAmount, setRentAmount] = useState('3500');
+  const [rentAmount, setRentAmount] = useState('2500');
   const [leaseTerm, setLeaseTerm] = useState('12');
-  const [specificClauses, setSpecificClauses] = useState('');
+  const [unitNumber, setUnitNumber] = useState('101');
+  const [specificClauses, setSpecificClauses] = useState('Travel nurse friendly: 30-day notice for contract cancellation, fully furnished option, all utilities included.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLease, setGeneratedLease] = useState('');
   const [copied, setCopied] = useState(false);
@@ -58,6 +59,8 @@ export function CEOBriefingPortal() {
         contents: `Generate a legally compliant residential lease agreement for California (New CA Standards), specifically optimized for Oakland (Zip Code 94609). 
         
         Parameters:
+        - Property Branding: SAilverback
+        - Unit Number: ${unitNumber}
         - Monthly Rent: $${rentAmount}
         - Lease Term: ${leaseTerm} months
         - Specific Clauses/Requirements: ${specificClauses || 'Standard CA/Oakland clauses'}
@@ -70,8 +73,10 @@ export function CEOBriefingPortal() {
         5. Bed bug, mold, and flood zone disclosures.
         6. Oakland-specific tenant rights notices and RAP fee disclosures.
         7. Clear sections for Parties, Premises, Term, Rent, Security Deposit, Utilities, Maintenance, and Rules.
+        8. TRAVEL NURSE PROVISIONS: Include a section for travel nurses (e.g., contract-based termination clauses, tax-home disclosures, and furnished unit inventory).
+        9. PAYMENT PORTAL: Explicitly mention that all payments (Rent, Deposit, Fees) must be made through the "SAilverback Stripe Payment Portal" at pay.silverbackai.agency/ruby-${unitNumber}.
         
-        Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name where applicable.`,
+        Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name and "SAilverback" as the management branding.`,
       });
 
       setGeneratedLease(response.text || 'Failed to generate lease content.');
@@ -116,7 +121,10 @@ export function CEOBriefingPortal() {
     <div className="space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-4">
-          <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">Executive Suite</div>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 bg-app-accent" />
+            <span className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">SAilverback Executive Suite</span>
+          </div>
           <h2 className="text-5xl font-serif font-black text-app-text">CEO <span className="italic text-app-accent">Briefing</span> Portal.</h2>
         </div>
         
@@ -313,7 +321,17 @@ export function CEOBriefingPortal() {
               <div className="flex-1 overflow-y-auto p-8">
                 {!generatedLease ? (
                   <div className="space-y-8 max-w-2xl mx-auto py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Unit #</label>
+                        <input 
+                          type="text"
+                          value={unitNumber}
+                          onChange={(e) => setUnitNumber(e.target.value)}
+                          className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
+                          placeholder="101"
+                        />
+                      </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Monthly Rent ($)</label>
                         <input 
@@ -321,7 +339,7 @@ export function CEOBriefingPortal() {
                           value={rentAmount}
                           onChange={(e) => setRentAmount(e.target.value)}
                           className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
-                          placeholder="3500"
+                          placeholder="2500"
                         />
                       </div>
                       <div className="space-y-2">

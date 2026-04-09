@@ -86,7 +86,7 @@ export function SFPlusModule() {
               {transactions.map((tx) => (
                 <div key={tx.id} className="p-6 rounded-3xl bg-app-text/5 flex items-center justify-between group hover:bg-app-card hover:shadow-xl transition-all border border-transparent hover:border-app-border">
                   <div className="flex items-center gap-6">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.status === 'Matched' ? 'bg-emerald-50 text-emerald-600' : 'bg-app-accent/10 text-app-accent'}`}>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.status === 'Matched' ? 'bg-ruby/10 text-ruby' : 'bg-app-accent/10 text-app-accent'}`}>
                       <CreditCard className="w-5 h-5" />
                     </div>
                     <div>
@@ -99,7 +99,7 @@ export function SFPlusModule() {
                     <div className="text-xl font-serif font-bold text-app-text">${tx.amount.toFixed(2)}</div>
                     
                     {tx.status === 'Matched' ? (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-ruby/10 text-ruby rounded-full text-[10px] font-bold uppercase tracking-widest">
                         <CheckCircle className="w-3 h-3" /> Matched Unit {tx.matched_unit_id}
                       </div>
                     ) : (
@@ -132,7 +132,7 @@ export function SFPlusModule() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-4 bg-app-bg/5 rounded-2xl">
                   <span className="text-xs font-bold uppercase tracking-widest text-app-bg/40">Connection</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Active</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ruby">Active</span>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-app-bg/5 rounded-2xl">
                   <span className="text-xs font-bold uppercase tracking-widest text-app-bg/40">Last Sync</span>
