@@ -63,6 +63,7 @@ import { TenantConcernsModule } from './components/TenantConcernsModule';
 import { VendorManagement } from './components/VendorManagement';
 import { BuildingIntelligence } from './components/BuildingIntelligence';
 import { ProductTour } from './components/ProductTour';
+import { MaintenanceFlow } from './components/MaintenanceFlow';
 import { OwnerPresentation } from './components/OwnerPresentation';
 import { NeighborhoodRadiusMap } from './components/NeighborhoodRadiusMap';
 
@@ -112,9 +113,8 @@ export default function App() {
             {view === 'hub' ? (
               <>
                 <a href="#about" className="text-app-text/60 hover:text-app-text transition-colors">About</a>
-                <a href="#amenities" className="text-app-text/60 hover:text-app-text transition-colors">Amenities</a>
                 <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
-                <a href="#gallery" className="text-app-text/60 hover:text-app-text transition-colors">Gallery</a>
+                <a href="#maintenance-flow" className="text-app-text/60 hover:text-app-text transition-colors">Maintenance</a>
               </>
             ) : (
               <>
@@ -409,21 +409,17 @@ export default function App() {
               </div>
             </section>
 
-            {/* Amenities Grid */}
+            {/* Essential Amenities */}
             <section id="amenities" className="py-32 px-6 max-w-7xl mx-auto">
               <div className="text-center mb-20 space-y-4">
-                <h2 className="text-6xl font-serif font-black tracking-tighter">Life at <span className="italic text-app-accent underline decoration-app-accent/30 underline-offset-12">Ruby</span>.</h2>
-                <p className="text-app-text/70 max-w-xl mx-auto text-lg font-medium">Everything you need to thrive in the heart of the city.</p>
+                <h2 className="text-6xl font-serif font-black tracking-tighter">Essential <span className="italic text-app-accent underline decoration-app-accent/30 underline-offset-12">Convenience</span>.</h2>
+                <p className="text-app-text/70 max-w-xl mx-auto text-lg font-medium">The modern necessities you rely on.</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {[
-                  { title: 'Private Back Patio', desc: 'A secluded urban oasis for morning coffee or weekend grilling.', icon: Wind },
                   { title: 'On-Site Laundry', desc: 'Modern, high-capacity machines just steps from your door.', icon: Zap },
                   { title: 'Amazon Hub', desc: 'Never miss a delivery with our secure, on-site package lockers.', icon: Package },
-                  { title: 'Walk to BART', desc: 'Easy access to the entire Bay Area via MacArthur Station.', icon: Train },
-                  { title: 'Hospital Proximity', desc: 'Perfect for medical professionals working at nearby centers.', icon: Hospital },
-                  { title: 'Mosswood Park', desc: 'Your backyard just got bigger. Recreation, dog park, and more.', icon: TreePine },
                 ].map((item, i) => (
                   <div key={item.title} className="p-12 rounded-[3rem] bg-app-card border-2 border-app-border hover:border-app-accent/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
                     <div className="w-16 h-16 rounded-2xl bg-app-accent/10 flex items-center justify-center mb-10 group-hover:bg-app-accent/20 transition-colors">
@@ -552,51 +548,6 @@ export default function App() {
 
             {/* Product Tour Section */}
             <ProductTour />
-
-            {/* Gallery Section */}
-            <section id="gallery" className="py-32 bg-app-text text-app-bg overflow-hidden">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-                  <div className="space-y-4">
-                    <div className="text-xs font-bold text-app-accent uppercase tracking-[0.3em]">Visual Story</div>
-                    <h2 className="text-5xl md:text-7xl font-serif font-black">Ruby <span className="italic text-app-accent">Gallery</span>.</h2>
-                  </div>
-                  <p className="text-white/50 max-w-md">A collection of moments and details that define our corner of Oakland.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  <div className="md:col-span-8 group relative overflow-hidden rounded-[3rem] shadow-2xl">
-                    <img 
-                      src="https://picsum.photos/seed/ruby-main-building/1200/800" 
-                      alt="3875 Ruby St Building" 
-                      className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-1000"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-app-text/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
-                      <div className="text-2xl font-serif italic text-white">Classic Oakland Architecture</div>
-                    </div>
-                  </div>
-                  <div className="md:col-span-4 grid grid-rows-2 gap-6">
-                    <div className="group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                      <img 
-                        src="https://picsum.photos/seed/ruby-unit-interior-1/600/600" 
-                        alt="Unit Interior Detail" 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <div className="group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                      <img 
-                        src="https://picsum.photos/seed/ruby-unit-interior-2/600/600" 
-                        alt="Unit Interior Detail 2" 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
 
             {/* Neighborhood Mosaic Section */}
             <section id="neighborhood-mosaic" className="py-32 bg-app-bg overflow-hidden">
