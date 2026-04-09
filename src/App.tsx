@@ -549,6 +549,9 @@ export default function App() {
             {/* Product Tour Section */}
             <ProductTour />
 
+            {/* Maintenance Flow Section */}
+            <MaintenanceFlow />
+
             {/* Neighborhood Mosaic Section */}
             <section id="neighborhood-mosaic" className="py-32 bg-app-bg overflow-hidden">
               <div className="max-w-7xl mx-auto px-6">
