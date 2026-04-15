@@ -48,15 +48,14 @@ import { ShimmerBackground, ShimmerEffect } from './components/VisualEffects';
 import { AIPropertyVisualizer } from './components/AIImageGenerator';
 import { RentRollDashboard } from './components/RentRollDashboard';
 import { MaintenanceModule } from './components/MaintenanceModule';
-import { MarketingModule } from './components/MarketingModule';
 import { FeatureSummarySheet } from './components/FeatureSummarySheet';
 import { PropertyHierarchy } from './components/PropertyHierarchy';
 import { TenantPortal } from './components/TenantPortal';
-import { CommunityModule } from './components/CommunityModule';
 import { ThemeToggle } from './components/ThemeToggle';
 import { useTheme } from './components/ThemeContext';
 
 import { CEOBriefingPortal } from './components/CEOBriefingPortal';
+import { AdminLegalLog } from './components/AdminLegalLog';
 import { SFPlusModule } from './components/SFPlusModule';
 import { MarketMaxModule } from './components/MarketMaxModule';
 import { TenantConcernsModule } from './components/TenantConcernsModule';
@@ -189,9 +188,8 @@ export default function App() {
               {view === 'hub' ? (
                 <>
                   <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
-                  <a href="#amenities" onClick={() => setIsMenuOpen(false)}>Amenities</a>
                   <a href="#neighborhood" onClick={() => setIsMenuOpen(false)}>Neighborhood</a>
-                  <a href="#gallery" onClick={() => setIsMenuOpen(false)}>Gallery</a>
+                  <a href="#maintenance-flow" onClick={() => setIsMenuOpen(false)}>Maintenance</a>
                 </>
               ) : (
                 <>
@@ -409,8 +407,8 @@ export default function App() {
               </div>
             </section>
 
-            {/* Essential Amenities */}
-            <section id="amenities" className="py-32 px-6 max-w-7xl mx-auto">
+            {/* Essential Convenience */}
+            <section id="essentials" className="py-32 px-6 max-w-7xl mx-auto">
               <div className="text-center mb-20 space-y-4">
                 <h2 className="text-6xl font-serif font-black tracking-tighter">Essential <span className="italic text-app-accent underline decoration-app-accent/30 underline-offset-12">Convenience</span>.</h2>
                 <p className="text-app-text/70 max-w-xl mx-auto text-lg font-medium">The modern necessities you rely on.</p>
@@ -767,11 +765,21 @@ export default function App() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {[
-                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-ruby', bg: 'bg-ruby/5' },
-                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5' },
-                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-ruby-light', bg: 'bg-ruby-light/5' },
+                  { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'sfplus' },
+                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'rent-roll' },
+                  { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-ruby-light', bg: 'bg-ruby-light/5', tab: 'maintenance' },
                 ].map((stat) => (
-                  <div key={stat.label} className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group`}>
+                  <div 
+                    key={stat.label} 
+                    onClick={() => {
+                      if (stat.tab === 'rent-roll' && !rentRollUnlocked) {
+                        alert('Double click the "Double Click for Rent Roll" button in the header to access this sensitive data.');
+                        return;
+                      }
+                      setAdminTab(stat.tab as any);
+                    }}
+                    className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group cursor-pointer`}
+                  >
                     <div className="flex justify-between items-start mb-6">
                       <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
                         <stat.icon className={`w-8 h-8 ${stat.color}`} />
@@ -899,25 +907,18 @@ export default function App() {
                   {adminTab === 'maintenance' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
-                  onClick={() => setAdminTab('marketing')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'marketing' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
-                >
-                  Marketing
-                  {adminTab === 'marketing' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
-                </button>
-                <button 
-                  onClick={() => setAdminTab('community')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'community' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
-                >
-                  Community
-                  {adminTab === 'community' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
-                </button>
-                <button 
                   onClick={() => setAdminTab('ceo')}
                   className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'ceo' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
                 >
                   CEO Briefing
                   {adminTab === 'ceo' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
+                </button>
+                <button 
+                  onClick={() => setAdminTab('legal' as any)}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === ('legal' as any) ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
+                >
+                  Legal Log
+                  {adminTab === ('legal' as any) && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
                 <button 
                   onClick={() => setAdminTab('sfplus')}
@@ -966,17 +967,13 @@ export default function App() {
                 <section id="maintenance" className="py-12">
                   <MaintenanceModule />
                 </section>
-              ) : adminTab === 'marketing' ? (
-                <section id="marketing" className="py-12">
-                  <MarketingModule />
-                </section>
-              ) : adminTab === 'community' ? (
-                <section id="community" className="py-12">
-                  <CommunityModule />
-                </section>
               ) : adminTab === 'ceo' ? (
                 <section id="ceo" className="py-12">
                   <CEOBriefingPortal />
+                </section>
+              ) : adminTab === ('legal' as any) ? (
+                <section id="legal" className="py-12">
+                  <AdminLegalLog />
                 </section>
               ) : adminTab === 'sfplus' ? (
                 <section id="sfplus" className="py-12">

@@ -133,6 +133,13 @@ export const TenantPortal = () => {
     // Auth and Firebase Sync
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Set unit based on email for trial focus
+        if (user.email === 'fsu9913@gmail.com') {
+          setCurrentUserUnit('105');
+        } else {
+          setCurrentUserUnit('101');
+        }
+
         // Sync public customizations
         const unsubCustom = onSnapshot(collection(db, 'mailboxCustomizations'), (snapshot) => {
           const customs: Record<string, { color: string }> = {};
@@ -450,8 +457,15 @@ export const TenantPortal = () => {
                           <div className="absolute -right-1 top-4 w-1.5 h-8 bg-ruby rounded-full origin-bottom transition-transform group-hover:rotate-45" />
                           
                           {isCurrentUser && (
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-ruby text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
-                              HOME PLATE
+                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+                              <div className="px-3 py-1 bg-ruby text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
+                                HOME PLATE
+                              </div>
+                              {unit === '105' && (
+                                <div className="px-2 py-0.5 bg-app-accent text-white text-[6px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                                  Trial Focus
+                                </div>
+                              )}
                             </div>
                           )}
                         </motion.button>

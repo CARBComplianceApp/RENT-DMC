@@ -396,7 +396,7 @@ if (propertyCount.count === 0) {
   insertLegalForm.run("Residential Lease Agreement", "Lease", "THIS RESIDENTIAL LEASE AGREEMENT is made and entered into...");
   insertLegalForm.run("Notice of Entry", "Notice", "PLEASE TAKE NOTICE that the Owner/Manager of the premises...");
   insertLegalForm.run("Sublease Policy & Law Reminder", "Notice", "REMINDER: Subleasing is strictly prohibited without written consent from management. California law requires...");
-  insertLegalForm.run("Travel Nurse Lease Addendum", "Addendum", "ADDENDUM FOR HEALTHCARE PROFESSIONALS: This addendum modifies the lease for Unit ${unit_number}. Tenant is recognized as a traveling healthcare professional. 30-day cancellation notice is permitted with proof of contract termination. Unit is provided fully furnished as per inventory...");
+  insertLegalForm.run("Travel Nurse Lease Addendum", "Addendum", "ADDENDUM FOR HEALTHCARE PROFESSIONALS: This addendum modifies the lease for Unit ${unit_number} for Tenant ${tenant_name}. Tenant is recognized as a traveling healthcare professional. 30-day cancellation notice is permitted with proof of contract termination. Unit is provided fully furnished as per inventory. Tenant acknowledges that this is a temporary housing arrangement and maintains a primary tax home elsewhere...");
 
   // Seed Laws & Regulations
   const insertLaw = db.prepare("INSERT INTO laws_regulations (title, jurisdiction, summary, link, last_updated) VALUES (?, ?, ?, ?, ?)");
