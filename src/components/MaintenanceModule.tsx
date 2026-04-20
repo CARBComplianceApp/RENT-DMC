@@ -13,7 +13,9 @@ import {
   Eye,
   XCircle,
   ArrowRight,
-  Plus
+  Plus,
+  Sparkles,
+  CreditCard
 } from 'lucide-react';
 
 interface MaintenanceRequest {
@@ -29,6 +31,10 @@ interface MaintenanceRequest {
   cost: number;
   is_emergency: boolean;
   is_escalated: boolean;
+  is_tenant_responsible: boolean;
+  is_value_add: boolean;
+  tenant_paid: boolean;
+  vendor_name: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -311,18 +317,83 @@ export const MaintenanceModule: React.FC = () => {
                           />
                         </div>
                       </div>
-                      <div className="flex items-end">
+                      <div className="flex items-end gap-2">
                         <button
                           onClick={() => handleUpdateStatus(selectedRequest!.id, { is_emergency: !selectedRequest!.is_emergency })}
-                          className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                          className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                             selectedRequest.is_emergency 
                               ? 'bg-app-accent/20 text-app-accent border-app-accent/30' 
                               : 'bg-app-text/5 text-app-text/40 border-app-border'
                           }`}
                         >
-                          {selectedRequest.is_emergency ? 'Emergency Active' : 'Mark Emergency'}
+                          {selectedRequest.is_emergency ? 'Emergency' : 'Mark Emergency'}
+                        </button>
+                        <button
+                          onClick={() => handleUpdateStatus(selectedRequest!.id, { is_tenant_responsible: !selectedRequest!.is_tenant_responsible })}
+                          className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                            selectedRequest.is_tenant_responsible 
+                              ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' 
+                              : 'bg-app-text/5 text-app-text/40 border-app-border'
+                          }`}
+                        >
+                          {selectedRequest.is_tenant_responsible ? 'Tenant Bill' : 'Tenant Resp?'}
                         </button>
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => handleUpdateStatus(selectedRequest!.id, { is_value_add: !selectedRequest!.is_value_add })}
+                        className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                          selectedRequest.is_value_add 
+                            ? 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30' 
+                            : 'bg-app-text/5 text-app-text/40 border-app-border'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        {selectedRequest.is_value_add ? 'Value-Add Request' : 'Mark Value-Add'}
+                      </button>
+                      <button
+                        disabled={!selectedRequest.is_value_add}
+                        onClick={() => handleUpdateStatus(selectedRequest!.id, { tenant_paid: !selectedRequest!.tenant_paid })}
+                        className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                          selectedRequest.tenant_paid 
+                            ? 'bg-blue-500/20 text-blue-500 border-blue-500/30' 
+                            : 'bg-app-text/5 text-app-text/40 border-app-border'
+                        } ${!selectedRequest.is_value_add && 'opacity-30 cursor-not-allowed'}`}
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        {selectedRequest.tenant_paid ? 'Paid Upfront' : 'Awaiting Payment'}
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">Assign Contractor / Staff</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={selectedRequest.assigned_to || ''}
+                          onChange={(e) => handleUpdateStatus(selectedRequest!.id, { assigned_to: e.target.value })}
+                          placeholder="Assign to..."
+                          className="flex-1 bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                        <select
+                          value={selectedRequest.vendor_name || ''}
+                          onChange={(e) => handleUpdateStatus(selectedRequest!.id, { vendor_name: e.target.value })}
+                          className="bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        >
+                          <option value="">Select Vendor</option>
+                          <option value="Internal Maintenance">Internal Maintenance</option>
+                          <option value="JBRUNO">JBRUNO (Preferred Painter)</option>
+                          <option value="External Contractor">External Contractor</option>
+                        </select>
+                      </div>
+                      {selectedRequest.vendor_name === 'JBRUNO' && (
+                        <div className="mt-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Preferred Partner: JBRUNO</span>
+                          <a href="https://jbruno.agency" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-emerald-600 underline uppercase tracking-widest">Visit Site</a>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -343,19 +414,6 @@ export const MaintenanceModule: React.FC = () => {
                           onChange={(e) => handleUpdateStatus(selectedRequest!.id, { approval_notes: e.target.value })}
                           placeholder="Owner feedback on cost/emergency..."
                           className="w-full bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-orange-500/50 min-h-[100px]"
-                        />
-                      </div>
-                    )}
-
-                    {(selectedRequest.status === 'Approved' || selectedRequest.status === 'In Progress') && (
-                      <div>
-                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">Assign Contractor / Staff</label>
-                        <input
-                          type="text"
-                          value={selectedRequest.assigned_to || ''}
-                          onChange={(e) => handleUpdateStatus(selectedRequest!.id, { assigned_to: e.target.value })}
-                          placeholder="Enter name of person taking care of it..."
-                          className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                         />
                       </div>
                     )}

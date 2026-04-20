@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FileText, Scale, TrendingUp, ChevronRight, Plus, Download, Search, Info, Sparkles, Wand2, X, Copy, Check, FileDown, Save, AlertTriangle } from 'lucide-react';
+import { FileText, Scale, TrendingUp, ChevronRight, Plus, Download, Search, Info, Sparkles, Wand2, X, Copy, Check, FileDown, Save, AlertTriangle, Camera, Calendar } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 
@@ -36,14 +36,31 @@ export function CEOBriefingPortal() {
   const [forms, setForms] = useState<LegalForm[]>([]);
   const [laws, setLaws] = useState<Law[]>([]);
   const [marketComps, setMarketComps] = useState<MarketComp[]>([]);
+  const [tenants, setTenants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Violation Form State
+  const [showViolationForm, setShowViolationForm] = useState(false);
+  const [violationData, setViolationData] = useState({
+    tenant_id: '',
+    violation_type: 'Unauthorized Occupant',
+    description: '',
+    violation_date: new Date().toISOString().split('T')[0],
+    photo_url: '',
+    gm_notes: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   
   // AI Lease Generator State
   const [showGenerator, setShowGenerator] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
+  const [documentType, setDocumentType] = useState<'Lease Agreement' | 'Lease Addendum'>('Lease Agreement');
+  const [tenantType, setTenantType] = useState<'Standard' | 'Travel Nurse' | 'Corporate' | 'Student'>('Standard');
+  const [unitNumber, setUnitNumber] = useState('101');
   const [rentAmount, setRentAmount] = useState('2500');
   const [leaseTerm, setLeaseTerm] = useState('12');
-  const [unitNumber, setUnitNumber] = useState('101');
-  const [specificClauses, setSpecificClauses] = useState('Travel nurse friendly: 30-day notice for contract cancellation, fully furnished option, all utilities included.');
+  const [specificClauses, setSpecificClauses] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLease, setGeneratedLease] = useState('');
   const [copied, setCopied] = useState(false);
@@ -54,35 +71,34 @@ export function CEOBriefingPortal() {
     
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-      const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
-        contents: `Generate a legally compliant residential lease agreement for California (New CA Standards), specifically optimized for Oakland (Zip Code 94609). 
+      const prompt = `Generate a legally compliant California ${documentType} for ${tenantType} tenants in Oakland (Zip Code 94609). 
         
         Parameters:
+        - Document Type: ${documentType}
+        - Tenant Type: ${tenantType}
         - Property Branding: SAilverback
         - Unit Number: ${unitNumber}
         - Monthly Rent: $${rentAmount}
         - Lease Term: ${leaseTerm} months
         - Specific Clauses/Requirements: ${specificClauses || 'Standard CA/Oakland clauses'}
         
-        The lease MUST include:
+        The document MUST include:
         1. Compliance with California Civil Code (New CA 2026 standards) and Oakland Rent Adjustment Program (RAP).
-        2. Just Cause for Eviction Ordinance (Oakland) mandatory disclosures.
-        3. Security deposit limits (CA law - max 1 month for unfurnished).
-        4. Lead-based paint disclosures (for 1924 building).
-        5. Bed bug, mold, and flood zone disclosures.
-        6. Oakland-specific tenant rights notices and RAP fee disclosures.
-        7. Clear sections for Parties, Premises, Term, Rent, Security Deposit, Utilities, Maintenance, and Rules.
-        8. TRAVEL NURSE PROVISIONS: Include a section for travel nurses (e.g., contract-based termination clauses, tax-home disclosures, and furnished unit inventory).
-        9. PAYMENT PORTAL: Explicitly mention that all payments (Rent, Deposit, Fees) must be made through the "SAilverback Stripe Payment Portal" at pay.silverbackai.agency/ruby-${unitNumber}.
+        2. JUST CAUSE FOR EVICTION: Oakland mandatory disclosures.
+        3. BRANDING & PAYMENT: Explicitly mention that all payments must be made through the "SAilverback Stripe Payment Portal" at pay.silverbackai.agency/ruby-${unitNumber}.
+        4. SPECIFIC PROVISIONS: Tailor the content based on Tenant Type (${tenantType}). (e.g., for Travel Nurses, ensure 30-day notice contract-based termination clauses, tax-home disclosures, and furnished unit inventory).
         
-        Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name and "SAilverback" as the management branding.`,
+        Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name and "SAilverback" as the management branding.`;
+        
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-pro-preview",
+        contents: prompt,
       });
 
-      setGeneratedLease(response.text || 'Failed to generate lease content.');
+      setGeneratedLease(response.text || 'Failed to generate content.');
     } catch (error) {
-      console.error('Error generating lease:', error);
-      setGeneratedLease('An error occurred while generating the lease. Please check your API configuration.');
+      console.error('Error generating document:', error);
+      setGeneratedLease('An error occurred. Please check your API configuration.');
     } finally {
       setIsGenerating(false);
     }
@@ -97,15 +113,18 @@ export function CEOBriefingPortal() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [formsRes, lawsRes, marketRes] = await Promise.all([
+        const [formsRes, lawsRes, marketRes, tenantsRes] = await Promise.all([
           fetch('/api/legal-forms'),
           fetch('/api/laws-regulations'),
-          fetch('/api/market-comparables')
+          fetch('/api/market-comparables'),
+          fetch('/api/rent-roll')
         ]);
         
         setForms(await formsRes.json());
         setLaws(await lawsRes.json());
         setMarketComps(await marketRes.json());
+        const rentRoll = await tenantsRes.json();
+        setTenants(rentRoll.filter((u: any) => u.tenant_name));
       } catch (error) {
         console.error('Error fetching CEO portal data:', error);
       } finally {
@@ -114,6 +133,37 @@ export function CEOBriefingPortal() {
     };
     fetchData();
   }, []);
+
+  const handleLogViolation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/lease-violations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(violationData)
+      });
+      if (res.ok) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setShowViolationForm(false);
+          setViolationData({
+            tenant_id: '',
+            violation_type: 'Unauthorized Occupant',
+            description: '',
+            violation_date: new Date().toISOString().split('T')[0],
+            photo_url: '',
+            gm_notes: ''
+          });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error logging violation:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) return <div className="p-12 text-center text-app-text/40">Loading Briefing Data...</div>;
 
@@ -171,8 +221,26 @@ export function CEOBriefingPortal() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
+              {/* Log Violation Card */}
+              <button 
+                onClick={() => setShowViolationForm(true)}
+                className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/20 shadow-sm hover:shadow-xl transition-all group flex flex-col text-left"
+              >
+                <div className="flex justify-between items-start mb-6 w-full">
+                  <div className="p-4 rounded-2xl bg-ruby/10 group-hover:bg-ruby/20 transition-colors">
+                    <AlertTriangle className="w-6 h-6 text-ruby" />
+                  </div>
+                  <span className="text-[10px] font-bold text-ruby/40 uppercase tracking-widest">Enforcement</span>
+                </div>
+                <h3 className="text-2xl font-serif font-bold mb-2 text-app-text">Log Lease Violation</h3>
+                <p className="text-app-text/50 text-sm mb-8">Formal record of property rules violations for legal & compliance tracking.</p>
+                <div className="mt-auto flex items-center gap-2 text-ruby font-bold text-xs uppercase tracking-widest">
+                  Open Form <ChevronRight className="w-4 h-4" />
+                </div>
+              </button>
+
             {forms.map((form) => (
               <div key={form.id} className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm hover:shadow-xl transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -184,8 +252,11 @@ export function CEOBriefingPortal() {
                 <h3 className="text-2xl font-serif font-bold mb-4 text-app-text">{form.title}</h3>
                 <p className="text-app-text/50 text-sm line-clamp-2 mb-8">{form.content_template}</p>
                 <div className="flex gap-4">
-                  <button className="flex-grow py-4 bg-app-text text-app-bg rounded-full text-xs font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-colors">
-                    Create Notice
+                  <button 
+                    onClick={() => setSelectedForm(form)}
+                    className="flex-grow py-4 bg-app-text text-app-bg rounded-full text-xs font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-colors"
+                  >
+                    View Template
                   </button>
                   <button className="p-4 bg-app-text/5 rounded-full hover:bg-app-text/10 transition-colors text-app-text">
                     <Download className="w-4 h-4" />
@@ -321,6 +392,32 @@ export function CEOBriefingPortal() {
               <div className="flex-1 overflow-y-auto p-8">
                 {!generatedLease ? (
                   <div className="space-y-8 max-w-2xl mx-auto py-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Document Type</label>
+                        <select
+                          value={documentType}
+                          onChange={(e) => setDocumentType(e.target.value as any)}
+                          className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
+                        >
+                          <option value="Lease Agreement">Lease Agreement</option>
+                          <option value="Lease Addendum">Lease Addendum</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Tenant Type</label>
+                        <select
+                          value={tenantType}
+                          onChange={(e) => setTenantType(e.target.value as any)}
+                          className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-app-text font-serif text-xl"
+                        >
+                          <option value="Standard">Standard</option>
+                          <option value="Travel Nurse">Travel Nurse</option>
+                          <option value="Corporate">Corporate Short-term</option>
+                          <option value="Student">Student</option>
+                        </select>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/40 ml-4">Unit #</label>
@@ -461,6 +558,193 @@ export function CEOBriefingPortal() {
                   </div>
                 )}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Form Preview Modal */}
+      <AnimatePresence>
+        {selectedForm && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-3xl bg-app-card rounded-[3rem] overflow-hidden shadow-2xl border border-app-border flex flex-col max-h-[85vh]"
+            >
+              <div className="p-8 border-b border-app-border flex items-center justify-between bg-app-bg/50">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-app-accent/10 rounded-2xl">
+                    <FileText className="w-6 h-6 text-app-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-serif font-bold text-app-text">{selectedForm.title}</h3>
+                    <p className="text-[10px] font-bold text-app-accent uppercase tracking-widest">{selectedForm.category} Template</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedForm(null)} 
+                  className="p-3 hover:bg-app-text/5 rounded-full transition-colors text-app-text/40"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-10 bg-app-bg/30">
+                <div className="p-8 bg-white/5 border border-app-border rounded-2xl font-serif text-app-text/80 leading-relaxed whitespace-pre-wrap text-sm shadow-inner">
+                  {selectedForm.content_template}
+                </div>
+              </div>
+              <div className="p-8 border-t border-app-border bg-app-bg/50 flex justify-end gap-4">
+                <button 
+                  onClick={() => setSelectedForm(null)}
+                  className="px-8 py-4 bg-app-text/5 text-app-text rounded-full text-xs font-bold uppercase tracking-widest hover:bg-app-text/10 transition-all border border-app-border"
+                >
+                  Close Preview
+                </button>
+                <button 
+                  className="px-8 py-4 bg-app-accent text-white rounded-full text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-lg flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Download PDF
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Lease Violation Modal */}
+      <AnimatePresence>
+        {showViolationForm && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-2xl bg-app-card rounded-[3rem] overflow-hidden shadow-2xl border border-app-border flex flex-col"
+            >
+              <div className="p-8 border-b border-app-border flex items-center justify-between bg-ruby/5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-ruby/10 rounded-2xl">
+                    <AlertTriangle className="w-6 h-6 text-ruby" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-serif font-bold text-app-text">Log Lease Violation</h3>
+                    <p className="text-[10px] font-bold text-ruby uppercase tracking-widest">Compliance & Legal Tracking</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowViolationForm(false)} 
+                  className="p-3 hover:bg-app-text/5 rounded-full transition-colors text-app-text/40"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleLogViolation} className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
+                {showSuccess ? (
+                  <div className="py-12 flex flex-col items-center justify-center gap-4 text-center">
+                    <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center">
+                      <Check className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-app-text">Violation Logged</h4>
+                      <p className="text-app-text/40 text-sm">The incident has been recorded for legal review.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Select Tenant</label>
+                        <select 
+                          required
+                          value={violationData.tenant_id}
+                          onChange={(e) => setViolationData({ ...violationData, tenant_id: e.target.value })}
+                          className="w-full px-6 py-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all text-app-text font-bold"
+                        >
+                          <option value="">Select a tenant...</option>
+                          {tenants.map(t => (
+                            <option key={t.id} value={t.tenant_id}>{t.tenant_name} (Unit {t.unit_number})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Violation Type</label>
+                        <select 
+                          required
+                          value={violationData.violation_type}
+                          onChange={(e) => setViolationData({ ...violationData, violation_type: e.target.value })}
+                          className="w-full px-6 py-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all text-app-text font-bold"
+                        >
+                          <option value="Unauthorized Occupant">Unauthorized Occupant</option>
+                          <option value="Property Damage">Property Damage</option>
+                          <option value="Noise Complaint">Noise Complaint</option>
+                          <option value="Non-Payment">Non-Payment</option>
+                          <option value="Smoking/Illegal Substance">Smoking/Illegal Substance</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Violation Date</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-app-text/30" />
+                        <input 
+                          type="date"
+                          required
+                          value={violationData.violation_date}
+                          onChange={(e) => setViolationData({ ...violationData, violation_date: e.target.value })}
+                          className="w-full pl-14 pr-6 py-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all text-app-text font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Description of Incident</label>
+                      <textarea 
+                        required
+                        value={violationData.description}
+                        onChange={(e) => setViolationData({ ...violationData, description: e.target.value })}
+                        placeholder="Provide formal detailed accounts of the lease violation..."
+                        className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all min-h-[120px] resize-none text-app-text"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Photo Reference (URL)</label>
+                      <div className="relative">
+                        <Camera className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-app-text/30" />
+                        <input 
+                          type="text"
+                          value={violationData.photo_url}
+                          onChange={(e) => setViolationData({ ...violationData, photo_url: e.target.value })}
+                          placeholder="Link to evidence photo/video..."
+                          className="w-full pl-14 pr-6 py-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all text-app-text"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">GM Internal Notes</label>
+                      <textarea 
+                        value={violationData.gm_notes}
+                        onChange={(e) => setViolationData({ ...violationData, gm_notes: e.target.value })}
+                        placeholder="Internal notes regarding enforcement strategy..."
+                        className="w-full p-6 bg-app-bg border border-app-border rounded-[2rem] focus:ring-1 focus:ring-ruby/20 focus:outline-none transition-all min-h-[100px] resize-none text-app-text"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-6 bg-ruby text-white rounded-[2rem] font-bold text-lg hover:bg-ruby-dark transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-widest"
+                    >
+                      {isSubmitting ? 'Logging Incident...' : 'Save Violation Record'}
+                    </button>
+                  </>
+                )}
+              </form>
             </motion.div>
           </div>
         )}

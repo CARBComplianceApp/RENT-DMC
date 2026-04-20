@@ -23,6 +23,7 @@ import {
   ShieldAlert,
   FileWarning,
   Gavel,
+  History as HistoryIcon,
   Wrench,
   LayoutGrid,
   MapPin,
@@ -104,6 +105,11 @@ export const TenantPortal = () => {
   const [referralData, setReferralData] = useState({ name: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reportText, setReportText] = useState('');
+  const [showValueAddForm, setShowValueAddForm] = useState(false);
+  const [valueAddRequest, setValueAddRequest] = useState({
+    description: '',
+    type: 'Painting'
+  });
   const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [concernType, setConcernType] = useState('concern');
   const [concernMessage, setConcernMessage] = useState('');
@@ -305,6 +311,30 @@ export const TenantPortal = () => {
     }
   };
 
+  const handleValueAddSubmit = async () => {
+    if (!valueAddRequest.description) return;
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unit_id: 1, // Mocked
+          description: `[VALUE-ADD: ${valueAddRequest.type}] ${valueAddRequest.description}`,
+          is_value_add: 1,
+          photo_url: ''
+        })
+      });
+      setValueAddRequest({ description: '', type: 'Painting' });
+      setShowValueAddForm(false);
+      setShowReportSuccess(true);
+      fetch('/api/maintenance?unit_id=1').then(res => res.json()).then(setMaintenanceRequests);
+      setTimeout(() => setShowReportSuccess(false), 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmitConcern = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -330,29 +360,31 @@ export const TenantPortal = () => {
 
   return (
     <div className="space-y-8">
-      {/* Portal Navigation */}
-      <div className="flex gap-8 border-b border-app-border overflow-x-auto pb-px">
-        {[
-          { id: 'mailbox', label: 'Mailbox Hub', icon: Mail },
-          { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-          { id: 'info-nook', label: 'Info Nook', icon: Info },
-          { id: 'support', label: 'Support Hub', icon: MessageSquare },
-          { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-          { id: 'security', label: 'Security', icon: ShieldCheck },
-          { id: 'refer', label: 'Refer a Friend', icon: Users },
-          { id: 'settings', label: 'Notifications', icon: Bell }
-        ].map((tab) => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab.id ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-            {activeTab === tab.id && <motion.div layoutId="activeTenantTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
-          </button>
-        ))}
-      </div>
+      {/* Portal Navigation - Available to all authorized tenants */}
+      {activeTab !== 'mailbox' && (
+        <div className="flex gap-8 border-b border-app-border overflow-x-auto pb-px">
+          {[
+            { id: 'mailbox', label: 'Mailbox Hub', icon: Mail },
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+            { id: 'info-nook', label: 'Info Nook', icon: Info },
+            { id: 'support', label: 'Support Hub', icon: MessageSquare },
+            { id: 'maintenance', label: 'Maintenance', icon: Wrench },
+            { id: 'security', label: 'Security', icon: ShieldCheck },
+            { id: 'refer', label: 'Refer a Friend', icon: Users },
+            { id: 'settings', label: 'Notifications', icon: Bell }
+          ].map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab.id ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+              {activeTab === tab.id && <motion.div layoutId="activeTenantTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
+            </button>
+          ))}
+        </div>
+      )}
 
       <AnimatePresence>
         {showWalkthrough && (
@@ -528,25 +560,37 @@ export const TenantPortal = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {[
-                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
-                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
-                        { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
-                      ].map((link) => (
-                        <button
-                          key={link.label}
-                          onClick={() => {
-                            setActiveTab(link.id as any);
-                            setSelectedMailbox(null);
-                          }}
-                          className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:border-[#FD5A1E]/30 transition-all group text-center"
-                        >
-                          <div className={`w-12 h-12 rounded-xl ${link.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-lg`}>
-                            <link.icon className="w-6 h-6" />
-                          </div>
-                          <div className="text-[10px] font-bold uppercase tracking-widest text-white/80">{link.label}</div>
-                        </button>
-                      ))}
+                      {selectedMailbox === '105' ? (
+                        <>
+                          {[
+                            { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
+                            { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                            { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                          ].map((link) => (
+                            <button
+                              key={link.label}
+                              onClick={() => {
+                                setActiveTab(link.id as any);
+                                setSelectedMailbox(null);
+                              }}
+                              className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:border-[#FD5A1E]/30 transition-all group text-center"
+                            >
+                              <div className={`w-12 h-12 rounded-xl ${link.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-lg`}>
+                                <link.icon className="w-6 h-6" />
+                              </div>
+                              <div className="text-[10px] font-bold uppercase tracking-widest text-white/80">{link.label}</div>
+                            </button>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="col-span-full p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/10 text-center space-y-4">
+                          <ShieldCheck className="w-12 h-12 text-white/10 mx-auto" />
+                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] leading-relaxed">
+                            Digital access restricted for privacy.<br/>
+                            This unit's portal is currently locked for the trial period.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Customization Option - Only for current user */}
@@ -601,6 +645,115 @@ export const TenantPortal = () => {
           </motion.div>
         )}
 
+        {activeTab === 'info-nook' && (
+          <motion.div
+            key="info-nook"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-4xl mx-auto space-y-8"
+          >
+            <div className="text-center mb-12">
+              <h3 className="text-4xl font-black text-app-text uppercase tracking-tighter">The Info <span className="italic text-app-accent">Nook</span>.</h3>
+              <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Your digital building encyclopedia.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Move-Out Checklist */}
+              <div className="p-8 rounded-[2.5rem] bg-app-card border border-app-border space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-ruby/10 flex items-center justify-center">
+                    <HistoryIcon className="w-6 h-6 text-ruby" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold uppercase tracking-tight">Move-Out Checklist</h4>
+                    <p className="text-[10px] font-black text-ruby uppercase tracking-widest">Required Action</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    'Notify management 30 days prior',
+                    'Digital move-out inspection',
+                    'Professional cleaning receipt',
+                    'Key and Hub return',
+                    'Forwarding address update'
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-app-bg/50 border border-app-border text-sm font-medium">
+                      <CheckCircle2 className="w-4 h-4 text-app-accent" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full py-4 border border-ruby/20 text-ruby rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
+                  Download Full PDF Guide
+                </button>
+              </div>
+
+              {/* Building Rules 2026 */}
+              <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg space-y-6 shadow-2xl">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-app-accent flex items-center justify-center">
+                    <ShieldCheck className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold uppercase tracking-tight text-white">Building Rules 2026</h4>
+                    <p className="text-[10px] font-black text-app-accent uppercase tracking-widest">Active Enforcement</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
+                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">Quiet Hours</div>
+                    <p className="text-xs text-white/60">Strict 10 PM - 8 AM. Respect your neighbors' Oakland Soul.</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
+                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">Guest Policy</div>
+                    <p className="text-xs text-white/60">Limit of 2 guests for more than 48 hours without registry.</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
+                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">E-Bike Safety</div>
+                    <p className="text-xs text-white/60">No lithium battery charging in apartments. Use garage bay.</p>
+                  </div>
+                </div>
+                <button className="w-full py-4 bg-app-accent text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
+                  Read Full Charter
+                </button>
+              </div>
+
+              {/* Trash & Recycling Schedule */}
+              <div className="col-span-1 md:col-span-2 p-10 rounded-[3rem] bg-indigo-950/20 border border-indigo-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <Trash2 className="w-32 h-32" />
+                </div>
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-1">
+                    <h4 className="text-3xl font-black text-indigo-400 uppercase tracking-tighter mb-2">Ruby <span className="italic">Eco</span> Schedule</h4>
+                    <p className="text-app-text/40 text-sm font-bold uppercase tracking-widest">AI-Monitored Smart Bins</p>
+                    <div className="mt-8 flex items-center gap-3 p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
+                      <Sparkles className="w-5 h-5 text-indigo-400" />
+                      <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Bins are currently: 42% FULL</div>
+                    </div>
+                  </div>
+                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { day: 'TUES/FRI', type: 'LANDFILL', color: 'bg-zinc-800', text: 'Grey Bins' },
+                      { day: 'WEDNESDAY', type: 'RECYCLE', color: 'bg-blue-600', text: 'Blue Bins' },
+                      { day: 'MONDAY', type: 'COMPOST', color: 'bg-emerald-600', text: 'Green Bins' },
+                      { day: 'MONTHLY', type: 'BULK', color: 'bg-amber-600', text: 'App Request' }
+                    ].map((item) => (
+                      <div key={item.type} className="flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5">
+                        <div>
+                          <div className="text-[8px] font-black text-app-text/40 uppercase tracking-widest">{item.day}</div>
+                          <div className={`text-xl font-black tracking-tighter ${item.type === 'LANDFILL' ? 'text-zinc-500' : 'text-app-text'}`}>{item.type}</div>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full ${item.color} text-[8px] font-black text-white uppercase tracking-widest`}>{item.text}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
         {activeTab === 'support' && (
           <motion.div
             key="support"
@@ -1098,6 +1251,81 @@ export const TenantPortal = () => {
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
             <div className="lg:col-span-2 space-y-8">
+              {/* Value-Add Requests (Thumbtack style) */}
+              <div className="p-8 rounded-[2.5rem] bg-emerald-500/5 border border-emerald-500/10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                      <Sparkles className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-app-text uppercase tracking-tight">Value-Add Upgrades</h4>
+                      <p className="text-[10px] text-app-text/40 font-bold uppercase tracking-widest">"Thumbtack" Style Customizations</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowValueAddForm(!showValueAddForm)}
+                    className="px-6 py-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all shadow-lg shadow-emerald-500/20"
+                  >
+                    {showValueAddForm ? 'Cancel' : 'Request Upgrade'}
+                  </button>
+                </div>
+
+                {showValueAddForm ? (
+                  <div className="space-y-6 bg-white/5 p-6 rounded-3xl border border-white/10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Upgrade Type</label>
+                        <select 
+                          value={valueAddRequest.type}
+                          onChange={(e) => setValueAddRequest({ ...valueAddRequest, type: e.target.value })}
+                          className="w-full px-6 py-4 bg-app-text/5 border border-app-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold text-app-text"
+                        >
+                          <option value="Painting">Painting Bedroom</option>
+                          <option value="Mirror">New Mirror Installation</option>
+                          <option value="Ceiling Fan">Add Ceiling Fan</option>
+                          <option value="Lighting">Custom Lighting</option>
+                          <option value="Other">Other Custom Work</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest ml-4">Description</label>
+                        <input 
+                          type="text"
+                          placeholder="e.g., Paint master bedroom in 'Ruby Red'..."
+                          value={valueAddRequest.description}
+                          onChange={(e) => setValueAddRequest({ ...valueAddRequest, description: e.target.value })}
+                          className="w-full px-6 py-4 bg-app-text/5 border border-app-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold text-app-text"
+                        />
+                      </div>
+                    </div>
+                    <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                      <p className="text-[10px] text-emerald-600 font-bold leading-relaxed">
+                        <Info className="w-3 h-3 inline mr-1 mb-0.5" />
+                        Upgrades require owner approval as they add permanent value to the unit. 
+                        <strong> Tenant pays upfront</strong> once an agreement is reached. 
+                        Work may be performed by internal maintenance or our preferred partner, <strong>JBRUNO</strong>.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={handleValueAddSubmit}
+                      className="w-full py-4 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-emerald-500/20"
+                    >
+                      Submit for Approval
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {['Painting', 'New Mirror', 'Ceiling Fan'].map(item => (
+                      <div key={item} className="p-4 rounded-2xl bg-app-text/5 border border-app-border flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span className="text-xs font-bold text-app-text/60 uppercase tracking-widest">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
                 <h3 className="text-2xl font-black text-app-text mb-8 uppercase tracking-tighter">Request Maintenance</h3>
                 <form onSubmit={handleCreateMaintenance} className="space-y-6">

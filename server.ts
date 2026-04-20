@@ -106,6 +106,12 @@ db.exec(`
     gm_notes TEXT,
     approval_notes TEXT,
     assigned_to TEXT,
+    cost REAL DEFAULT 0,
+    is_emergency INTEGER DEFAULT 0,
+    is_tenant_responsible INTEGER DEFAULT 0,
+    is_value_add INTEGER DEFAULT 0,
+    tenant_paid INTEGER DEFAULT 0,
+    vendor_name TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (unit_id) REFERENCES units(id)
@@ -281,6 +287,18 @@ try {
 try {
   db.exec("ALTER TABLE maintenance_requests ADD COLUMN is_escalated INTEGER DEFAULT 0");
 } catch (e) {}
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN is_tenant_responsible INTEGER DEFAULT 0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN is_value_add INTEGER DEFAULT 0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN tenant_paid INTEGER DEFAULT 0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE maintenance_requests ADD COLUMN vendor_name TEXT");
+} catch (e) {}
 
 // Migration: Add photos column to units if it doesn't exist
 try {
@@ -396,7 +414,17 @@ if (propertyCount.count === 0) {
   insertLegalForm.run("Residential Lease Agreement", "Lease", "THIS RESIDENTIAL LEASE AGREEMENT is made and entered into...");
   insertLegalForm.run("Notice of Entry", "Notice", "PLEASE TAKE NOTICE that the Owner/Manager of the premises...");
   insertLegalForm.run("Sublease Policy & Law Reminder", "Notice", "REMINDER: Subleasing is strictly prohibited without written consent from management. California law requires...");
-  insertLegalForm.run("Travel Nurse Lease Addendum", "Addendum", "ADDENDUM FOR HEALTHCARE PROFESSIONALS: This addendum modifies the lease for Unit ${unit_number} for Tenant ${tenant_name}. Tenant is recognized as a traveling healthcare professional. 30-day cancellation notice is permitted with proof of contract termination. Unit is provided fully furnished as per inventory. Tenant acknowledges that this is a temporary housing arrangement and maintains a primary tax home elsewhere...");
+  insertLegalForm.run("Travel Nurse Lease Addendum", "Addendum", `ADDENDUM FOR TEMPORARY HEALTHCARE PROFESSIONALS (TRAVEL NURSES)
+
+This Addendum is attached to and made part of the Residential Lease Agreement for Unit \${unit_number} by and between 3875 RUBY ("Landlord") and \${tenant_name} ("Tenant").
+
+1. SPECIAL TERMINATION PRIVILEGE: Tenant is recognized as a traveling healthcare professional. Notwithstanding any other provision of the Lease, Tenant shall have the right to terminate this Lease upon thirty (30) days' written notice to Landlord if Tenant's employment contract at the local healthcare facility is cancelled, shortened, or terminated, provided that Tenant provides written documentation from the staffing agency or healthcare employer verifying such termination.
+
+2. FURNISHED UNIT PROVISIONS: The Premises are provided fully furnished. An Inventory and Condition Report is attached as Exhibit A. Tenant acknowledges that all furniture, appliances, and housewares are the property of Landlord. Tenant shall maintain all such items in good condition, reasonable wear and tear excepted. Any missing or damaged items beyond normal wear and tear shall be deducted from the security deposit at current replacement cost.
+
+3. CLEANING FEE: Due to the high turnover nature of temporary professional housing, a one-time non-refundable sanitization and cleaning fee of $250 is required upon move-out to ensure the unit meets 'Patient-Ready' standards for the next professional occupant.
+
+4. TEMPORARY STATUS: Tenant acknowledges this is a temporary housing arrangement. Tenant represents that they maintain a primary tax home residence at [Address] and that their stay at the Premises is related to a temporary professional assignment.`);
 
   // Seed Laws & Regulations
   const insertLaw = db.prepare("INSERT INTO laws_regulations (title, jurisdiction, summary, link, last_updated) VALUES (?, ?, ?, ?, ?)");
@@ -577,11 +605,11 @@ async function startServer() {
   });
 
   app.post("/api/maintenance", (req, res) => {
-    const { unit_id, description, photo_url, assigned_to, gm_notes } = req.body;
+    const { unit_id, description, photo_url, assigned_to, gm_notes, is_emergency, is_value_add } = req.body;
     db.prepare(`
-      INSERT INTO maintenance_requests (unit_id, description, photo_url, assigned_to, gm_notes, status) 
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(unit_id, description, photo_url, assigned_to, gm_notes, 'Pending Review');
+      INSERT INTO maintenance_requests (unit_id, description, photo_url, assigned_to, gm_notes, is_emergency, is_value_add, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(unit_id, description, photo_url, assigned_to, gm_notes, is_emergency ? 1 : 0, is_value_add ? 1 : 0, is_value_add ? 'Awaiting Approval' : 'Pending Review');
     
     // Maintenance request counts as tenant activity needing reply
     db.prepare("UPDATE units SET needs_reply = 1, last_tenant_activity_at = CURRENT_TIMESTAMP WHERE id = ?").run(unit_id);
@@ -591,7 +619,7 @@ async function startServer() {
 
   app.patch("/api/maintenance/:id/status", (req, res) => {
     const { id } = req.params;
-    const { status, gm_notes, approval_notes, assigned_to, cost, is_emergency, is_escalated } = req.body;
+    const { status, gm_notes, approval_notes, assigned_to, cost, is_emergency, is_escalated, is_tenant_responsible, is_value_add, tenant_paid, vendor_name } = req.body;
     
     db.prepare(`
       UPDATE maintenance_requests 
@@ -602,6 +630,10 @@ async function startServer() {
           cost = COALESCE(?, cost),
           is_emergency = COALESCE(?, is_emergency),
           is_escalated = COALESCE(?, is_escalated),
+          is_tenant_responsible = COALESCE(?, is_tenant_responsible),
+          is_value_add = COALESCE(?, is_value_add),
+          tenant_paid = COALESCE(?, tenant_paid),
+          vendor_name = COALESCE(?, vendor_name),
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
@@ -610,8 +642,12 @@ async function startServer() {
       approval_notes, 
       assigned_to, 
       cost, 
-      is_emergency !== undefined ? (is_emergency ? 1 : 0) : null,
+      is_emergency !== undefined ? (is_emergency ? 1 : 0) : null, 
       is_escalated !== undefined ? (is_escalated ? 1 : 0) : null,
+      is_tenant_responsible !== undefined ? (is_tenant_responsible ? 1 : 0) : null,
+      is_value_add !== undefined ? (is_value_add ? 1 : 0) : null,
+      tenant_paid !== undefined ? (tenant_paid ? 1 : 0) : null,
+      vendor_name,
       id
     );
 
