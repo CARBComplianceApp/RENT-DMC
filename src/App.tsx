@@ -60,12 +60,13 @@ import { SFPlusModule } from './components/SFPlusModule';
 import { MarketMaxModule } from './components/MarketMaxModule';
 import { TenantConcernsModule } from './components/TenantConcernsModule';
 import { VendorManagement } from './components/VendorManagement';
-import { BuildingIntelligence } from './components/BuildingIntelligence';
 import { ProductTour } from './components/ProductTour';
 import { MaintenanceFlow } from './components/MaintenanceFlow';
 import { OwnerPresentation } from './components/OwnerPresentation';
 import { TravelingNurseHero } from './components/TravelingNurseHero';
 import { TravelNursePortal } from './components/TravelNursePortal';
+import { SecurityCameras } from './components/SecurityCameras';
+import { MosswoodMailboxes } from './components/MosswoodMailboxes';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -85,7 +86,7 @@ const distributionData = [
 export default function App() {
   const { theme } = useTheme();
   const [view, setView] = useState<'hub' | 'admin' | 'tenant' | 'travel'>('hub');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'vendors' | 'concerns' | 'flow' | 'travel'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'vendors' | 'concerns' | 'flow' | 'travel' | 'cameras' | 'legal'>('portfolio');
   const [rentRollUnlocked, setRentRollUnlocked] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOwnerVision, setShowOwnerVision] = useState(false);
@@ -96,7 +97,14 @@ export default function App() {
       
       <AnimatePresence>
         {showOwnerVision && (
-          <OwnerPresentation onClose={() => setShowOwnerVision(false)} />
+          <OwnerPresentation 
+            onClose={() => setShowOwnerVision(false)} 
+            onNavigate={(tab) => {
+              setView('admin');
+              setAdminTab(tab as any);
+              if (tab === 'rent-roll') setRentRollUnlocked(true);
+            }}
+          />
         )}
       </AnimatePresence>
       {/* Navigation */}
@@ -113,14 +121,22 @@ export default function App() {
             {view === 'hub' ? (
               <>
                 <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
-                <a href="#neighborhood-mosaic" className="text-app-text/60 hover:text-app-text transition-colors">Gallery</a>
+                <a href="#mosswood-mailboxes" className="text-app-text/60 hover:text-app-text transition-colors">Mosswood Park</a>
                 <a href="#maintenance-flow" className="text-app-text/60 hover:text-app-text transition-colors">Maintenance</a>
+                <a href="#travel-nurses" className="text-app-text/60 hover:text-app-text transition-colors">Travel Nurses</a>
+              </>
+            ) : view === 'admin' ? (
+              <>
+                <button onClick={() => setAdminTab('portfolio')} className="text-app-text/60 hover:text-app-text transition-colors">Portfolio</button>
+                <button onClick={() => { setRentRollUnlocked(true); setAdminTab('rent-roll'); }} className="text-app-text/60 hover:text-app-text transition-colors">Rent Roll</button>
+                <button onClick={() => setAdminTab('legal')} className="text-app-text/60 hover:text-app-text transition-colors">Legal & Compliance</button>
+                <button onClick={() => setAdminTab('ceo')} className="text-app-text/60 hover:text-app-text transition-colors">CEO Briefing</button>
               </>
             ) : (
               <>
-                <a href="#features" className="text-app-text/60 hover:text-app-text transition-colors">Features</a>
-                <a href="#intelligence" className="text-app-text/60 hover:text-app-text transition-colors">Intelligence</a>
-                <a href="#rent-roll" className="text-app-text/60 hover:text-app-text transition-colors">Rent Roll</a>
+                <a href="#" className="text-app-text/60 hover:text-app-text transition-colors">Portal</a>
+                <a href="#" className="text-app-text/60 hover:text-app-text transition-colors">Maintenance</a>
+                <a href="#" className="text-app-text/60 hover:text-app-text transition-colors">Payments</a>
               </>
             )}
           </div>
@@ -189,14 +205,22 @@ export default function App() {
               {view === 'hub' ? (
                 <>
                 <a href="#neighborhood" onClick={() => setIsMenuOpen(false)}>Neighborhood</a>
-                <a href="#neighborhood-mosaic" onClick={() => setIsMenuOpen(false)}>Gallery</a>
+                <a href="#mosswood-mailboxes" onClick={() => setIsMenuOpen(false)}>Mosswood Park</a>
                 <a href="#maintenance-flow" onClick={() => setIsMenuOpen(false)}>Maintenance</a>
+                <a href="#travel-nurses" onClick={() => setIsMenuOpen(false)}>Travel Nurses</a>
+                </>
+              ) : view === 'admin' ? (
+                <>
+                  <button onClick={() => { setAdminTab('portfolio'); setIsMenuOpen(false); }} className="text-left py-2">Portfolio</button>
+                  <button onClick={() => { setRentRollUnlocked(true); setAdminTab('rent-roll'); setIsMenuOpen(false); }} className="text-left py-2">Rent Roll</button>
+                  <button onClick={() => { setAdminTab('legal'); setIsMenuOpen(false); }} className="text-left py-2">Legal & Forms</button>
+                  <button onClick={() => { setAdminTab('ceo'); setIsMenuOpen(false); }} className="text-left py-2">CEO Briefing</button>
                 </>
               ) : (
                 <>
-                  <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
-                  <a href="#intelligence" onClick={() => setIsMenuOpen(false)}>Intelligence</a>
-                  <a href="#rent-roll" onClick={() => setIsMenuOpen(false)}>Rent Roll</a>
+                  <a href="#" onClick={() => setIsMenuOpen(false)}>Portal</a>
+                  <a href="#" onClick={() => setIsMenuOpen(false)}>Maintenance</a>
+                  <a href="#" onClick={() => setIsMenuOpen(false)}>Payments</a>
                 </>
               )}
             </div>
@@ -226,12 +250,12 @@ export default function App() {
             <div className="relative h-[90vh] min-h-[700px] flex items-center justify-center overflow-hidden bg-zinc-950">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?q=80&w=2000" 
-                  alt="3875 Ruby Exterior" 
-                  className="w-full h-full object-cover opacity-60"
+                  src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2000" 
+                  alt="Modern Apartment Interior" 
+                  className="w-full h-full object-cover opacity-40 blur-[2px]"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/20"></div>
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 text-center space-y-8">
@@ -268,9 +292,14 @@ export default function App() {
                   transition={{ delay: 0.4 }}
                   className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8"
                 >
-                  <button className="px-10 py-5 bg-app-accent text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3">
-                    View Available Units <ArrowRight className="w-5 h-5" />
-                  </button>
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <button className="px-10 py-5 bg-app-accent text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3">
+                      Call 415-900-8563
+                    </button>
+                    <a href="mailto:staff@rent-ruby.com" className="text-sm font-bold text-app-accent uppercase tracking-widest hover:underline">
+                      Or Email staff@rent-ruby.com
+                    </a>
+                  </div>
                 </motion.div>
                 
                 <motion.div 
@@ -279,7 +308,7 @@ export default function App() {
                    className="flex items-center justify-center gap-2 text-ruby-light pt-8"
                 >
                   <div className="w-2 h-2 rounded-full bg-ruby animate-pulse shadow-[0_0_10px_rgba(166,75,75,0.8)]" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Only 2 Units Left</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Travel Nurses Welcome</span>
                 </motion.div>
               </div>
             </div>
@@ -382,9 +411,23 @@ export default function App() {
               </div>
             </section>
 
-            {/* Maintenance Flow Section moved to Admin */}
+            <section id="maintenance-flow" className="py-24 bg-white">
+              <div className="max-w-7xl mx-auto px-6">
+                <MaintenanceFlow />
+              </div>
+            </section>
             
-            {/* Neighborhood Mosaic Section */}
+            <section id="travel-nurses" className="py-24 bg-amber-50">
+              <div className="max-w-7xl mx-auto px-6">
+                <TravelNursePortal onBack={() => {}} />
+              </div>
+            </section>
+
+            {/* New Simple Mosswood Park Design */}
+            <MosswoodMailboxes />
+
+            {/* Neighborhood Mosaic Section - Commented out for now as per user request to make ideas/suggestions available as they edit */}
+            {/*
             <section id="neighborhood-mosaic" className="py-32 bg-app-bg overflow-hidden">
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
@@ -410,26 +453,26 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* The Mosaic Grid */}
+                {/* The Mosaic Grid *\/}
                 <div className="grid grid-cols-12 grid-rows-6 gap-4 h-[1200px] md:h-[900px]">
-                  {/* Building Exterior - Large Anchor */}
-                  <div className="col-span-12 md:col-span-6 row-span-4 group relative overflow-hidden rounded-[3rem] shadow-2xl">
+                  {/* Living Space - Large Anchor *\/}
+                  <div className="col-span-12 md:col-span-6 row-span-4 group relative overflow-hidden rounded-[3rem] shadow-2xl bg-app-accent/5">
                     <img 
-                      src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200" 
-                      alt="3875 Ruby St Exterior" 
+                      src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200" 
+                      alt="Modern Ruby Living Space" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-app-text/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-12">
                       <div className="space-y-2">
-                        <div className="text-xs font-bold text-app-accent uppercase tracking-widest">The Anchor</div>
-                        <div className="text-3xl font-serif font-bold italic text-white">3875 Ruby Street</div>
+                        <div className="text-xs font-bold text-app-accent uppercase tracking-widest">The Sanctuary</div>
+                        <div className="text-3xl font-serif font-bold italic text-white">Refined Living Inside Ruby</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Unit Interior - Modern Living */}
-                  <div className="col-span-6 md:col-span-3 row-span-3 group relative overflow-hidden rounded-[2.5rem] shadow-xl">
+                  {/* Unit Interior - Detail *\/}
+                  <div className="col-span-6 md:col-span-3 row-span-3 group relative overflow-hidden rounded-[2.5rem] shadow-xl bg-app-card">
                     <img 
                       src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=800&auto=format&fit=crop" 
                       alt="Modern Unit Interior" 
@@ -441,73 +484,58 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Kaiser Permanente - Essential Care */}
-                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                    <img 
-                      src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop" 
-                      alt="Kaiser Permanente Medical Center" 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute top-6 left-6 px-4 py-2 bg-app-bg/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text shadow-sm">
-                      Medical District
+                  {/* Master Bedroom *\/}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg bg-zinc-900 border border-white/5 flex items-center justify-center p-8">
+                     <div className="text-center space-y-2">
+                        <Hospital className="w-10 h-10 text-app-accent mx-auto mb-4" />
+                        <div className="text-[10px] font-black text-app-accent uppercase tracking-widest">Medical Hub Access</div>
+                        <div className="text-lg font-bold text-white uppercase tracking-tighter">Steps from Kaiser</div>
+                     </div>
+                  </div>
+
+                  {/* Transit Access Styled Card *\/}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg bg-app-accent p-8 flex flex-col justify-between">
+                    <Train className="w-8 h-8 text-white" />
+                    <div>
+                      <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1 font-mono">BART Proximity</div>
+                      <div className="text-xl font-bold text-white uppercase tracking-tighter leading-tight">MacArthur Transit Heart</div>
                     </div>
                   </div>
 
-                  {/* MacArthur BART - Transit Pulse */}
-                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                    <img 
-                      src="https://images.unsplash.com/photo-1473445733995-882ed5127a11?q=80&w=800&auto=format&fit=crop" 
-                      alt="MacArthur BART Station" 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute top-6 left-6 px-4 py-2 bg-app-accent/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
-                      Transit Hub
-                    </div>
-                  </div>
-
-                  {/* Mosswood Park - Green Space */}
+                  {/* Kitchen Interior *\/}
                   <div className="col-span-12 md:col-span-6 row-span-2 group relative overflow-hidden rounded-[3rem] shadow-xl">
                     <img 
-                      src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop" 
-                      alt="Mosswood Park" 
+                      src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200&auto=format&fit=crop" 
+                      alt="Modern Ruby Kitchen" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-ruby/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                      <div className="text-white font-serif italic text-3xl">Mosswood Green</div>
+                      <div className="text-white font-serif italic text-3xl">Gourmet Details</div>
                     </div>
                   </div>
 
-                  {/* Piedmont Avenue - Walkable Shopping */}
-                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                    <img 
-                      src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop" 
-                      alt="Piedmont Avenue Shops" 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-app-bg/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-app-text shadow-sm">
-                      Piedmont Ave
+                  {/* Dining Area *\/}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg bg-zinc-900 border border-white/5 flex items-center justify-center p-8">
+                    <div className="text-center">
+                      <TreePine className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
+                      <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Parkside Living</div>
+                      <div className="text-lg font-bold text-white uppercase tracking-tighter">Mosswood Adjacent</div>
                     </div>
                   </div>
 
-                  {/* Temescal District - Food & Culture */}
-                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg">
-                    <img 
-                      src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop" 
-                      alt="Temescal District" 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute bottom-6 left-6 px-4 py-2 bg-ruby/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
-                      Temescal Vibe
+                  {/* Bathroom / Detail *\/}
+                  <div className="col-span-6 md:col-span-3 row-span-2 group relative overflow-hidden rounded-[2.5rem] shadow-lg bg-app-card">
+                    <div className="h-full w-full flex flex-col items-center justify-center p-6 text-center border border-white/5">
+                      <Coffee className="w-10 h-10 text-app-accent mb-4" />
+                      <div className="text-[10px] font-bold text-app-accent uppercase tracking-widest mb-1 italic">Vibrant Culture</div>
+                      <div className="text-lg font-bold text-app-text tracking-tighter uppercase line-clamp-2">Piedmont & Temescal Soul</div>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
+            */}
 
             <footer className="py-24 px-6 border-t border-app-border bg-app-bg">
               <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
@@ -523,8 +551,8 @@ export default function App() {
                 <div className="space-y-6">
                   <div className="text-xs font-black uppercase tracking-widest text-app-text/50">Navigation</div>
                   <ul className="space-y-4 text-sm font-bold">
-                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Available Units</a></li>
-                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Tenant Portal</a></li>
+                    <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Call 415-900-8563</a></li>
+                    <li><a href="mailto:staff@rent-ruby.com" className="text-app-text/70 hover:text-app-accent transition-colors">Email staff@rent-ruby.com</a></li>
                     <li><a href="#" className="text-app-text/70 hover:text-app-accent transition-colors">Maintenance Request</a></li>
                   </ul>
                 </div>
@@ -539,15 +567,24 @@ export default function App() {
               </div>
               <div className="max-w-7xl mx-auto mt-24 pt-12 border-t border-app-border flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="text-[11px] font-bold text-app-text/60 uppercase tracking-[0.3em] font-mono text-center md:text-left">
-                  © 2026 SILVERBACKAI.AGENCY. <span className="text-app-accent">OAKLAND SOUL.</span>
+                  © 2026 RENT-RUBY.COM. <span className="text-app-accent">OAKLAND SOUL.</span>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-[10px] font-black text-app-accent uppercase tracking-widest">Powered by</div>
-                  <div className="text-2xl font-black tracking-tighter text-app-text uppercase">SILVERBACKAI.AGENCY</div>
+                  <div className="text-2xl font-black tracking-tighter text-app-text uppercase">RENT-RUBY.COM</div>
                 </div>
                 <div className="flex gap-10 text-[11px] font-bold uppercase tracking-widest text-app-text/60">
                   <a href="#" className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1">Privacy</a>
                   <a href="#" className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1">Terms</a>
+                  <button onClick={() => {
+                     const pwd = prompt("Admin Password:");
+                     if (pwd === "1111") {
+                       setView('admin');
+                       window.scrollTo(0, 0);
+                     } else if (pwd !== null) {
+                       alert("Incorrect password");
+                     }
+                  }} className="hover:text-app-accent transition-colors border-b border-transparent hover:border-app-accent pb-1 uppercase">Admin Login</button>
                 </div>
               </div>
             </footer>
@@ -564,7 +601,7 @@ export default function App() {
               {/* Portal Header */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                 <div>
-                  <h2 className="text-4xl font-serif font-black text-app-text">Tenant & Admin Portal</h2>
+                  <h2 className="text-4xl font-serif font-black text-app-text">Property Admin Portal</h2>
                   <p className="text-app-text/50 mt-2">Secure management for 3875 Ruby Street.</p>
                 </div>
                 <div className="flex gap-4">
@@ -597,10 +634,11 @@ export default function App() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
                 {[
                   { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'sfplus' },
-                  { label: 'Occupancy Rate', value: '98.2%', trend: '+2.1%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'rent-roll' },
+                  { label: 'Portfolio Occupancy', value: '101 / 105', trend: '96.2%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'rent-roll' },
+                  { label: '105 Unit Compliance', value: '100%', trend: 'All files', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5', tab: 'legal' },
                   { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-ruby-light', bg: 'bg-ruby-light/5', tab: 'maintenance' },
                 ].map((stat) => (
                   <div 
@@ -612,16 +650,16 @@ export default function App() {
                       }
                       setAdminTab(stat.tab as any);
                     }}
-                    className={`p-8 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group cursor-pointer`}
+                    className={`p-6 rounded-[2rem] bg-app-card border-2 border-app-border shadow-lg hover:border-app-accent/20 transition-all group cursor-pointer`}
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
                         <stat.icon className={`w-8 h-8 ${stat.color}`} />
                       </div>
-                      <span className="text-xs font-bold text-ruby bg-ruby/5 px-3 py-1 rounded-full border border-ruby/10">{stat.trend}</span>
+                      <span className="text-[10px] font-bold text-ruby bg-ruby/5 px-3 py-1 rounded-full border border-ruby/10 whitespace-nowrap">{stat.trend}</span>
                     </div>
-                    <div className="text-xs font-bold text-app-text/40 uppercase tracking-[0.2em]">{stat.label}</div>
-                    <div className="text-5xl font-serif font-black mt-2 text-app-text">{stat.value}</div>
+                    <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-[0.2em]">{stat.label}</div>
+                    <div className="text-3xl font-serif font-black mt-2 text-app-text">{stat.value}</div>
                   </div>
                 ))}
               </div>
@@ -796,6 +834,13 @@ export default function App() {
                   Nurse Portal
                   {adminTab === 'travel' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
                 </button>
+                <button 
+                  onClick={() => setAdminTab('cameras')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${adminTab === 'cameras' ? 'text-app-accent' : 'text-app-text/40 hover:text-app-text'}`}
+                >
+                  Security Cameras
+                  {adminTab === 'cameras' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-app-accent" />}
+                </button>
               </div>
 
               {/* Dynamic Admin Content */}
@@ -819,7 +864,7 @@ export default function App() {
                 <section id="ceo" className="py-12">
                   <CEOBriefingPortal />
                 </section>
-              ) : adminTab === ('legal' as any) ? (
+              ) : adminTab === 'legal' ? (
                 <section id="legal" className="py-12">
                   <AdminLegalLog />
                 </section>
@@ -842,6 +887,10 @@ export default function App() {
               ) : adminTab === 'travel' ? (
                 <section id="travel-nurse" className="py-12">
                   <TravelNursePortal onBack={() => setAdminTab('portfolio')} />
+                </section>
+              ) : adminTab === 'cameras' ? (
+                <section id="cameras" className="py-12">
+                  <SecurityCameras />
                 </section>
               ) : (
                 <section id="vendors" className="py-12">
@@ -885,11 +934,29 @@ export default function App() {
       <footer className="py-12 border-t border-app-text/5 bg-app-card/30">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-ruby flex items-center justify-center text-white font-black text-xs">SB</div>
-            <span className="text-sm font-black text-app-text uppercase tracking-widest">Silverbackai.agency</span>
+            <div className="w-8 h-8 rounded-lg bg-ruby flex items-center justify-center text-white font-black text-xs">R</div>
+            <span className="text-sm font-black text-app-text uppercase tracking-widest">Rent-Ruby.com</span>
           </div>
-          <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em]">
-            © 2026 Silverbackai.agency • All Rights Reserved • Software Provider
+          <div className="flex gap-10 items-center">
+            <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em]">
+              © 2026 Rent-Ruby.com • All Rights Reserved
+            </div>
+            {view !== 'admin' && (
+              <button 
+                onClick={() => {
+                  const pwd = prompt("Admin Password:");
+                  if (pwd === "1111") {
+                    setView('admin');
+                    window.scrollTo(0, 0);
+                  } else if (pwd !== null) {
+                    alert("Incorrect password");
+                  }
+                }} 
+                className="text-[10px] font-bold uppercase tracking-widest text-app-text/30 hover:text-app-accent transition-colors"
+              >
+                Admin Login
+              </button>
+            )}
           </div>
         </div>
       </footer>

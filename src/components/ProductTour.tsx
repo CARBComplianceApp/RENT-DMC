@@ -50,7 +50,7 @@ const tourSteps: TourStep[] = [
       'Neighborhood Mosaic & Walk Score Data',
       'High-Contrast Ruby Accent Branding'
     ],
-    image: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=1200&auto=format&fit=crop',
     accent: 'bg-app-accent'
   },
   {
@@ -65,7 +65,7 @@ const tourSteps: TourStep[] = [
       'Digital Lease & Document Vault',
       'Community Bulletin & Event RSVP'
     ],
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?q=80&w=1200&auto=format&fit=crop',
     accent: 'bg-app-accent'
   },
   {
@@ -80,7 +80,7 @@ const tourSteps: TourStep[] = [
       'AI Property Visualizer & Marketing Suite',
       'Vendor & Construction Management'
     ],
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop',
     accent: 'bg-app-accent'
   },
   {
@@ -95,7 +95,7 @@ const tourSteps: TourStep[] = [
       'Integrated Bank Transaction Matching',
       'Unit-Level P&L and Performance Metrics'
     ],
-    image: 'https://images.unsplash.com/photo-1551288049-bbbda5366392?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop',
     accent: 'bg-app-accent'
   }
 ];
@@ -203,6 +203,52 @@ export function ProductTour() {
             </AnimatePresence>
           </div>
         </div>
+
+        {/* Compelling Call to Action */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-20 p-12 rounded-[3.5rem] bg-zinc-950 border border-white/10 relative overflow-hidden text-center"
+        >
+          <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')]" />
+          <div className="absolute top-0 right-0 p-12 opacity-10 blur-3xl bg-app-accent/40 rounded-full -translate-y-1/2 translate-x-1/2 w-96 h-96" />
+          
+          <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 rounded-3xl bg-app-accent/20 border border-app-accent/40 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-app-accent" />
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none">
+                Schedule Your Live <span className="italic text-app-accent">Demo</span> Today!
+              </h3>
+              <p className="text-xl text-white/60 font-medium tracking-tight">
+                Experience the SOUL OF OAKLAND through the power of the SAilverback platform.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
+              <p className="text-lg text-white font-bold mb-6">
+                Email us now to book your personalized demo for this week.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a 
+                  href="mailto:demo@silverbackai.agency" 
+                  className="w-full sm:w-auto px-10 py-5 bg-app-accent text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3"
+                >
+                  Book Live Demo <Calendar className="w-5 h-5" />
+                </a>
+                <div className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.2em] whitespace-nowrap">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Slots Available This Week
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

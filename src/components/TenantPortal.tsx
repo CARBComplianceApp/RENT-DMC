@@ -408,15 +408,10 @@ export const TenantPortal = () => {
             exit={{ opacity: 0, scale: 0.95 }}
             className="relative min-h-[800px] rounded-[4rem] overflow-hidden shadow-2xl bg-[#2A1810] group"
           >
-            {/* Background: Baseball Field Dirt / Warm Tone */}
+            {/* Background: Dark Warm Tone */}
             <div className="absolute inset-0 z-0">
-              <img 
-                src="https://images.unsplash.com/photo-1558365849-6ebd8b0454b2?q=80&w=2000&auto=format&fit=crop" 
-                alt="Field Dirt" 
-                className="w-full h-full object-cover opacity-20 mix-blend-overlay"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F0A] via-[#2A1810]/80 to-[#2A1810]/40"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F0A] via-[#2A1810] to-[#3D2314]"></div>
+              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')]"></div>
             </div>
 
             {/* Stadium Architecture Elements */}

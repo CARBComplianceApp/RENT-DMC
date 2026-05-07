@@ -54,6 +54,7 @@ interface Violation {
   tenant_id: number;
   tenant_name: string;
   unit_number: string;
+  type?: string;
   description: string;
   violation_date: string;
   photo_url?: string;
@@ -107,9 +108,18 @@ export const AdminLegalLog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [selectedAuditNotice, setSelectedAuditNotice] = useState<Notice | null>(null);
   const [newNotice, setNewNotice] = useState({ tenant_id: '', title: '', content: '' });
   const [newCamera, setNewCamera] = useState({ property_id: '', location: '', model: '', installation_date: '', status: 'Operational', notes: '' });
+  const [newViolation, setNewViolation] = useState({ 
+    tenant_id: '', 
+    type: '', 
+    description: '', 
+    violation_date: new Date().toISOString().split('T')[0], 
+    photo_url: '', 
+    gm_notes: '' 
+  });
 
   const logLibraryAccess = async (docId: number) => {
     try {
@@ -238,6 +248,29 @@ export const AdminLegalLog: React.FC = () => {
     }
   };
 
+  const handleLogViolation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/lease-violations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newViolation)
+      });
+      setIsViolationModalOpen(false);
+      setNewViolation({ 
+        tenant_id: '', 
+        type: '', 
+        description: '', 
+        violation_date: new Date().toISOString().split('T')[0], 
+        photo_url: '', 
+        gm_notes: '' 
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error logging violation:', error);
+    }
+  };
+
   const tabs = [
     { id: 'notices', label: 'Tenant Notices', icon: ShieldCheck },
     { id: 'violations', label: 'Lease Violations', icon: AlertTriangle },
@@ -258,12 +291,13 @@ export const AdminLegalLog: React.FC = () => {
           <button 
             onClick={() => {
               if (activeTab === 'cameras') setIsCameraModalOpen(true);
+              else if (activeTab === 'violations') setIsViolationModalOpen(true);
               else setIsNoticeModalOpen(true);
             }}
             className="flex items-center gap-2 px-6 py-3 bg-app-card border border-app-text/10 rounded-full font-bold text-sm hover:bg-app-text hover:text-app-bg transition-all shadow-sm"
           >
-            {activeTab === 'cameras' ? <Camera className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-            {activeTab === 'cameras' ? 'Add Camera' : 'Send Notice'}
+            {activeTab === 'cameras' ? <Camera className="w-4 h-4" /> : activeTab === 'violations' ? <AlertTriangle className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+            {activeTab === 'cameras' ? 'Add Camera' : activeTab === 'violations' ? 'Log Violation' : 'Send Notice'}
           </button>
           <button className="px-6 py-3 bg-app-accent text-white rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-md">
             Export Audit Log
@@ -349,6 +383,22 @@ export const AdminLegalLog: React.FC = () => {
                         onChange={(e) => setNewCamera({ ...newCamera, installation_date: e.target.value })}
                         className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Status</label>
+                      <select 
+                        required
+                        value={newCamera.status}
+                        onChange={(e) => setNewCamera({ ...newCamera, status: e.target.value })}
+                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
+                      >
+                        <option value="Operational">Operational</option>
+                        <option value="Maintenance Required">Maintenance Required</option>
+                        <option value="Offline">Offline</option>
+                      </select>
                     </div>
                   </div>
 
@@ -439,6 +489,123 @@ export const AdminLegalLog: React.FC = () => {
                     className="flex-1 py-4 bg-app-accent text-white font-bold uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-app-accent/20"
                   >
                     Send Notice
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Log Violation Modal */}
+      <AnimatePresence>
+        {isViolationModalOpen && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-app-text/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-2xl bg-app-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-app-text/10"
+            >
+              <div className="p-8 border-b border-app-text/5 bg-app-bg/30">
+                <h3 className="text-2xl font-serif font-black text-app-text">Log Lease <span className="italic text-app-accent">Violation</span></h3>
+                <p className="text-xs text-app-text/40 font-bold uppercase tracking-widest mt-1">Tenant Misconduct Record</p>
+              </div>
+              <form onSubmit={handleLogViolation} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">Tenant / Unit</label>
+                    <select 
+                      required
+                      value={newViolation.tenant_id}
+                      onChange={(e) => setNewViolation({ ...newViolation, tenant_id: e.target.value })}
+                      className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text"
+                    >
+                      <option value="">Select tenant...</option>
+                      {tenants.map(t => (
+                        <option key={t.id} value={t.id}>{t.name} (Unit {t.unit_number})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">Violation Type</label>
+                    <select 
+                      required
+                      value={newViolation.type}
+                      onChange={(e) => setNewViolation({ ...newViolation, type: e.target.value })}
+                      className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text"
+                    >
+                      <option value="">Select type...</option>
+                      <option value="Noise Complaint">Noise Complaint</option>
+                      <option value="Unauthorized Pet">Unauthorized Pet</option>
+                      <option value="Smoking Violation">Smoking Violation</option>
+                      <option value="Property Damage">Property Damage</option>
+                      <option value="Unauthorized Guest">Unauthorized Guest</option>
+                      <option value="Trash/Cleanliness">Trash/Cleanliness</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">Violation Date</label>
+                    <input 
+                      required
+                      type="date"
+                      value={newViolation.violation_date}
+                      onChange={(e) => setNewViolation({ ...newViolation, violation_date: e.target.value })}
+                      className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">Photo URL (Optional)</label>
+                    <input 
+                      type="url"
+                      placeholder="https://..."
+                      value={newViolation.photo_url}
+                      onChange={(e) => setNewViolation({ ...newViolation, photo_url: e.target.value })}
+                      className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">Description of Incident</label>
+                  <textarea 
+                    required
+                    rows={3}
+                    placeholder="Provide details about the lease violation..."
+                    value={newViolation.description}
+                    onChange={(e) => setNewViolation({ ...newViolation, description: e.target.value })}
+                    className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest ml-4">GM Internal Notes</label>
+                  <textarea 
+                    rows={2}
+                    placeholder="Internal reference, past warnings, or follow-up plans..."
+                    value={newViolation.gm_notes}
+                    onChange={(e) => setNewViolation({ ...newViolation, gm_notes: e.target.value })}
+                    className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text resize-none italic"
+                  />
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <button 
+                    type="button"
+                    onClick={() => setIsViolationModalOpen(false)}
+                    className="flex-1 py-4 bg-app-text/5 text-app-text/40 font-bold uppercase tracking-widest rounded-2xl hover:bg-app-text/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="flex-1 py-4 bg-app-accent text-white font-bold uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-app-accent/20"
+                  >
+                    Log Violation
                   </button>
                 </div>
               </form>
@@ -733,8 +900,15 @@ export const AdminLegalLog: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <div className="font-bold text-app-text">{v.description}</div>
-                        {v.gm_notes && <div className="text-xs text-app-text/40 italic mt-1">Note: {v.gm_notes}</div>}
+                        <div className="flex flex-col">
+                          {v.type && (
+                            <span className="text-[10px] font-black uppercase tracking-widest text-app-accent mb-1">
+                              {v.type}
+                            </span>
+                          )}
+                          <div className="font-bold text-app-text">{v.description}</div>
+                          {v.gm_notes && <div className="text-xs text-app-text/40 italic mt-1">Note: {v.gm_notes}</div>}
+                        </div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="text-sm font-medium text-app-text">{new Date(v.violation_date).toLocaleDateString()}</div>
@@ -788,6 +962,40 @@ export const AdminLegalLog: React.FC = () => {
 
           {activeTab === 'laws' && (
             <div className="p-8 space-y-6">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-[2rem] p-8 mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 rounded-2xl bg-emerald-500 text-white">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-serif font-black text-emerald-900">CA 94609 Compliance & Risk Mitigation</h4>
+                    <p className="text-xs text-emerald-700 font-bold uppercase tracking-widest">Built-In Verification & Security</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-emerald-800">
+                  <div className="space-y-4">
+                    <p className="font-medium text-sm">
+                      Our system automatically verifies tenant files against California and Oakland (94609) local ordinances out of the box at no extra cost. This includes Rent Adjustment Program (RAP) notices and exact Just Cause eviction prerequisites.
+                    </p>
+                    <ul className="space-y-2 text-xs font-bold">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Automated RAP Notice Tracking</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Oakland Just Cause Ordinance Verification</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Digital Signatures for all CA Disclosures</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="font-medium text-sm">
+                      <strong>Targeting Insurance Rebates:</strong> By enforcing digital records of safety inspections, strict sublease control, and logged maintenance responses, our ledger positions the property for significant liability insurance rebates (Slip and Fall defense).
+                    </p>
+                    <ul className="space-y-2 text-xs font-bold">
+                      <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Slip & Fall Maintenance Ticket Log</li>
+                      <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Sublease & Unauthorized Guest Tracking</li>
+                      <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> Tenant Accountability Acknowledgment Signatures</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
               {laws.map((law) => (
                 <div key={law.id} className="p-8 rounded-[2rem] border border-app-text/5 bg-app-card shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-8 items-start">
                   <div className="p-4 rounded-2xl bg-ruby/10 text-ruby">
@@ -957,110 +1165,6 @@ export const AdminLegalLog: React.FC = () => {
           </div>
         ))}
       </div>
-      {/* Camera Modal */}
-      <AnimatePresence>
-        {isCameraModalOpen && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsCameraModalOpen(false)}
-              className="absolute inset-0 bg-[#050505]/80 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-app-card rounded-[3rem] border border-app-border shadow-2xl overflow-hidden"
-            >
-              <div className="p-12">
-                <div className="flex justify-between items-start mb-10">
-                  <div>
-                    <h2 className="text-4xl font-black text-app-text uppercase tracking-tighter">Add Security Camera</h2>
-                    <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Register new hardware at 3875 Ruby</p>
-                  </div>
-                  <button onClick={() => setIsCameraModalOpen(false)} className="p-4 hover:bg-app-text/5 rounded-full transition-colors">
-                    <X className="w-6 h-6 text-app-text/40" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleAddCamera} className="space-y-8">
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Property</label>
-                      <select 
-                        required
-                        value={newCamera.property_id}
-                        onChange={(e) => setNewCamera({ ...newCamera, property_id: e.target.value })}
-                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
-                      >
-                        <option value="">Select Property</option>
-                        {properties.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Location</label>
-                      <input 
-                        required
-                        type="text"
-                        placeholder="e.g., Main Entrance, Garage"
-                        value={newCamera.location}
-                        onChange={(e) => setNewCamera({ ...newCamera, location: e.target.value })}
-                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Model</label>
-                      <input 
-                        required
-                        type="text"
-                        placeholder="e.g., Ring Pro 2, Nest Cam"
-                        value={newCamera.model}
-                        onChange={(e) => setNewCamera({ ...newCamera, model: e.target.value })}
-                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Installation Date</label>
-                      <input 
-                        required
-                        type="date"
-                        value={newCamera.installation_date}
-                        onChange={(e) => setNewCamera({ ...newCamera, installation_date: e.target.value })}
-                        className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-app-text/40 ml-4">Initial Notes</label>
-                    <textarea 
-                      rows={3}
-                      value={newCamera.notes}
-                      onChange={(e) => setNewCamera({ ...newCamera, notes: e.target.value })}
-                      className="w-full px-8 py-5 bg-app-text/[0.02] border border-app-border rounded-2xl focus:ring-2 focus:ring-ruby/20 outline-none transition-all font-bold resize-none"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full py-6 bg-ruby text-white rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-ruby/20"
-                  >
-                    Register Hardware
-                  </button>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
     </div>
   );
 };

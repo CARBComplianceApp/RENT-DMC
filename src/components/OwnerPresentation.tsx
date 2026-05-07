@@ -51,12 +51,12 @@ const slides: Slide[] = [
     color: "#9B111E"
   },
   {
-    title: "Owner Suite",
-    subtitle: "Executive Command & Control",
+    title: "105 Unit Admin Suite",
+    subtitle: "Command & Control for the Entire Portfolio",
     content: [
-      "CEO Briefing: One-tap access to ROI, liquidity, and asset health metrics.",
-      "Legal Log: Chain-of-custody tracking for every notice and violation.",
-      "Market Intelligence: Real-time neighborhood data driving rent optimization."
+      "Rent Roll & Ledger: Real-time status with automated reconciliation.",
+      "Legal & Compliance Log: Chain-of-custody tracking for every notice and violation.",
+      "Tenant File Compliance: Built-in CA 94609 forms, leases, laws, and checklists."
     ],
     icon: BarChart3,
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
@@ -68,7 +68,7 @@ const slides: Slide[] = [
     content: [
       "Maintenance 2.0: Photo-first reporting with real-time vendor tracking.",
       "Flexible Payments: Split-rent options and automated credit building.",
-      "Smart Access: Digital keys and guest permission management."
+      "Smart Access & Mail: Digital keys and smart Mosswood mailboxes."
     ],
     icon: Wrench,
     image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?q=80&w=1200",
@@ -88,7 +88,7 @@ const slides: Slide[] = [
   }
 ];
 
-export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
+export const OwnerPresentation = ({ onClose, onNavigate }: { onClose: () => void, onNavigate?: (tab: string) => void }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const next = () => currentSlide < slides.length - 1 && setCurrentSlide(currentSlide + 1);
@@ -206,12 +206,40 @@ export const OwnerPresentation = ({ onClose }: { onClose: () => void }) => {
                 ))}
               </div>
 
+              {/* Action buttons based on slide */}
+              {currentSlide === 1 && (
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => {
+                    onClose();
+                    if(onNavigate) onNavigate('legal');
+                  }}
+                  className="px-8 py-4 w-fit bg-[#9B111E]/20 text-[#9B111E] border border-[#9B111E] rounded-xl font-bold uppercase tracking-widest hover:bg-[#9B111E] hover:text-white transition-all text-sm mt-8"
+                >
+                  Explore 105 Unit Admin Suite
+                </motion.button>
+              )}
+              {currentSlide === 3 && (
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => {
+                    onClose();
+                    if(onNavigate) onNavigate('rent-roll');
+                  }}
+                  className="px-8 py-4 w-fit bg-[#9B111E]/20 text-[#9B111E] border border-[#9B111E] rounded-xl font-bold uppercase tracking-widest hover:bg-[#9B111E] hover:text-white transition-all text-sm mt-8"
+                >
+                  Explore Live Rent Roll
+                </motion.button>
+              )}
+
               {currentSlide === slides.length - 1 && (
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   onClick={onClose}
-                  className="px-12 py-6 bg-[#9B111E] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-4"
+                  className="px-12 py-6 bg-[#9B111E] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-4 mt-8"
                 >
                   Launch Platform <ArrowRight className="w-6 h-6" />
                 </motion.button>

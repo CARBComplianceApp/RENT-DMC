@@ -11,7 +11,8 @@ import {
   Camera,
   Heart,
   Stethoscope,
-  Briefcase
+  Briefcase,
+  Users
 } from 'lucide-react';
 
 interface TravelingNurseHeroProps {
@@ -114,9 +115,9 @@ export const TravelingNurseHero: React.FC<TravelingNurseHeroProps> = ({ onClaim 
               <div className="grid grid-cols-2 gap-8 items-end">
                 <div className="space-y-4">
                   <div className="flex -space-x-3 mb-4">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0A192F] bg-zinc-800 overflow-hidden">
-                        <img src={`https://picsum.photos/seed/nurse${i}/100/100`} alt="Nurse" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    {[Users, Heart, Stethoscope, Briefcase].map((Icon, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0A192F] bg-zinc-800 flex items-center justify-center text-cyan-400">
+                        <Icon className="w-5 h-5" />
                       </div>
                     ))}
                     <div className="w-10 h-10 rounded-full border-2 border-[#0A192F] bg-cyan-500 flex items-center justify-center text-[10px] font-bold text-[#0A192F]">

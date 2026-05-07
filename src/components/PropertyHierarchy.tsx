@@ -102,7 +102,7 @@ export const PropertyHierarchy = () => {
             >
               <div className="aspect-[16/10] rounded-[2.5rem] overflow-hidden mb-6 relative">
                 <img 
-                  src={property.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800'} 
+                  src={property.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800'} 
                   alt={property.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
