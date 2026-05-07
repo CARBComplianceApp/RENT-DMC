@@ -22,6 +22,8 @@ interface TenantConcern {
   message: string;
   status: string;
   gm_notes: string | null;
+  assigned_staff?: string | null;
+  gm_notes_to_tenant?: string | null;
   created_at: string;
 }
 
@@ -181,13 +183,38 @@ export const TenantConcernsModule: React.FC = () => {
                       </button>
                     </div>
 
+                    <div className="pt-4 border-t border-app-border">
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2 mt-4">Assign Maintenance Staff</label>
+                      <select 
+                        value={selectedConcern.assigned_staff || ''} 
+                        onChange={(e) => handleUpdateStatus(selectedConcern.id, { assigned_staff: e.target.value })}
+                        className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 mb-4"
+                      >
+                        <option value="">Unassigned</option>
+                        <option value="Marcus (Lead Tech)">Marcus (Lead Tech)</option>
+                        <option value="Sarah (Plumbing)">Sarah (Plumbing)</option>
+                        <option value="John (Electrical)">John (Electrical)</option>
+                        <option value="Dave (General)">Dave (General)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">GM Public Notes <span className="text-emerald-500">(Visible to Tenant)</span></label>
+                      <textarea
+                        value={selectedConcern.gm_notes_to_tenant || ''}
+                        onChange={(e) => handleUpdateStatus(selectedConcern.id, { gm_notes_to_tenant: e.target.value })}
+                        placeholder="Add notes that the tenant will see..."
+                        className="w-full bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[100px] mb-4"
+                      />
+                    </div>
+
                     <div>
                       <label className="text-[10px] font-black text-app-text/40 uppercase tracking-widest block mb-2">GM Internal Notes (Mezfin)</label>
                       <textarea
                         value={selectedConcern.gm_notes || ''}
                         onChange={(e) => handleUpdateStatus(selectedConcern.id, { gm_notes: e.target.value })}
                         placeholder="Add internal notes for management..."
-                        className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[150px]"
+                        className="w-full bg-app-bg border border-app-border rounded-xl p-4 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-app-accent/50 min-h-[100px]"
                       />
                     </div>
                   </div>

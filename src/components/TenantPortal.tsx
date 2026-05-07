@@ -116,6 +116,7 @@ export const TenantPortal = () => {
   const [showConcernSuccess, setShowConcernSuccess] = useState(false);
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
+  const [myConcerns, setMyConcerns] = useState<any[]>([]);
   const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
   const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
   const [currentUserUnit, setCurrentUserUnit] = useState<string>('101'); // Mocked for demo
@@ -176,6 +177,7 @@ export const TenantPortal = () => {
     fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
     fetch('/api/lease-violations/1').then(res => res.json()).then(setViolations);
     fetch('/api/maintenance?unit_id=1').then(res => res.json()).then(setMaintenanceRequests);
+    fetch('/api/concerns?unit_id=1').then(res => res.json()).then(setMyConcerns);
     fetch('/api/lease-updates/1').then(res => res.json()).then(data => setLeaseUpdate(data[0] || null));
     
     // Fetch rent status
@@ -348,6 +350,7 @@ export const TenantPortal = () => {
           message: concernMessage
         })
       });
+      fetch('/api/concerns?unit_id=1').then(res => res.json()).then(setMyConcerns);
       setShowConcernSuccess(true);
       setConcernMessage('');
       setTimeout(() => setShowConcernSuccess(false), 3000);
@@ -844,6 +847,44 @@ export const TenantPortal = () => {
                   </form>
                 </div>
               </div>
+
+              {myConcerns.length > 0 && (
+                <div className="mt-12 pt-12 border-t border-app-border">
+                  <h4 className="text-2xl font-black text-app-text tracking-tighter uppercase mb-8">My Past Concerns</h4>
+                  <div className="space-y-4">
+                    {myConcerns.map((concern) => (
+                      <div key={concern.id} className="p-6 rounded-[2rem] bg-app-bg border border-app-border flex flex-col md:flex-row gap-6">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${concern.status === 'Pending' ? 'bg-amber-500/10 text-amber-500' : concern.status === 'Resolved' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-ruby/10 text-ruby'}`}>
+                              {concern.status}
+                            </span>
+                            <span className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">{new Date(concern.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-sm font-medium text-app-text">"{concern.message}"</p>
+                        </div>
+                        
+                        {(concern.gm_notes_to_tenant || concern.assigned_staff) && (
+                          <div className="flex-1 p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 flex gap-4">
+                            <div className="p-2 rounded-full bg-emerald-100/50 text-emerald-600 h-fit">
+                              <MessageSquare className="w-4 h-4" />
+                            </div>
+                            <div className="space-y-2">
+                              <h5 className="text-[10px] font-black tracking-widest uppercase text-emerald-800">Message from Mezfin</h5>
+                              {concern.assigned_staff && (
+                                <p className="text-xs text-emerald-700 font-bold">Assigned to: {concern.assigned_staff}</p>
+                              )}
+                              {concern.gm_notes_to_tenant && (
+                                <p className="text-sm text-emerald-900 italic">"{concern.gm_notes_to_tenant}"</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

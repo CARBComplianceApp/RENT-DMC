@@ -124,9 +124,14 @@ db.exec(`
     message TEXT NOT NULL,
     status TEXT DEFAULT 'Pending',
     gm_notes TEXT,
+    assigned_staff TEXT,
+    gm_notes_to_tenant TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (unit_id) REFERENCES units(id)
   );
+
+  try { db.prepare("ALTER TABLE tenant_concerns ADD COLUMN assigned_staff TEXT").run(); } catch(e) {}
+  try { db.prepare("ALTER TABLE tenant_concerns ADD COLUMN gm_notes_to_tenant TEXT").run(); } catch(e) {}
 
   CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -555,12 +560,19 @@ async function startServer() {
   });
 
   app.get("/api/concerns", (req, res) => {
-    const concerns = db.prepare(`
+    const { unit_id } = req.query;
+    let query = `
       SELECT c.*, u.unit_number 
       FROM tenant_concerns c
       JOIN units u ON c.unit_id = u.id
-      ORDER BY c.created_at DESC
-    `).all();
+    `;
+    const params = [];
+    if (unit_id) {
+      query += ` WHERE c.unit_id = ?`;
+      params.push(unit_id);
+    }
+    query += ` ORDER BY c.created_at DESC`;
+    const concerns = db.prepare(query).all(...params);
     res.json(concerns);
   });
 
@@ -579,13 +591,21 @@ async function startServer() {
 
   app.patch("/api/concerns/:id", (req, res) => {
     const { id } = req.params;
-    const { status, gm_notes } = req.body;
+    const { status, gm_notes, assigned_staff, gm_notes_to_tenant } = req.body;
     db.prepare(`
       UPDATE tenant_concerns 
       SET status = COALESCE(?, status), 
-          gm_notes = COALESCE(?, gm_notes)
+          gm_notes = COALESCE(?, gm_notes),
+          assigned_staff = COALESCE(?, assigned_staff),
+          gm_notes_to_tenant = COALESCE(?, gm_notes_to_tenant)
       WHERE id = ?
-    `).run(status, gm_notes, id);
+    `).run(
+      status !== undefined ? status : null, 
+      gm_notes !== undefined ? gm_notes : null,
+      assigned_staff !== undefined ? assigned_staff : null,
+      gm_notes_to_tenant !== undefined ? gm_notes_to_tenant : null,
+      id
+    );
     res.json({ status: "ok" });
   });
 
