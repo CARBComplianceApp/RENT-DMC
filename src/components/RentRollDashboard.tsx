@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { 
   Building2, 
   Users, 
@@ -14,7 +15,8 @@ import {
   MessageSquare,
   FileText,
   ShieldAlert,
-  Gavel
+  Gavel,
+  RefreshCw
 } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 
@@ -101,6 +103,10 @@ export const RentRollDashboard: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof RentRollItem | 'unit_number' | 'tenant_name' | 'lease_end' | 'balance_due'; direction: 'asc' | 'desc' } | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>('All');
   
   // Detail views state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -346,11 +352,39 @@ Are you absolutely sure you want to proceed?`,
     reader.readAsText(file);
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const applyBankMatches = async () => {
     // In a real app, this would send updates to the server
     setIsBankModalOpen(false);
     fetchData();
     alert(`Successfully processed ${bankMatches.length} payments from CHASE bank.`);
+  };
+
+  const handleChaseSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      // Create mock bank matches based on the rent roll
+      const matches = data.filter(u => u.last_payment_status !== 'Paid').slice(0, 3).map(u => ({
+        matched: true,
+        unit: u,
+        amount: String(u.rent_amount),
+        date: new Date().toISOString().split('T')[0]
+      }));
+
+      // if everyone is paid, just pick first few
+      const finalMatches = matches.length > 0 ? matches : data.slice(0, 2).map(u => ({
+        matched: true,
+        unit: u,
+        amount: String(u.rent_amount),
+        date: new Date().toISOString().split('T')[0]
+      }));
+
+      setBankMatches(finalMatches);
+      setLastBankUpload(new Date().toLocaleString());
+      setIsBankModalOpen(true);
+      setIsSyncing(false);
+    }, 1500);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -426,6 +460,55 @@ Are you absolutely sure you want to proceed?`,
     const now = new Date();
     const diffHours = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
     return diffHours >= 48;
+  };
+
+  const filteredAndSortedData = React.useMemo(() => {
+    let result = [...data];
+
+    // Filter by search
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      result = result.filter(u => 
+        u.unit_number.toLowerCase().includes(lowerSearch) || 
+        (u.tenant_name && u.tenant_name.toLowerCase().includes(lowerSearch))
+      );
+    }
+
+    // Filter by status
+    if (statusFilter !== 'All') {
+      result = result.filter(u => u.status === statusFilter);
+    }
+
+    // Filter by neighborhood
+    if (neighborhoodFilter !== 'All') {
+      result = result.filter(u => u.neighborhood === neighborhoodFilter);
+    }
+
+    // Sort
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+        
+        if (aVal === bVal) return 0;
+        if (aVal === null) return sortConfig.direction === 'asc' ? 1 : -1;
+        if (bVal === null) return sortConfig.direction === 'asc' ? -1 : 1;
+
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [data, searchTerm, sortConfig, statusFilter, neighborhoodFilter]);
+
+  const requestSort = (key: keyof RentRollItem) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
   };
 
   if (loading) {
@@ -540,6 +623,48 @@ Are you absolutely sure you want to proceed?`,
         </div>
       </div>
 
+      {/* Security & Financial Trend (Owner Only) */}
+      {isOwnerOrAccounting && (
+        <div className="bg-app-card rounded-[3rem] border border-app-border shadow-2xl p-10 mb-8 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-8 w-1/3 opacity-5 pointer-events-none">
+                <Building2 className="w-full h-full text-app-text" />
+            </div>
+            <div className="mb-8 z-10 relative">
+                <h3 className="text-3xl font-black tracking-tighter uppercase text-app-text">Financial & Security Insight</h3>
+                <p className="text-sm font-mono text-app-text/40 tracking-widest mt-2 uppercase">Lateness trends and real-time payment aggregation across 24 units</p>
+                <p className="text-sm text-app-accent font-bold mt-2 pr-20 max-w-2xl">
+                    "High-end rent roll tracking dynamically aligns Chase and Stripe data to capture patterns instantly, securing your margin in unpredictable markets."
+                </p>
+            </div>
+            
+            <div className="h-[300px] w-full z-10 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        data={[
+                            { month: 'Nov', late_units: 3, amount_at_risk: 4200 },
+                            { month: 'Dec', late_units: 4, amount_at_risk: 5400 },
+                            { month: 'Jan', late_units: 2, amount_at_risk: 3100 },
+                            { month: 'Feb', late_units: 1, amount_at_risk: 1800 },
+                            { month: 'Mar', late_units: 5, amount_at_risk: 6800 },
+                            { month: 'Apr', late_units: 2, amount_at_risk: 3200 },
+                        ]}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                        <XAxis dataKey="month" stroke="currentColor" className="text-[10px] font-mono tracking-widest opacity-40 uppercase" />
+                        <YAxis stroke="currentColor" className="text-[10px] font-mono tracking-widest opacity-40" />
+                        <RechartsTooltip 
+                            contentStyle={{ backgroundColor: '#0B1A2D', borderRadius: '1rem', border: 'none', color: '#fff' }}
+                            itemStyle={{ color: '#FF5F1F' }}
+                        />
+                        <Bar yAxisId={0} dataKey="late_units" fill="#FF5F1F" radius={[4, 4, 0, 0]} name="Late Units" maxBarSize={40} />
+                        <Bar yAxisId={0} dataKey="amount_at_risk" fill="rgba(255, 95, 31, 0.2)" radius={[4, 4, 0, 0]} name="Value At Risk" maxBarSize={40} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+      )}
+
       {/* Rent Roll Table */}
       <div className="bg-app-card rounded-[3rem] border border-app-border shadow-2xl overflow-hidden transition-colors duration-500">
         <div className="p-10 border-b border-app-border flex items-center justify-between bg-app-text/[0.01]">
@@ -549,11 +674,41 @@ Are you absolutely sure you want to proceed?`,
               {isOwnerOrAccounting ? 'Owner/Accounting Control Level' : 'GM View Level'} • {data.length} Units Total
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            {isOwnerOrAccounting && (
+              <button 
+                onClick={handleChaseSync}
+                disabled={isSyncing}
+                className="flex items-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg disabled:opacity-50"
+              >
+                <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
+                {isSyncing ? 'Syncing...' : 'Sync Chase'}
+              </button>
+            )}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-6 py-4 bg-app-text/5 border border-app-border rounded-2xl text-app-text font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-app-accent/50"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Occupied">Occupied</option>
+              <option value="Vacant">Vacant</option>
+            </select>
+            <select
+              value={neighborhoodFilter}
+              onChange={(e) => setNeighborhoodFilter(e.target.value)}
+              className="px-6 py-4 bg-app-text/5 border border-app-border rounded-2xl text-app-text font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-app-accent/50"
+            >
+              <option value="All">All Neighborhoods</option>
+              <option value="Mosswood">Mosswood</option>
+              <option value="Piedmont Ave">Piedmont Ave</option>
+            </select>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-app-text/30" />
               <input 
                 type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search units, tenants..."
                 className="pl-12 pr-6 py-4 bg-app-text/5 border border-app-border rounded-2xl text-app-text font-bold tracking-tight focus:outline-none focus:ring-2 focus:ring-app-accent/50 w-80"
               />
@@ -565,18 +720,30 @@ Are you absolutely sure you want to proceed?`,
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-app-border">
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Unit</th>
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Status</th>
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Tenant</th>
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Rent</th>
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Balance</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('unit_number')}>
+                  Unit {sortConfig?.key === 'unit_number' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('status')}>
+                  Status {sortConfig?.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('tenant_name')}>
+                  Tenant {sortConfig?.key === 'tenant_name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('rent_amount')}>
+                  Rent {sortConfig?.key === 'rent_amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('balance_due')}>
+                  Balance {sortConfig?.key === 'balance_due' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Last Payment</th>
-                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Lease End</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em] cursor-pointer hover:text-app-text transition-colors" onClick={() => requestSort('lease_end')}>
+                  Lease End {sortConfig?.key === 'lease_end' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-app-border">
-              {data.map((unit) => (
+              {filteredAndSortedData.map((unit) => (
                 <tr 
                   key={unit.id}
                   onClick={() => {

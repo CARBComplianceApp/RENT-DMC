@@ -247,7 +247,7 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-7xl md:text-[9rem] font-sans font-black text-white tracking-tighter leading-[0.85] uppercase"
                   >
-                    Soul of <span className="italic text-app-accent">Oakland</span>.
+                    <span className="italic text-app-accent">Oakland</span>.
                   </motion.h1>
                 </div>
 
@@ -255,7 +255,7 @@ export default function App() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-xl md:text-2xl text-white/60 font-light max-w-2xl mx-auto leading-relaxed border-t border-white/10 pt-8"
+                  className="text-[29px] text-white/60 font-bold max-w-2xl mx-auto leading-relaxed border-t border-white/10 pt-8"
                 >
                   3875 Ruby Street. A 100-year anchor in Oakland's medical and transit district, refined for modern living.
                 </motion.p>
@@ -313,6 +313,7 @@ export default function App() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[
+                  { title: 'Free Street Parking', desc: 'Permits are completely free for residents through an exclusive hospital agreement.', icon: Zap },
                   { title: 'On-Site Laundry', desc: 'Modern, high-capacity machines just steps from your door.', icon: Zap },
                   { title: 'Amazon Hub', desc: 'Never miss a delivery with our secure, on-site package lockers.', icon: Package },
                   { title: 'Secure Bike Room', desc: 'Indoor storage with key-card access to keep your bike safe.', icon: Bike },
@@ -556,8 +557,8 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
                 {[
                   { label: 'Total Revenue', value: '$42,850', trend: '+12.5%', icon: DollarSign, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'sfplus' },
-                  { label: 'Portfolio Occupancy', value: '101 / 105', trend: '96.2%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'rent-roll' },
-                  { label: '105 Unit Compliance', value: '100%', trend: 'All files', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5', tab: 'legal' },
+                  { label: 'Portfolio Occupancy', value: '23 / 24', trend: '95.8%', icon: Users, color: 'text-ruby', bg: 'bg-ruby/5', tab: 'rent-roll' },
+                  { label: '24 Unit Compliance', value: '100%', trend: 'All files', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5', tab: 'legal' },
                   { label: 'Maintenance Tasks', value: '4', trend: '-2', icon: Activity, color: 'text-ruby-light', bg: 'bg-ruby-light/5', tab: 'maintenance' },
                 ].map((stat) => (
                   <div 
@@ -584,7 +585,7 @@ export default function App() {
               </div>
 
               {/* Quick Guide / What's New */}
-              <div className="mb-12 p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl flex flex-col md:flex-row gap-8 items-center">
+              <div className="mb-12 p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl flex flex-col md:flex-row gap-8 items-center border border-[#2d0b13] font-bold underline">
                 <div className="flex-grow space-y-4">
                   <h3 className="text-2xl font-serif font-bold italic">Operational Intelligence Hub</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -850,11 +851,11 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <footer className="py-12 border-t border-app-text/5 bg-app-card/30">
+      <footer className="py-12 border-t border-app-text/5 bg-[#e7eaef]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-ruby flex items-center justify-center text-white font-black text-xs">R</div>
-            <span className="text-sm font-black text-app-text uppercase tracking-widest">Rent-Ruby.com</span>
+            <span className="text-sm font-black text-[#060300] border-[#110a01] uppercase tracking-widest">Rent-Ruby.com</span>
           </div>
           <div className="flex gap-10 items-center">
             <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em] hidden sm:block">
@@ -874,20 +875,20 @@ export default function App() {
               </button>
               <button 
                 onClick={() => setView('admin')}
-                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 bg-black text-[#f8f5f8] ${
                   view === 'admin' 
-                  ? 'bg-app-accent text-white shadow-lg' 
-                  : 'text-app-text/60 hover:text-app-text'
+                  ? 'shadow-lg ring-2 ring-app-accent' 
+                  : 'opacity-80 hover:opacity-100'
                 }`}
               >
                 Admin
               </button>
               <button 
                 onClick={() => setView('tenant')}
-                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 bg-black text-[#f8f5f8] ${
                   view === 'tenant' 
-                  ? 'bg-app-accent text-white shadow-lg' 
-                  : 'text-app-text/60 hover:text-app-text'
+                  ? 'shadow-lg ring-2 ring-app-accent' 
+                  : 'opacity-80 hover:opacity-100'
                 }`}
               >
                 Tenant

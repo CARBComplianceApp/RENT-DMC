@@ -32,7 +32,8 @@ import {
   Sparkles,
   Package,
   Zap,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 
 import { LeaseUpdateWalkthrough } from './LeaseUpdateWalkthrough';
@@ -373,7 +374,6 @@ export const TenantPortal = () => {
             { id: 'info-nook', label: 'Info Nook', icon: Info },
             { id: 'support', label: 'Support Hub', icon: MessageSquare },
             { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-            { id: 'security', label: 'Security', icon: ShieldCheck },
             { id: 'refer', label: 'Refer a Friend', icon: Users },
             { id: 'settings', label: 'Notifications', icon: Bell }
           ].map((tab) => (
@@ -995,13 +995,22 @@ export const TenantPortal = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <button className="p-4 rounded-2xl bg-app-text/5 hover:bg-app-text/10 transition-colors flex items-center justify-center gap-2 font-bold text-sm uppercase tracking-widest">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button className="flex-1 p-4 rounded-2xl bg-app-text/5 hover:bg-app-text/10 transition-colors flex items-center justify-center gap-2 font-bold text-sm uppercase tracking-widest">
                     <CreditCard className="w-4 h-4" /> View Ledger
                   </button>
                   <button 
+                    onClick={() => {
+                        alert("Initiating Chase Direct Deposit sync...");
+                        setTimeout(() => alert("Chase Payment Processing started."), 1000);
+                    }}
+                    className="flex-1 p-4 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-xl uppercase tracking-widest"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Chase QuickPay
+                  </button>
+                  <button 
                     onClick={() => window.open(`https://pay.silverbackai.agency/ruby-${currentUserUnit}`, '_blank')}
-                    className="p-4 rounded-2xl bg-app-accent text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-md uppercase tracking-widest"
+                    className="flex-1 p-4 rounded-2xl bg-app-accent text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-md uppercase tracking-widest"
                   >
                     <CreditCard className="w-4 h-4" /> {rentStatus?.status === 'Paid' ? 'Stripe Pre-pay' : 'Pay via Stripe'}
                   </button>
@@ -1407,99 +1416,6 @@ export const TenantPortal = () => {
                 <p className="text-[10px] text-app-text/60 leading-relaxed italic">
                   All maintenance requests are logged with timestamps and IP addresses for legal record-keeping. Unauthorized repairs by tenants are prohibited.
                 </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'security' && (
-          <motion.div
-            key="security"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">Recognition Cameras</h3>
-                    <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">Enhanced security & deterrence system active.</p>
-                  </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-ruby/10 text-ruby rounded-full text-[10px] font-bold uppercase tracking-widest">
-                    <div className="w-2 h-2 bg-ruby rounded-full animate-pulse" /> Live System
-                  </div>
-                </div>
-
-                <div className="aspect-video rounded-[2rem] bg-app-bg border border-app-border overflow-hidden relative group">
-                  <img 
-                    src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1200&auto=format&fit=crop" 
-                    alt="Security Feed" 
-                    className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="p-4 bg-app-card/10 backdrop-blur-md rounded-full border border-white/20">
-                      <Camera className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                  <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1 bg-app-accent text-white rounded-full text-[10px] font-bold uppercase tracking-widest">
-                    REC
-                  </div>
-                  <div className="absolute bottom-6 left-6 text-white/60 font-mono text-xs">
-                    CAM-01: MAIN LOBBY // 2026-03-26 08:42:06
-                  </div>
-                </div>
-
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-border">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-ruby/10 text-ruby rounded-xl">
-                        <ShieldCheck className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-app-text uppercase tracking-tight">AI Recognition</h4>
-                    </div>
-                    <p className="text-xs text-app-text/60 leading-relaxed">
-                      Our system recognizes authorized residents and staff, reducing false alarms and ensuring only intended visitors enter.
-                    </p>
-                  </div>
-                  <div className="p-6 rounded-3xl bg-app-text/[0.02] border border-app-border">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl">
-                        <AlertCircle className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-app-text uppercase tracking-tight">Active Deterrence</h4>
-                    </div>
-                    <p className="text-xs text-app-text/60 leading-relaxed">
-                      Integrated perimeter lighting and audio alerts activate automatically when unauthorized motion is detected in restricted zones.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-8 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
-                <h3 className="text-xl font-black text-app-text mb-6 uppercase tracking-tighter">Security Log</h3>
-                <div className="space-y-6">
-                  {securityEvents.map((event) => (
-                    <div key={event.id} className="flex gap-4">
-                      <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                        event.type === 'Recognition' ? 'bg-ruby' : 
-                        event.type === 'Deterrence' ? 'bg-ruby-light' : 'bg-app-accent'
-                      }`} />
-                      <div>
-                        <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-widest mb-1">
-                          {new Date(event.timestamp).toLocaleTimeString()}
-                        </div>
-                        <div className="text-sm font-bold text-app-text uppercase tracking-tight">{event.type}</div>
-                        <p className="text-xs text-app-text/50 mt-1 leading-relaxed">{event.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <button className="w-full mt-8 py-3 border border-app-border rounded-full text-xs font-bold uppercase tracking-widest text-app-text/40 hover:text-app-text hover:border-app-accent/20 transition-all">
-                  View Full History
-                </button>
               </div>
             </div>
           </motion.div>
