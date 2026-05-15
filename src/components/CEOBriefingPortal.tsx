@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Scale, TrendingUp, ChevronRight, Plus, Download, Search, Info, Sparkles, Wand2, X, Copy, Check, FileDown, Save, AlertTriangle, Camera, Calendar } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 
 interface LegalForm {
@@ -70,7 +69,6 @@ export function CEOBriefingPortal() {
     setGeneratedLease('');
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
       const prompt = `Generate a legally compliant California ${documentType} for ${tenantType} tenants in Oakland (Zip Code 94609). 
         
         Parameters:
@@ -90,12 +88,19 @@ export function CEOBriefingPortal() {
         
         Format the output using Markdown with clear headings, bold text for emphasis, and a professional legal structure. Use "3875 RUBY" as the property name and "SAilverback" as the management branding.`;
         
-      const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
-        contents: prompt,
+      const response = await fetch("/api/gemini/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gemini-2.0-flash", // Upgraded to Gemini 2.0 Flash as requested
+          contents: [{ parts: [{ text: prompt }] }]
+        }),
       });
 
-      setGeneratedLease(response.text || 'Failed to generate content.');
+      if (!response.ok) throw new Error('Failed to generate lease');
+      const data = await response.json();
+
+      setGeneratedLease(data.candidates?.[0]?.content?.parts?.[0]?.text || 'Failed to generate content.');
     } catch (error) {
       console.error('Error generating document:', error);
       setGeneratedLease('An error occurred. Please check your API configuration.');

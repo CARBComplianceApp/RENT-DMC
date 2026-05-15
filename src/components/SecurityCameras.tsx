@@ -15,73 +15,100 @@ import {
 
 export interface CameraEntry {
   id: string;
-  property: string;
+  property_id: number;
+  property_name: string;
   location: string;
   model: string;
-  installationDate: string;
+  installation_date: string;
   status: 'Operational' | 'Maintenance Required' | 'Offline';
-  lastUpdate: string;
+  last_update: string;
   notes: string;
 }
 
-const mockCameras: CameraEntry[] = [
-  {
-    id: 'CAM-001',
-    property: '3875 RUBY',
-    location: 'Main Entrance - Lobby',
-    model: 'Verkada CD52-E',
-    installationDate: '2025-01-15',
-    status: 'Operational',
-    lastUpdate: '2026-04-21T06:30:00Z',
-    notes: 'Primary lobby camera. Covers entrance and mailboxes.'
-  },
-  {
-    id: 'CAM-002',
-    property: '3875 RUBY',
-    location: 'Garage Gate (Exterior)',
-    model: 'Verkada CB62-TE',
-    installationDate: '2025-01-15',
-    status: 'Operational',
-    lastUpdate: '2026-04-21T06:30:00Z',
-    notes: 'LPR (License Plate Recognition) active.'
-  },
-  {
-    id: 'CAM-003',
-    property: '3875 RUBY',
-    location: 'Garage - Storage Area',
-    model: 'Verkada CD42',
-    installationDate: '2025-01-16',
-    status: 'Maintenance Required',
-    lastUpdate: '2026-04-20T14:15:00Z',
-    notes: 'Lens needs cleaning. Image slightly blurry at night.'
-  },
-  {
-    id: 'CAM-004',
-    property: '3875 RUBY',
-    location: 'Roof Deck - East',
-    model: 'Verkada CD52-E',
-    installationDate: '2025-02-10',
-    status: 'Offline',
-    lastUpdate: '2026-04-21T02:00:00Z',
-    notes: 'Lost connection during recent storm. Need technician to check PoE wiring.'
-  }
-];
-
 export const SecurityCameras = () => {
-  const [cameras, setCameras] = useState<CameraEntry[]>(mockCameras);
+  const [cameras, setCameras] = useState<CameraEntry[]>([]);
   const [editingCamera, setEditingCamera] = useState<CameraEntry | null>(null);
+  const [isAddingCamera, setIsAddingCamera] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleStatusChange = (id: string, newStatus: CameraEntry['status']) => {
-    setCameras(prev => prev.map(cam => 
-      cam.id === id ? { ...cam, status: newStatus, lastUpdate: new Date().toISOString() } : cam
-    ));
+  const fetchCameras = async () => {
+    setIsLoading(true);
+    try {
+      const resp = await fetch("/api/security-cameras");
+      const data = await resp.json();
+      setCameras(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const saveNotes = (id: string, newNotes: string) => {
+  React.useEffect(() => {
+    fetchCameras();
+  }, []);
+
+  const handleStatusChange = async (id: string, newStatus: CameraEntry['status']) => {
+    // optimistic update
     setCameras(prev => prev.map(cam => 
-      cam.id === id ? { ...cam, notes: newNotes, lastUpdate: new Date().toISOString() } : cam
+      cam.id === id ? { ...cam, status: newStatus, last_update: new Date().toISOString() } : cam
+    ));
+    try {
+      await fetch(`/api/security-cameras/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+    } catch (e) {
+      console.error(e);
+      fetchCameras(); // rollback on error
+    }
+  };
+
+  const saveNotes = async (id: string, newNotes: string) => {
+    // optimistic update
+    setCameras(prev => prev.map(cam => 
+      cam.id === id ? { ...cam, notes: newNotes, last_update: new Date().toISOString() } : cam
     ));
     setEditingCamera(null);
+    try {
+      await fetch(`/api/security-cameras/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: newNotes })
+      });
+    } catch (e) {
+      console.error(e);
+      fetchCameras(); // rollback on error
+    }
+  };
+
+  const handleAddCamera = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    
+    // We hardcode property_id to 1 for this demo (Ruby)
+    const newCam = {
+      property_id: 1,
+      location: formData.get('location') as string,
+      model: formData.get('model') as string,
+      installation_date: formData.get('installationDate') as string || new Date().toISOString().split('T')[0],
+      status: formData.get('status') as CameraEntry['status'],
+      notes: formData.get('notes') as string,
+    };
+
+    try {
+      await fetch('/api/security-cameras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCam)
+      });
+      setIsAddingCamera(false);
+      fetchCameras();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const getStatusBadge = (status: CameraEntry['status']) => {
@@ -123,6 +150,13 @@ export const SecurityCameras = () => {
           </p>
         </div>
         <div className="flex gap-4">
+          <button 
+            onClick={() => setIsAddingCamera(true)}
+            className="hidden md:flex items-center gap-2 px-6 py-4 rounded-2xl bg-app-accent text-white hover:opacity-90 transition-opacity font-bold uppercase tracking-widest text-[10px]"
+          >
+            <Camera className="w-4 h-4" />
+            Add Camera
+          </button>
           <div className="p-4 rounded-2xl bg-app-card border border-app-border text-center min-w-[120px]">
             <div className="text-3xl font-black text-emerald-500 tracking-tighter">
               {cameras.filter(c => c.status === 'Operational').length}
@@ -155,7 +189,7 @@ export const SecurityCameras = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold uppercase tracking-tight">{camera.location}</h3>
-                    <p className="text-[10px] font-black text-app-accent/60 uppercase tracking-widest">{camera.property} • {camera.model}</p>
+                    <p className="text-[10px] font-black text-app-accent/60 uppercase tracking-widest">{camera.property_name} • {camera.model}</p>
                   </div>
                 </div>
                 {getStatusBadge(camera.status)}
@@ -164,13 +198,13 @@ export const SecurityCameras = () => {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="space-y-1">
                   <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Installed</div>
-                  <div className="text-sm font-medium">{camera.installationDate}</div>
+                  <div className="text-sm font-medium">{camera.installation_date}</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-[10px] font-bold text-app-text/40 uppercase tracking-widest">Last Update</div>
                   <div className="text-sm font-medium flex items-center gap-1">
                     <Clock className="w-3 h-3 text-app-text/40" />
-                    {new Date(camera.lastUpdate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    {new Date(camera.last_update).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </div>
                 </div>
               </div>
@@ -220,6 +254,89 @@ export const SecurityCameras = () => {
 
       {/* Edit Notes Modal */}
       <AnimatePresence>
+        {isAddingCamera && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-lg bg-app-card border border-app-border rounded-[2rem] p-8 shadow-2xl relative"
+            >
+              <button 
+                onClick={() => setIsAddingCamera(false)}
+                className="absolute top-6 right-6 p-2 rounded-full hover:bg-app-bg transition-colors"
+              >
+                <X className="w-5 h-5 text-app-text/60 hover:text-app-text" />
+              </button>
+
+              <h3 className="text-2xl font-black text-app-text tracking-tighter uppercase mb-6">Add Security Camera</h3>
+
+              <form onSubmit={handleAddCamera}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/60 ml-2">Location</label>
+                    <input 
+                      name="location"
+                      required
+                      placeholder="e.g. Garage Gate"
+                      className="w-full mt-2 p-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-sm"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/60 ml-2">Model</label>
+                      <input 
+                        name="model"
+                        required
+                        placeholder="e.g. Verkada CD52"
+                        className="w-full mt-2 p-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/60 ml-2">Install Date</label>
+                      <input 
+                        name="installationDate"
+                        type="date"
+                        required
+                        className="w-full mt-2 p-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/60 ml-2">Status</label>
+                      <select 
+                        name="status"
+                        required
+                        className="w-full mt-2 p-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-sm"
+                      >
+                        <option value="Operational">Operational</option>
+                        <option value="Maintenance Required">Maintenance Required</option>
+                        <option value="Offline">Offline</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-app-text/60 ml-2">Notes</label>
+                    <textarea 
+                      name="notes"
+                      rows={3}
+                      className="w-full mt-2 p-4 bg-app-bg border border-app-border rounded-2xl focus:ring-1 focus:ring-app-accent/20 focus:outline-none transition-all text-sm resize-none"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="w-full py-4 bg-app-accent text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-opacity mt-4"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Camera
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+        
         {editingCamera && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div 

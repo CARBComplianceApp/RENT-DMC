@@ -1,9 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Image as ImageIcon, Loader2, Wand2, Upload, X } from 'lucide-react';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export const AIPropertyVisualizer: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -49,18 +46,25 @@ export const AIPropertyVisualizer: React.FC = () => {
           : `High-end, professional architectural photography of a modern rental property. Style: Luxury, clean, professional. Context: ${prompt}`,
       });
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-image-preview',
-        contents: { parts },
-        config: {
-          imageConfig: {
-            aspectRatio: "16:9",
-            imageSize: "1K"
+      const response = await fetch("/api/gemini/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: 'gemini-2.0-flash', // Upgraded to Gemini 2.0 Flash as requested
+          contents: { parts },
+          config: {
+            imageConfig: {
+              aspectRatio: "16:9",
+              imageSize: "1K"
+            },
           },
-        },
+        }),
       });
 
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (!response.ok) throw new Error('Failed to generate image');
+      const data = await response.json();
+
+      for (const part of data.candidates?.[0]?.content?.parts || []) {
         if (part.inlineData) {
           const base64EncodeString = part.inlineData.data;
           setGeneratedImage(`data:image/png;base64,${base64EncodeString}`);

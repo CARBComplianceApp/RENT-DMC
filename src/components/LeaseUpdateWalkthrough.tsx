@@ -96,17 +96,30 @@ export const LeaseUpdateWalkthrough: React.FC<LeaseUpdateWalkthroughProps> = ({ 
             </div>
 
             {/* Visual Progress Bar */}
-            <div className="mb-10 space-y-3">
+            <div className="mb-10 space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Progress</span>
-                <span className="text-lg font-serif italic text-app-accent">{Math.round(((currentStepIdx + 1) / steps.length) * 100)}%</span>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Walkthrough Progress</span>
+                <span className="text-xl font-serif italic text-app-accent">{Math.round(((currentStepIdx + 1) / steps.length) * 100)}%</span>
               </div>
-              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${((currentStepIdx + 1) / steps.length) * 100}%` }}
-                  className="h-full bg-app-accent shadow-[0_0_15px_rgba(224,17,95,0.5)]"
-                />
+              <div className="relative">
+                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((currentStepIdx + 1) / steps.length) * 100}%` }}
+                    className="h-full bg-app-accent shadow-[0_0_20px_rgba(224,17,95,0.6)]"
+                  />
+                </div>
+                {/* Step Markers on Progress Bar */}
+                <div className="absolute inset-0 flex justify-between items-center px-1">
+                  {steps.map((_, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`w-1 h-1 rounded-full bg-white/20 transition-all ${
+                        idx <= currentStepIdx ? 'bg-white shadow-[0_0_8px_white]' : ''
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 

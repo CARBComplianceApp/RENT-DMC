@@ -668,16 +668,15 @@ Are you absolutely sure you want to proceed?`,
                   </td>
                   <td className="px-10 py-10 text-right">
                     <div className="flex items-center justify-end gap-4">
-                      {isOwnerOrAccounting && (
+                      {isOwnerOrAccounting && unit.status === 'Occupied' && unit.last_payment_status !== 'Late' && (
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
                             handleMarkOverdue(unit.id);
                           }}
-                          className="p-3 text-zinc-500 hover:text-red-400 transition-colors bg-white/5 rounded-xl border border-white/5"
-                          title="Mark Overdue"
+                          className="px-4 py-2 shrink-0 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white transition-colors bg-red-500/10 hover:bg-red-500 rounded-xl"
                         >
-                          <AlertCircle className="w-6 h-6" />
+                          Mark Overdue
                         </button>
                       )}
                       <button className="p-3 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/5">

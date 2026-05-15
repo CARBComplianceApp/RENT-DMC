@@ -20,8 +20,10 @@ import {
   Train,
   Hospital,
   TreePine,
+  Bike,
   Camera,
   History,
+  Music,
   Info,
   Menu,
   X,
@@ -51,6 +53,8 @@ import { MaintenanceModule } from './components/MaintenanceModule';
 import { FeatureSummarySheet } from './components/FeatureSummarySheet';
 import { PropertyHierarchy } from './components/PropertyHierarchy';
 import { TenantPortal } from './components/TenantPortal';
+import { NightlifeAttractions } from './components/NightlifeAttractions';
+import { NeighborhoodRadiusMap } from './components/NeighborhoodRadiusMap';
 import { ThemeToggle } from './components/ThemeToggle';
 import { useTheme } from './components/ThemeContext';
 
@@ -67,6 +71,7 @@ import { TravelingNurseHero } from './components/TravelingNurseHero';
 import { TravelNursePortal } from './components/TravelNursePortal';
 import { SecurityCameras } from './components/SecurityCameras';
 import { MosswoodMailboxes } from './components/MosswoodMailboxes';
+import { AILaurenWidget } from './components/AILaurenWidget';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -123,7 +128,8 @@ export default function App() {
                 <a href="#neighborhood" className="text-app-text/60 hover:text-app-text transition-colors">Neighborhood</a>
                 <a href="#mosswood-mailboxes" className="text-app-text/60 hover:text-app-text transition-colors">Mosswood Park</a>
                 <a href="#maintenance-flow" className="text-app-text/60 hover:text-app-text transition-colors">Maintenance</a>
-                <a href="#travel-nurses" className="text-app-text/60 hover:text-app-text transition-colors">Travel Nurses</a>
+                <a href="#applications" className="text-app-text/60 hover:text-app-text transition-colors">Applications</a>
+                <a href="#digital-lease" className="text-app-text/60 hover:text-app-text transition-colors">Digital Lease</a>
               </>
             ) : view === 'admin' ? (
               <>
@@ -151,39 +157,6 @@ export default function App() {
                 <ShieldCheck className="w-3 h-3" /> Vision Deck
               </button>
             )}
-            {/* View Toggle */}
-            <div className={`flex p-1 rounded-full bg-app-text/10 border border-app-border`}>
-              <button 
-                onClick={() => setView('hub')}
-                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
-                  view === 'hub' 
-                  ? 'bg-app-accent text-white shadow-lg' 
-                  : 'text-app-text/60 hover:text-app-text'
-                }`}
-              >
-                Hub
-              </button>
-              <button 
-                onClick={() => setView('admin')}
-                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
-                  view === 'admin' 
-                  ? 'bg-app-accent text-white shadow-lg' 
-                  : 'text-app-text/60 hover:text-app-text'
-                }`}
-              >
-                Admin
-              </button>
-              <button 
-                onClick={() => setView('tenant')}
-                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
-                  view === 'tenant' 
-                  ? 'bg-app-accent text-white shadow-lg' 
-                  : 'text-app-text/60 hover:text-app-text'
-                }`}
-              >
-                Tenant
-              </button>
-            </div>
 
             <button className={`md:hidden p-2 ${view === 'hub' ? 'text-app-text' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
@@ -207,7 +180,8 @@ export default function App() {
                 <a href="#neighborhood" onClick={() => setIsMenuOpen(false)}>Neighborhood</a>
                 <a href="#mosswood-mailboxes" onClick={() => setIsMenuOpen(false)}>Mosswood Park</a>
                 <a href="#maintenance-flow" onClick={() => setIsMenuOpen(false)}>Maintenance</a>
-                <a href="#travel-nurses" onClick={() => setIsMenuOpen(false)}>Travel Nurses</a>
+                <a href="#applications" onClick={() => setIsMenuOpen(false)}>Applications</a>
+                <a href="#digital-lease" onClick={() => setIsMenuOpen(false)}>Digital Lease</a>
                 </>
               ) : view === 'admin' ? (
                 <>
@@ -247,7 +221,7 @@ export default function App() {
             className="pt-20"
           >
             {/* Hero Section */}
-            <div className="relative h-[90vh] min-h-[700px] flex items-center justify-center overflow-hidden bg-zinc-950">
+            <div className="relative min-h-[90vh] py-32 flex items-center justify-center overflow-hidden bg-zinc-950">
               <div className="absolute inset-0 z-0">
                 <img 
                   src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2000" 
@@ -258,7 +232,7 @@ export default function App() {
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/20"></div>
               </div>
               
-              <div className="relative z-10 max-w-7xl mx-auto px-6 text-center space-y-8">
+              <div className="relative z-10 max-w-7xl mx-auto px-6 pt-10 text-center space-y-8">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -286,107 +260,49 @@ export default function App() {
                   3875 Ruby Street. A 100-year anchor in Oakland's medical and transit district, refined for modern living.
                 </motion.p>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8"
-                >
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    <button className="px-10 py-5 bg-app-accent text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3">
-                      Call 415-900-8563
-                    </button>
-                    <a href="mailto:staff@rent-ruby.com" className="text-sm font-bold text-app-accent uppercase tracking-widest hover:underline">
-                      Or Email staff@rent-ruby.com
-                    </a>
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                   animate={{ opacity: [0.4, 1, 0.4] }}
-                   transition={{ duration: 2, repeat: Infinity }}
-                   className="flex items-center justify-center gap-2 text-ruby-light pt-8"
-                >
-                  <div className="w-2 h-2 rounded-full bg-ruby animate-pulse shadow-[0_0_10px_rgba(166,75,75,0.8)]" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Travel Nurses Welcome</span>
-                </motion.div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center pt-8 border-t border-white/10 mt-8 w-full text-left">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="relative w-full aspect-square max-w-sm mx-auto lg:max-w-full"
+                  >
+                    <NeighborhoodRadiusMap />
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="flex flex-col items-center lg:items-start text-center lg:text-left gap-10"
+                  >
+                    <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
+                      <button className="w-full sm:w-auto px-10 py-5 bg-app-accent text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3">
+                        Schedule a Tour
+                      </button>
+                      <button className="w-full sm:w-auto px-10 py-5 bg-white/10 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all border border-white/20">
+                        View Availability
+                      </button>
+                    </div>
+                    
+                    <div className="flex gap-6 sm:gap-12 w-full justify-center lg:justify-start pt-4 border-t border-white/10 mt-4">
+                       <div className="flex flex-col items-center lg:items-start gap-2">
+                          <div className="text-3xl font-black text-white">96</div>
+                          <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Walk Score®</div>
+                       </div>
+                       <div className="flex flex-col items-center lg:items-start gap-2">
+                          <div className="text-3xl font-black text-white">88</div>
+                          <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Transit Score®</div>
+                       </div>
+                       <div className="flex flex-col items-center lg:items-start gap-2">
+                          <div className="text-3xl font-black text-white">99</div>
+                          <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Bike Score®</div>
+                       </div>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </div>
-
-            {/* Neighborhood Landmarks Section */}
-            <section id="neighborhood" className="py-24 bg-[#0B1A2D] relative overflow-hidden">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                  <div>
-                    <div className="text-[10px] font-bold text-app-accent uppercase tracking-[0.2em] mb-4">NEIGHBORHOOD LANDMARKS</div>
-                    <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Everything Within <span className="italic text-app-accent">Reach</span>.</h2>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white/40 text-xs font-bold uppercase tracking-widest max-w-xs">
-                      Located in the heart of Oakland's medical and transit district.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { name: 'Mosswood Park', dist: '0.1 miles', desc: 'Historic green space & recreation', icon: TreePine },
-                    { name: 'MacArthur BART', dist: '0.4 miles', desc: '10-minute walk to transit heart', icon: Train },
-                    { name: 'Kaiser Permanente', dist: '0.3 miles', desc: 'Premier medical district access', icon: Hospital },
-                    { name: 'Piedmont Avenue', dist: '0.6 miles', desc: 'Boutique dining & shopping', icon: Coffee },
-                    { name: 'Alta Bates Summit', dist: '0.5 miles', desc: 'Leading healthcare center', icon: Hospital },
-                    { name: 'Temescal District', dist: '0.8 miles', desc: 'Oakland\'s trendiest food scene', icon: MapPin }
-                  ].map((item, i) => (
-                    <motion.div 
-                      key={item.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:border-app-accent/40 transition-all group flex flex-col justify-between h-64"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="p-3 bg-app-accent/10 rounded-2xl text-app-accent group-hover:bg-app-accent group-hover:text-white transition-all">
-                          <item.icon className="w-6 h-6" />
-                        </div>
-                        <div className="text-app-accent font-serif italic text-2xl">{item.dist}</div>
-                      </div>
-                      <div>
-                        <h4 className="text-2xl font-bold text-white uppercase tracking-tighter">{item.name}</h4>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1 font-bold">{item.desc}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Neighborhood Snapshot */}
-            <section className="py-24 px-6 max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                  { title: 'Transit Heart', desc: 'A 10-minute stroll to MacArthur BART connects you to the entire Bay Area.', icon: Train, color: 'bg-ruby/10 text-ruby' },
-                  { title: 'Secure Living', desc: '24/7 Amazon Hub lockers ensure your packages are as safe as your home.', icon: Package, color: 'bg-ruby-light/10 text-ruby-light' },
-                  { title: 'Mosswood Vibe', desc: 'Acres of historic green space and recreation right at your doorstep.', icon: TreePine, color: 'bg-ruby/10 text-ruby' },
-                  { title: 'Medical Hub', desc: 'Steps from Kaiser and Alta Bates—the city\'s premier medical district.', icon: Hospital, color: 'bg-red-50 text-red-600' },
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-8 rounded-[2rem] bg-app-card border border-app-border shadow-sm hover:shadow-xl transition-all group"
-                  >
-                    <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                      <item.icon className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-app-text/80 text-sm leading-relaxed">{item.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
 
             {/* Essential Convenience */}
             <section id="essentials" className="py-32 px-6 max-w-7xl mx-auto">
@@ -395,10 +311,13 @@ export default function App() {
                 <p className="text-app-text/70 max-w-xl mx-auto text-lg font-medium">The modern necessities you rely on.</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[
                   { title: 'On-Site Laundry', desc: 'Modern, high-capacity machines just steps from your door.', icon: Zap },
                   { title: 'Amazon Hub', desc: 'Never miss a delivery with our secure, on-site package lockers.', icon: Package },
+                  { title: 'Secure Bike Room', desc: 'Indoor storage with key-card access to keep your bike safe.', icon: Bike },
+                  { title: '24/7 Monitoring', desc: 'AI-powered recognition cameras throughout the perimeter.', icon: Camera },
+                  { title: 'On-Site Maintenance', desc: 'Experienced specialists ready to handle repairs promptly.', icon: Wrench },
                 ].map((item, i) => (
                   <div key={item.title} className="p-12 rounded-[3rem] bg-app-card border-2 border-app-border hover:border-app-accent/30 transition-all group shadow-sm hover:shadow-2xl hover:-translate-y-2 duration-500">
                     <div className="w-16 h-16 rounded-2xl bg-app-accent/10 flex items-center justify-center mb-10 group-hover:bg-app-accent/20 transition-colors">
@@ -938,28 +857,46 @@ export default function App() {
             <span className="text-sm font-black text-app-text uppercase tracking-widest">Rent-Ruby.com</span>
           </div>
           <div className="flex gap-10 items-center">
-            <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em]">
+            <div className="text-[10px] font-bold text-app-text/30 uppercase tracking-[0.2em] hidden sm:block">
               © 2026 Rent-Ruby.com • All Rights Reserved
             </div>
-            {view !== 'admin' && (
+            {/* View Toggle */}
+            <div className={`flex p-1 rounded-full bg-app-text/10 border border-app-border`}>
               <button 
-                onClick={() => {
-                  const pwd = prompt("Admin Password:");
-                  if (pwd === "1111") {
-                    setView('admin');
-                    window.scrollTo(0, 0);
-                  } else if (pwd !== null) {
-                    alert("Incorrect password");
-                  }
-                }} 
-                className="text-[10px] font-bold uppercase tracking-widest text-app-text/30 hover:text-app-accent transition-colors"
+                onClick={() => setView('hub')}
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                  view === 'hub' 
+                  ? 'bg-app-accent text-white shadow-lg' 
+                  : 'text-app-text/60 hover:text-app-text'
+                }`}
               >
-                Admin Login
+                Hub
               </button>
-            )}
+              <button 
+                onClick={() => setView('admin')}
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                  view === 'admin' 
+                  ? 'bg-app-accent text-white shadow-lg' 
+                  : 'text-app-text/60 hover:text-app-text'
+                }`}
+              >
+                Admin
+              </button>
+              <button 
+                onClick={() => setView('tenant')}
+                className={`px-3 sm:px-4 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
+                  view === 'tenant' 
+                  ? 'bg-app-accent text-white shadow-lg' 
+                  : 'text-app-text/60 hover:text-app-text'
+                }`}
+              >
+                Tenant
+              </button>
+            </div>
           </div>
         </div>
       </footer>
+      <AILaurenWidget />
     </div>
   );
 }

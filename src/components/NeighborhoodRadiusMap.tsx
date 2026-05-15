@@ -1,20 +1,23 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Train, Hospital, TreePine, Coffee } from 'lucide-react';
+import { MapPin, Train, Hospital, TreePine, Coffee, Sparkles } from 'lucide-react';
 
 const landmarks = [
   { name: 'Mosswood Park', dist: 0.1, angle: -45, icon: TreePine },
   { name: 'MacArthur BART', dist: 0.4, angle: 120, icon: Train },
   { name: 'Kaiser', dist: 0.3, angle: 30, icon: Hospital },
   { name: 'Piedmont Ave', dist: 0.6, angle: 210, icon: Coffee },
-  { name: 'Alta Bates', dist: 0.5, angle: 300, icon: Hospital }
+  { name: 'Alta Bates', dist: 0.5, angle: 300, icon: Hospital },
+  { name: 'The Fox Theater', dist: 0.8, angle: 180, icon: Sparkles },
+  { name: "Drake's Dealership", dist: 0.7, angle: 160, icon: Coffee },
+  { name: 'Lake Merritt', dist: 1.2, angle: 90, icon: MapPin }
 ];
 
 export const NeighborhoodRadiusMap = () => {
   return (
     <div className="relative w-full aspect-square max-w-xl mx-auto flex items-center justify-center overflow-hidden">
       {/* Background Radius Rings */}
-      {[0.2, 0.4, 0.6].map((radius, i) => (
+      {[0.4, 0.8, 1.2].map((radius, i) => (
         <motion.div
           key={radius}
           initial={{ opacity: 0, scale: 0 }}
@@ -22,11 +25,12 @@ export const NeighborhoodRadiusMap = () => {
           transition={{ delay: i * 0.2, duration: 1 }}
           className="absolute border border-white/10 rounded-full"
           style={{ 
-            width: `${(radius / 0.7) * 100}%`, 
-            height: `${(radius / 0.7) * 100}%` 
+            width: `${(radius / 1.4) * 100}%`, 
+            height: `${(radius / 1.4) * 100}%`,
+            backgroundColor: i === 2 ? '#707070' : undefined
           }}
         >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 bg-[#0B1A2D] text-[8px] font-bold text-white/20 uppercase tracking-widest">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 bg-zinc-950 text-[8px] font-bold text-white/20 uppercase tracking-widest leading-none">
             {radius} MI
           </div>
         </motion.div>
@@ -61,8 +65,8 @@ export const NeighborhoodRadiusMap = () => {
 
       {/* Landmark Chips */}
       {landmarks.map((item, i) => {
-        const x = Math.cos((item.angle * Math.PI) / 180) * (item.dist / 0.7) * 50;
-        const y = Math.sin((item.angle * Math.PI) / 180) * (item.dist / 0.7) * 50;
+        const x = Math.cos((item.angle * Math.PI) / 180) * (item.dist / 1.4) * 50;
+        const y = Math.sin((item.angle * Math.PI) / 180) * (item.dist / 1.4) * 50;
 
         return (
           <motion.div
@@ -78,7 +82,10 @@ export const NeighborhoodRadiusMap = () => {
           >
             <div className="relative group">
               <div className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:bg-app-accent hover:border-app-accent transition-all cursor-pointer shadow-xl">
-                <item.icon className="w-4 h-4 text-white" />
+                <item.icon 
+                  className="w-4 h-4 text-white rounded-sm" 
+                  style={{ backgroundColor: item.name === 'Piedmont Ave' ? '#2b0c2c' : undefined }}
+                />
               </div>
               
               {/* Label */}

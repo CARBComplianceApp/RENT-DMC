@@ -9,6 +9,7 @@ import {
   Trash2, 
   Wind, 
   Clock, 
+  Bike,
   CheckCircle2, 
   MessageSquare,
   AlertCircle, 
@@ -649,105 +650,139 @@ export const TenantPortal = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="max-w-4xl mx-auto space-y-8"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
-            <div className="text-center mb-12">
-              <h3 className="text-4xl font-black text-app-text uppercase tracking-tighter">The Info <span className="italic text-app-accent">Nook</span>.</h3>
-              <p className="text-app-text/40 text-sm mt-2 uppercase tracking-widest font-bold">Your digital building encyclopedia.</p>
+            <div className="lg:col-span-2 space-y-8">
+              <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 bg-app-accent/10 rounded-2xl">
+                    <Info className="w-6 h-6 text-app-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">The Info Nook</h3>
+                    <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">Essential forms, guides, and building knowledge.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Move-Out Checklist */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-ruby/10 text-ruby rounded-xl">
+                        <FileWarning className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-bold text-ruby uppercase tracking-widest px-3 py-1 bg-ruby/5 rounded-full">Required</span>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Move-Out Checklist</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Ensure a smooth transition and full security deposit return by following our 2026 move-out protocols.
+                    </p>
+                    <button className="w-full py-4 bg-app-text text-app-bg rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-all flex items-center justify-center gap-2">
+                      <Package className="w-4 h-4" /> Download Checklist
+                    </button>
+                  </div>
+
+                  {/* Building Rules */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-app-accent/10 text-app-accent rounded-xl">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Building Rules 2026</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Updated rules regarding quiet hours, guest policies, and AI security camera protocols.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      View Digital Handbook
+                    </button>
+                  </div>
+
+                  {/* Parking & Transit */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                        <MapPin className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Parking & Transit Map</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Map of assigned parking stalls, EV charging stations, and MacArthur BART walking paths.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      Open Interactive Map
+                    </button>
+                  </div>
+
+                  {/* Trash & Recycling Schedule */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-green-500/10 text-green-500 rounded-xl">
+                        <Trash2 className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Trash & Eco Guide</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Schedule for pickup and guide for our new AI-monitored smart sorting bins.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      Pickup Schedule
+                    </button>
+                  </div>
+
+                  {/* Bike Room */}
+                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-app-accent/10 text-app-accent rounded-xl">
+                        <Bike className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-bold text-app-accent uppercase tracking-widest px-3 py-1 bg-app-accent/5 rounded-full">Secure</span>
+                    </div>
+                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Secure Bike Room</h4>
+                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
+                      Access our monitored indoor bike storage. Key-card entry and 24/7 high-definition surveillance.
+                    </p>
+                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
+                      Access Key Card
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Move-Out Checklist */}
-              <div className="p-8 rounded-[2.5rem] bg-app-card border border-app-border space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-ruby/10 flex items-center justify-center">
-                    <HistoryIcon className="w-6 h-6 text-ruby" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold uppercase tracking-tight">Move-Out Checklist</h4>
-                    <p className="text-[10px] font-black text-ruby uppercase tracking-widest">Required Action</p>
-                  </div>
-                </div>
-                <div className="space-y-3">
+            <div className="space-y-8">
+              <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl">
+                <h4 className="text-xl font-bold uppercase tracking-tight mb-4">Quick Forms</h4>
+                <div className="space-y-4">
                   {[
-                    'Notify management 30 days prior',
-                    'Digital move-out inspection',
-                    'Professional cleaning receipt',
-                    'Key and Hub return',
-                    'Forwarding address update'
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-app-bg/50 border border-app-border text-sm font-medium">
-                      <CheckCircle2 className="w-4 h-4 text-app-accent" />
-                      {item}
-                    </div>
+                    { name: 'Sublet Request Form', desc: 'Required 30 days prior' },
+                    { name: 'Pet Registration', desc: 'SB 1170 Compliance' },
+                    { name: 'Maint. Pre-Qualification', desc: 'Diagnostic steps' },
+                    { name: 'Key Replacement', desc: 'Smart Hub access' },
+                    { name: 'Intent to Vacate', desc: '30-day notice' }
+                  ].map((form) => (
+                    <button 
+                      key={form.name}
+                      className="w-full p-6 rounded-2xl bg-app-bg/10 border border-app-bg/10 flex items-center justify-between hover:bg-app-bg/20 transition-all group"
+                    >
+                      <div className="text-left">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] block mb-1">{form.name}</span>
+                        <span className="text-[8px] font-bold text-app-bg/40 uppercase tracking-widest">{form.desc}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-app-accent group-hover:translate-x-1 transition-transform" />
+                    </button>
                   ))}
                 </div>
-                <button className="w-full py-4 border border-ruby/20 text-ruby rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
-                  Download Full PDF Guide
-                </button>
               </div>
 
-              {/* Building Rules 2026 */}
-              <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg space-y-6 shadow-2xl">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-app-accent flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold uppercase tracking-tight text-white">Building Rules 2026</h4>
-                    <p className="text-[10px] font-black text-app-accent uppercase tracking-widest">Active Enforcement</p>
-                  </div>
+              <div className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <ShieldCheck className="w-5 h-5 text-ruby" />
+                  <h4 className="font-bold text-ruby text-xs uppercase tracking-widest">Privacy & Safety</h4>
                 </div>
-                <div className="space-y-4">
-                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
-                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">Quiet Hours</div>
-                    <p className="text-xs text-white/60">Strict 10 PM - 8 AM. Respect your neighbors' Oakland Soul.</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
-                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">Guest Policy</div>
-                    <p className="text-xs text-white/60">Limit of 2 guests for more than 48 hours without registry.</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-app-bg/10 border border-app-bg/10">
-                    <div className="text-[10px] font-black text-app-accent uppercase tracking-widest mb-1 italic">E-Bike Safety</div>
-                    <p className="text-xs text-white/60">No lithium battery charging in apartments. Use garage bay.</p>
-                  </div>
-                </div>
-                <button className="w-full py-4 bg-app-accent text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
-                  Read Full Charter
-                </button>
-              </div>
-
-              {/* Trash & Recycling Schedule */}
-              <div className="col-span-1 md:col-span-2 p-10 rounded-[3rem] bg-indigo-950/20 border border-indigo-500/20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <Trash2 className="w-32 h-32" />
-                </div>
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-1">
-                    <h4 className="text-3xl font-black text-indigo-400 uppercase tracking-tighter mb-2">Ruby <span className="italic">Eco</span> Schedule</h4>
-                    <p className="text-app-text/40 text-sm font-bold uppercase tracking-widest">AI-Monitored Smart Bins</p>
-                    <div className="mt-8 flex items-center gap-3 p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-                      <Sparkles className="w-5 h-5 text-indigo-400" />
-                      <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Bins are currently: 42% FULL</div>
-                    </div>
-                  </div>
-                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { day: 'TUES/FRI', type: 'LANDFILL', color: 'bg-zinc-800', text: 'Grey Bins' },
-                      { day: 'WEDNESDAY', type: 'RECYCLE', color: 'bg-blue-600', text: 'Blue Bins' },
-                      { day: 'MONDAY', type: 'COMPOST', color: 'bg-emerald-600', text: 'Green Bins' },
-                      { day: 'MONTHLY', type: 'BULK', color: 'bg-amber-600', text: 'App Request' }
-                    ].map((item) => (
-                      <div key={item.type} className="flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5">
-                        <div>
-                          <div className="text-[8px] font-black text-app-text/40 uppercase tracking-widest">{item.day}</div>
-                          <div className={`text-xl font-black tracking-tighter ${item.type === 'LANDFILL' ? 'text-zinc-500' : 'text-app-text'}`}>{item.type}</div>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full ${item.color} text-[8px] font-black text-white uppercase tracking-widest`}>{item.text}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <p className="text-[10px] text-app-text/60 leading-relaxed italic">
+                  All correspondence is timestamped and logged for safety. Your privacy is solidified through our secure stadium hub.
+                </p>
               </div>
             </div>
           </motion.div>
@@ -1083,6 +1118,33 @@ export const TenantPortal = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-app-text/5 flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-ruby" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Active Security</div>
+                      <div className="font-bold uppercase tracking-tight">AI-Monitored 24/7</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-app-text/5 flex items-center justify-center">
+                      <Wrench className="w-6 h-6 text-emerald-500" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">On-Site Team</div>
+                      <div className="font-bold uppercase tracking-tight">Response Guaranteed</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-app-text/5 flex items-center justify-center">
+                      <Bike className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-app-text/40 uppercase tracking-widest">Bike Storage</div>
+                      <div className="font-bold uppercase tracking-tight">Secure Indoors</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-app-text/5 flex items-center justify-center">
                       <Wind className="w-6 h-6 text-ruby" />
                     </div>
                     <div>
@@ -1155,128 +1217,7 @@ export const TenantPortal = () => {
           </motion.div>
         )}
 
-        {activeTab === 'info-nook' && (
-          <motion.div
-            key="info-nook"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-          >
-            <div className="lg:col-span-2 space-y-8">
-              <div className="p-10 rounded-[2.5rem] bg-app-card border border-app-border shadow-sm">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="p-3 bg-app-accent/10 rounded-2xl">
-                    <Info className="w-6 h-6 text-app-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-app-text uppercase tracking-tighter">The Info Nook</h3>
-                    <p className="text-app-text/40 text-sm mt-1 uppercase tracking-widest font-bold">Essential forms, guides, and building knowledge.</p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Move-Out Checklist */}
-                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 bg-ruby/10 text-ruby rounded-xl">
-                        <FileWarning className="w-6 h-6" />
-                      </div>
-                      <span className="text-[10px] font-bold text-ruby uppercase tracking-widest px-3 py-1 bg-ruby/5 rounded-full">Required</span>
-                    </div>
-                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Move-Out Checklist</h4>
-                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
-                      Ensure a smooth transition and full security deposit return by following our 2026 move-out protocols.
-                    </p>
-                    <button className="w-full py-4 bg-app-text text-app-bg rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-accent hover:text-white transition-all flex items-center justify-center gap-2">
-                      <Package className="w-4 h-4" /> Download Checklist
-                    </button>
-                  </div>
-
-                  {/* Building Rules */}
-                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 bg-app-accent/10 text-app-accent rounded-xl">
-                        <ShieldCheck className="w-6 h-6" />
-                      </div>
-                    </div>
-                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Building Rules 2026</h4>
-                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
-                      Updated rules regarding quiet hours, guest policies, and AI security camera protocols.
-                    </p>
-                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
-                      View Digital Handbook
-                    </button>
-                  </div>
-
-                  {/* Parking & Transit */}
-                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
-                        <MapPin className="w-6 h-6" />
-                      </div>
-                    </div>
-                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Parking & Transit Map</h4>
-                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
-                      Map of assigned parking stalls, EV charging stations, and MacArthur BART walking paths.
-                    </p>
-                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
-                      Open Interactive Map
-                    </button>
-                  </div>
-
-                  {/* Trash & Recycling */}
-                  <div className="p-8 rounded-3xl bg-app-bg border border-app-border hover:border-app-accent/40 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 bg-green-500/10 text-green-500 rounded-xl">
-                        <Trash2 className="w-6 h-6" />
-                      </div>
-                    </div>
-                    <h4 className="text-xl font-bold text-app-text uppercase tracking-tight mb-2">Trash & Recycling</h4>
-                    <p className="text-xs text-app-text/60 leading-relaxed mb-6">
-                      Schedule for pickup and guide for our new AI-monitored smart sorting bins.
-                    </p>
-                    <button className="w-full py-4 border border-app-border text-app-text rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-app-text hover:text-app-bg transition-all">
-                      Pickup Schedule
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              <div className="p-8 rounded-[2.5rem] bg-app-text text-app-bg shadow-2xl">
-                <h4 className="text-xl font-bold uppercase tracking-tight mb-4">Quick Forms</h4>
-                <div className="space-y-4">
-                  {[
-                    'Sublet Request Form',
-                    'Pet Registration',
-                    'Key Replacement',
-                    'Notice of Intent to Vacate'
-                  ].map((form) => (
-                    <button 
-                      key={form}
-                      className="w-full p-4 rounded-xl bg-app-bg/5 border border-app-bg/10 flex items-center justify-between hover:bg-app-bg/10 transition-all group"
-                    >
-                      <span className="text-xs font-bold uppercase tracking-widest">{form}</span>
-                      <ChevronRight className="w-4 h-4 text-app-accent group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-8 rounded-[2.5rem] bg-ruby/5 border border-ruby/10">
-                <div className="flex items-center gap-3 mb-4">
-                  <ShieldCheck className="w-5 h-5 text-ruby" />
-                  <h4 className="font-bold text-ruby text-xs uppercase tracking-widest">Privacy & Safety</h4>
-                </div>
-                <p className="text-[10px] text-app-text/60 leading-relaxed italic">
-                  All correspondence is timestamped and logged for safety. Your privacy is solidified through our secure stadium hub.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {activeTab === 'maintenance' && (
           <motion.div

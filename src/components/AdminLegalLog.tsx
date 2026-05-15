@@ -536,12 +536,15 @@ export const AdminLegalLog: React.FC = () => {
                       className="w-full px-6 py-4 bg-app-text/5 border border-app-text/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-app-accent/20 font-bold text-app-text"
                     >
                       <option value="">Select type...</option>
-                      <option value="Noise Complaint">Noise Complaint</option>
-                      <option value="Unauthorized Pet">Unauthorized Pet</option>
-                      <option value="Smoking Violation">Smoking Violation</option>
-                      <option value="Property Damage">Property Damage</option>
-                      <option value="Unauthorized Guest">Unauthorized Guest</option>
-                      <option value="Trash/Cleanliness">Trash/Cleanliness</option>
+                      <option value="Noise Complaint">Noise Complaint (Oakland 8.18)</option>
+                      <option value="Unauthorized Pet">Unauthorized Pet (SB 1170 / AB 2216)</option>
+                      <option value="Smoking Policy Violation">Smoking Policy Violation (AB 638 / Healthy Housing)</option>
+                      <option value="Illegal Subletting">Illegal Subletting (Just Cause 8.22.300)</option>
+                      <option value="Bike Room Policy Violation">Bike Room Policy Violation (Safety Hazard)</option>
+                      <option value="Property Damage">Property Damage (Civil Code 1941)</option>
+                      <option value="Unauthorized Occupant">Unauthorized Occupant (Just Cause 8.22)</option>
+                      <option value="Illegal Activity">Illegal Activity (Deterrence Priority)</option>
+                      <option value="Trash/Cleanliness">Trash/Cleanliness (Nuisance Code)</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>

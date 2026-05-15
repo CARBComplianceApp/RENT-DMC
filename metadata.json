@@ -1,5 +1,6 @@
 {
   "name": "Rent-Ruby | The Ultimate Oakland Lifestyle",
   "description": "High-performance property management and tenant portal for the historic Ruby building in Oakland. Featuring real-time intelligence and the Info Nook for residents.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

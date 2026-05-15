@@ -2,11 +2,23 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
-import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
+import { GoogleGenAI } from "@google/genai";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let ai: GoogleGenAI | null = null;
+function getAI(): GoogleGenAI {
+  if (!ai) {
+    ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY || "", // fallback to empty string to prevent throw, let it fail on call
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+  }
+  return ai;
+}
 
 const db = new Database("rentroll_v3.db");
 
@@ -129,9 +141,6 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (unit_id) REFERENCES units(id)
   );
-
-  try { db.prepare("ALTER TABLE tenant_concerns ADD COLUMN assigned_staff TEXT").run(); } catch(e) {}
-  try { db.prepare("ALTER TABLE tenant_concerns ADD COLUMN gm_notes_to_tenant TEXT").run(); } catch(e) {}
 
   CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -337,6 +346,13 @@ try {
   db.exec("ALTER TABLE lease_violations ADD COLUMN violation_type TEXT");
 } catch (e) {}
 
+try {
+  db.exec("ALTER TABLE tenant_concerns ADD COLUMN assigned_staff TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE tenant_concerns ADD COLUMN gm_notes_to_tenant TEXT");
+} catch (e) {}
+
 // Seed data if empty
 const propertyCount = db.prepare("SELECT COUNT(*) as count FROM properties").get() as { count: number };
 if (propertyCount.count === 0) {
@@ -485,6 +501,13 @@ This Addendum is attached to and made part of the Residential Lease Agreement fo
   insertVendor.run("Sparky's Electrical", "Electrical", "Sarah Chen", "sarah@sparkys.com", "(510) 555-1234", "2026-06-15");
   insertVendor.run("Green Clean Oakland", "Cleaning", "Maria Garcia", "maria@greenclean.com", "(510) 555-4567", "2027-01-20");
   insertVendor.run("Ruby Security Systems", "Security", "David Kim", "david@rubysecurity.com", "(510) 555-7890", "2026-09-30");
+
+  // Seed Security Cameras
+  const insertCamera = db.prepare("INSERT INTO security_cameras (property_id, location, model, installation_date, status, notes) VALUES (?, ?, ?, ?, ?, ?)");
+  insertCamera.run(rubyId, "Main Entrance - Lobby", "Verkada CD52-E", "2025-01-15", "Operational", "Primary lobby camera. Covers entrance and mailboxes.");
+  insertCamera.run(rubyId, "Garage Gate (Exterior)", "Verkada CB62-TE", "2025-01-15", "Operational", "LPR (License Plate Recognition) active.");
+  insertCamera.run(rubyId, "Garage - Storage Area", "Verkada CD42", "2025-01-16", "Maintenance Required", "Lens needs cleaning. Image slightly blurry at night.");
+  insertCamera.run(rubyId, "Roof Deck - East", "Verkada CD52-E", "2025-02-10", "Offline", "Lost connection during recent storm. Need technician to check PoE wiring.");
 }
 
 async function startServer() {
@@ -984,6 +1007,23 @@ async function startServer() {
     res.json(user || { name: "Mezfin", role: "GM", email: "mezfin@example.com" });
   });
 
+  // Gemini API Proxy
+  app.post("/api/gemini/generate", async (req, res) => {
+    const { model, contents, config } = req.body;
+    try {
+      const aiClient = getAI();
+      const response = await aiClient.models.generateContent({
+        model: model || "gemini-2.0-flash", // Use user-requested model or default to 2.0 Flash
+        contents,
+        config
+      });
+      res.json(response);
+    } catch (error) {
+      console.error("Gemini API Error:", error);
+      res.status(500).json({ error: "Failed to generate content from Gemini" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -992,9 +1032,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.join(__dirname, "dist")));
+    app.use(express.static(path.join(process.cwd(), "dist")));
     app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
+      res.sendFile(path.join(process.cwd(), "dist", "index.html"));
     });
   }
 
